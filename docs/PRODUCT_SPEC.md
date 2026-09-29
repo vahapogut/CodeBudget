@@ -2,6 +2,8 @@
 
 Authoritative user input: the user's pasted development request and native Claude plugin delivery clarification. CODEBUDGET_MASTER_PROMPT.md is preserved as reference material. This English register preserves the requested scope. Implementation status and evidence belong in EXECUTION_PLAN.md. Every semicolon-separated obligation below is part of the identified requirement, not an optional example.
 
+**Superseding user decision, 2026-09-29:** CodeBudget must be free to use; offering it as a commercial product or service requires the owner's prior written permission. Starting with 0.1.0-beta.2, new first-party material uses the CodeBudget Free Use License 1.0. This supersedes R33's original Apache-only selection and excludes paid tiers/billing from R34's future scope. The original request below and master prompt are preserved as historical input. Prior Apache-2.0 grants and third-party licenses remain effective; see [license policy](../LICENSING.md).
+
 | ID | Requirement |
 |---|---|
 | R01 | Local-first offline core; minimize consumption per correctly completed task; distinguish bytes, tokens, API cost and subscription quota; Turkish user communication and quickstart, English code/docs. |

@@ -4,6 +4,10 @@ CodeBudget, kodlama ajanına gönderilen komut çıktısını ve kaynak bağlam�
 
 ## Kurulum ve ilk çalıştırma
 
+CodeBudget kullanımı tamamen ücretsizdir; şirket içi kullanım ve araçla ticari yazılım geliştirmek buna dahildir. CodeBudget'i satmak, ticari bir ürüne eklemek, yeniden markalayarak satmak veya ticari SaaS/API hizmeti olarak sunmak için **vahapogut'un önceden yazılı izni** gerekir. Ücretli paket veya lisans sunucusu yoktur; kullandığınız üçüncü taraf IDE/model hizmetlerinin ücretleri kendilerine aittir.
+
+Yeni lisans 0.1.0-beta.2 ile başlar. Daha önce Apache-2.0 altında yayımlanmış kodun hakları geri alınmaz; bu kodun ticari kullanımı eski lisans kapsamında mümkündür. Bağlayıcı İngilizce [lisans](../LICENSE) ve [geçiş açıklaması](../LICENSING.md) bu sınırları belirtir.
+
 `package.json` içinde tanımlanan Node.js sürümünü ve pnpm 10.33.2 kullanın. İlk doğrulama Windows üzerinde Node 22.16.0 ile yapılmıştır; diğer platformların gerçek test durumu `docs/VERIFICATION.md` dosyasındadır.
 
 ```sh

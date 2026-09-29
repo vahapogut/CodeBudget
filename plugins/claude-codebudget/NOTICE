@@ -1,8 +1,13 @@
 CodeBudget
 Copyright 2026 vahapogut and CodeBudget contributors.
 
-Licensed under the Apache License, Version 2.0.
-See LICENSE for the complete terms.
+Current first-party terms: CodeBudget Free Use License 1.0.
+Use is free; commercial offerings require prior written permission from vahapogut.
+See LICENSE for the complete terms and LICENSING.md for examples and history.
+
+CodeBudget 0.1.0-beta.1 and material published through commit
+61c53510e082e7830ccbe4b67b61e81cdf53c1ea retain their Apache-2.0 grants.
+See LEGACY_LICENSE. No prior license rights are revoked by this notice.
 
 Third-party dependencies retain their own copyrights and licenses.
 See THIRD_PARTY_NOTICES.md and the accompanying license inventory.

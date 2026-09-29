@@ -31,8 +31,10 @@ These items replace the previous open-ended local product-improvement list. Furt
 
 Local summaries and BYOK routing already have independent, default-off contracts, cancellation and budget checks. Their real model quality, retries and total cost need separately authorized evaluation before promotion. Closed IDE subscriptions and permission policies are not transparently replaced.
 
-## Separate future products
+## Free-product policy and future scope
 
-Managed team services, accounts, billing, multi-tenant cloud storage and a marketplace are outside local v1. They need a separate product decision, account/provider choices and operating constraints before implementation. No partially configured account or payment flow is included in this local release. An organization edition should start with minimal data collection, explicit retention/export boundaries, repository-scoped policies, self-hosting options and auditability.
+CodeBudget is free to use, including internally at companies. Paid tiers, subscription billing and license-key paywalls are not on the roadmap. Commercial redistribution, bundling or hosted offerings require the owner's prior written permission under the [license policy](LICENSING.md); previously published Apache material retains its existing rights.
+
+Optional team collaboration, accounts, multi-tenant cloud storage and a marketplace remain outside local v1. Any future proposal must preserve the free-product policy and define hosting resources, minimal data collection, retention/export boundaries, repository-scoped policies, self-hosting and auditability before implementation. No account or payment flow is included. External IDE/model services retain their own costs and terms.
 
 An npm registry release also requires a confirmed package name and ownership. GitHub source publication and local release archives do not imply npm publication.

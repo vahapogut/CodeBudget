@@ -4,6 +4,8 @@ Checkpoint: 2026-09-29. Status vocabulary: pending, in_progress, verified, block
 
 The local delivery is a beta native Claude plugin, offline CLI/core, context/MCP server, and secondary dashboard. Commands and limits are in [VERIFICATION.md](VERIFICATION.md); remaining actions are in [STATUS.md](STATUS.md).
 
+The 2026-09-29 user license decision supersedes the original Apache-only requirement for new material in beta.2: free use, prior written permission for commercial offerings, preserved legacy grants. Beta.2 passed frozen install, full verify (244 tests and 2 browser tests) and 24 installed-package checks locally; historical six-job CI evidence below remains tied to beta.1 commit 1948b6d until a new run is recorded.
+
 | Phase | State | Evidence |
 |---|---|---|
 | 0 Inspection and runtime probes | verified | Official-source research, SQLite/FTS5, actual WASM parsing, SDK stdio and frozen lockfile |
@@ -61,7 +63,7 @@ Paths are repository-relative. Test evidence comes from actual runs in VERIFICAT
 | R31 other platforms | verified | All six Node22/24 × Linux/macOS/Windows CI jobs passed: 244 tests, 2 browser tests and 16 installed-package checks each; hosted Claude CLI checks unavailable. See ci-results.json. |
 | R32 contracts | verified | Separate default-off flags, allowlist/BYOK authorization, request limits, cancellation/concurrency/budgets and no silent retry tested with mocks. |
 | R32 quality | deferred_experimental | Real summarizer/provider quality and cost unknown; no closed-IDE subscription routing claim. |
-| R33 | verified | pnpm verify, clean archive, required English docs, Turkish quickstart, Apache-2.0 and standalone notices. |
-| R34 | verified | ROADMAP separates SaaS/accounts/payments/marketplace; npm identity unresolved; author vahapogut; GitHub source push completed; npm publication remains separate. |
+| R33 | verified | Beta.2 passed pnpm verify and 24 clean archive checks; English docs, Turkish quickstart, free-use/commercial-permission license, preserved legacy Apache grants and exact standalone notice parity. |
+| R34 | verified | ROADMAP preserves free use and excludes paid tiers/billing; team/cloud/accounts/marketplace features remain separate. npm identity unresolved; author vahapogut; prior GitHub source push completed; npm publication remains separate. |
 
 After separate authorization, execute R22 against pinned Claude2.1.216 before broadening support or claiming user-facing acceptance. Paid benchmarks, additional clients, experimental model quality and npm publication remain separate gates. GitHub source push and its CI matrix are authorized.

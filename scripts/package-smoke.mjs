@@ -8,6 +8,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { packRelease } from './package.mjs';
 
+const sourceManifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const archive = await packRelease();
 const project = await mkdtemp(path.join(tmpdir(), 'codebudget-installed-'));
 const pnpm = process.env.npm_execpath;
@@ -23,6 +24,14 @@ try {
     const value = spawnSync(process.execPath, [cli, ...args], { cwd: project, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30000 });
     if (value.status !== 0) throw new Error(`CLI ${args[0]} failed: ${value.stderr} ${value.stdout}`); return value.stdout;
   };
+  const installedManifest = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8'));
+  const buildManifest = JSON.parse(await readFile(path.join(installed, 'dist/build-manifest.json'), 'utf8'));
+  check('installed release version and license metadata', () => {
+    assert.equal(installedManifest.version, sourceManifest.version);
+    assert.equal(buildManifest.version, sourceManifest.version);
+    assert.equal(run(['--version']).trim(), sourceManifest.version);
+    assert.equal(installedManifest.license, 'SEE LICENSE IN LICENSE');
+  });
   check('installed init observes by default', () => assert.equal(JSON.parse(run(['init'])).config.mode, 'observe'));
   await writeFile(path.join(project, 'rotate.ts'), 'export function rotateToken() { return "fresh"; }');
   check('installed offline WASM index', () => assert.ok(JSON.parse(run(['index'])).symbols >= 1));
@@ -54,7 +63,10 @@ try {
   try {
     await client.connect(transport);
     const tools = await client.listTools();
-    check('installed MCP stdio schema', () => assert.equal(tools.tools.length, 3));
+    check('installed MCP stdio schema', () => {
+      assert.equal(tools.tools.length, 3);
+      assert.equal(client.getServerVersion()?.version, sourceManifest.version);
+    });
     const response = await client.callTool({ name: 'prepare_context', arguments: { task: 'rotateToken', budget: 8000 } });
     check('installed MCP worker, WASM and protocol', () => { assert.ok(!response.isError, JSON.stringify(response)); assert.match(JSON.stringify(response), /rotateToken/); });
     check('installed offline cl100k tokenizer through MCP worker', () => {
@@ -79,8 +91,31 @@ try {
   check('installed dashboard reads actual SQLite report', () => assert.equal(report.status, 200));
   const body = await report.text(); assert.match(body, /rotateToken|runs/);
   const plugin = path.join(installed, 'plugins/claude-codebudget');
+  const pluginManifest = JSON.parse(await readFile(path.join(plugin, '.claude-plugin/plugin.json'), 'utf8'));
+  const distributionLicenseFiles = ['LICENSE', 'LEGACY_LICENSE', 'LICENSING.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md'];
+  const distributionLicenseContents = await Promise.all(distributionLicenseFiles.map(async file => ({
+    file,
+    source: await readFile(new URL(`../${file}`, import.meta.url), 'utf8'),
+    installed: await readFile(path.join(installed, file), 'utf8'),
+    plugin: await readFile(path.join(plugin, file), 'utf8'),
+  })));
+  check('installed license terms, legacy grant and standalone plugin parity', () => {
+    assert.equal(pluginManifest.version, sourceManifest.version);
+    assert.equal(pluginManifest.license, 'LicenseRef-CodeBudget-Free-Use-1.0');
+    for (const item of distributionLicenseContents) {
+      assert.ok(item.source.length > 0, item.file);
+      assert.equal(item.installed, item.source, `Installed root ${item.file}`);
+      assert.equal(item.plugin, item.source, `Standalone plugin ${item.file}`);
+    }
+    const current = distributionLicenseContents.find(item => item.file === 'LICENSE').installed;
+    const legacy = distributionLicenseContents.find(item => item.file === 'LEGACY_LICENSE').installed;
+    assert.match(current, /CodeBudget Free Use License/);
+    assert.match(legacy, /Apache License/);
+    assert.match(legacy, /Version 2\.0, January 2004/);
+    assert.match(legacy, /irrevocable\s+copyright license/);
+  });
   const licenseInventory = JSON.parse(await readFile(path.join(plugin, 'docs/dependency-licenses.json'), 'utf8'));
-  const licenseFiles = ['LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md', ...licenseInventory.entries.flatMap(entry => entry.notices)];
+  const licenseFiles = [...distributionLicenseFiles, ...licenseInventory.entries.flatMap(entry => entry.notices)];
   const licenseContents = await Promise.all(licenseFiles.map(file => readFile(path.join(plugin, file), 'utf8')));
   check('installed standalone plugin license inventory and texts', () => { assert.ok(licenseInventory.entries.length > 0); assert.ok(licenseContents.every(text => text.length > 0)); });
   const validated = spawnSync('claude', ['plugin', 'validate', '--strict', plugin], { encoding: 'utf8', shell: false, windowsHide: true, timeout: 20000 });

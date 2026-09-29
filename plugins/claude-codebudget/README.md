@@ -2,6 +2,8 @@
 
 Native beta plugin with a small skill, three bounded MCP tools, and a PostToolUse Bash output filter. The build places local runtime bundles in `dist/`; no API key is required by CodeBudget. Run the repository's build before loading this directory.
 
+Free for personal and internal business use under the [CodeBudget Free Use License 1.0](LICENSE). Commercial products, commercial bundles, rebranded sales and commercial hosted offerings require prior written permission from vahapogut. Prior Apache-2.0 grants and third-party licenses remain intact. See [licensing examples and history](LICENSING.md); the standalone plugin includes all applicable notices.
+
 ```sh
 codebudget init
 claude --plugin-dir /absolute/path/to/plugins/claude-codebudget

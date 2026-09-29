@@ -1,11 +1,15 @@
 {
   "schemaVersion": 1,
-  "archive": "codebudget-0.1.0-beta.1.tgz",
+  "archive": "codebudget-0.1.0-beta.2.tgz",
   "platform": "win32",
   "runtime": "v22.16.0",
   "results": [
     {
       "name": "clean tarball install without native build scripts",
+      "passed": true
+    },
+    {
+      "name": "installed release version and license metadata",
       "passed": true
     },
     {
@@ -62,6 +66,10 @@
     },
     {
       "name": "installed dashboard reads actual SQLite report",
+      "passed": true
+    },
+    {
+      "name": "installed license terms, legacy grant and standalone plugin parity",
       "passed": true
     },
     {

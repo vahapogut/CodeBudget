@@ -37220,7 +37220,7 @@ function indexOperation(root, dataDir, method, args, signal) {
 async function createMcpServer(root, options = {}) {
   const store = new Store(root, loadConfig(root));
   if (options.sessionId) store.assertSession(options.sessionId);
-  const server = new McpServer({ name: "codebudget", version: "0.1.0-beta.1" });
+  const server = new McpServer({ name: "codebudget", version: "0.1.0-beta.2" });
   const sourceScopes = /* @__PURE__ */ new Map();
   let busy = false;
   const result = (value) => {

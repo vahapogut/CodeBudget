@@ -13,7 +13,7 @@ import { replayBenchmark, createTaskBenchmarkPlan, replayCases, capturedReplayCa
 import { importUsageIntoStore } from '../../../packages/core/src/usage.js';
 import { readStdin, runHook, detectVersion } from './hook.js';
 
-const program = new Command().name('codebudget').description('Local evidence, output reduction and task context. No provider calls required.').version('0.1.0-beta.1').enablePositionalOptions()
+const program = new Command().name('codebudget').description('Local evidence, output reduction and task context. No provider calls required.').version('0.1.0-beta.2').enablePositionalOptions()
   .option('--root <path>', 'authorized repository root (default current directory)', process.cwd());
 const root = () => resolve(program.opts<{ root: string }>().root);
 const output = (value: unknown): void => { process.stdout.write(JSON.stringify(sanitize(value), null, 2) + '\n'); };

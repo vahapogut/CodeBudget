@@ -6,7 +6,7 @@ CodeBudget measures output reduction separately from task completion, provider u
 
 Run `pnpm dev benchmark replay` or, after building, `node dist/cli.js benchmark replay`. The CLI defaults to `--corpus all`, showing synthetic and actual captured datasets separately. Use `--corpus captured` or `--corpus synthetic` to select one. A mixed-corpus report deliberately has no blended reduction percentage. The programmatic `replayBenchmark()` default remains the synthetic corpus for compatibility. Regenerate the synthetic repository evidence with `pnpm exec tsx packages/benchmarks/scripts/record-replay.ts`.
 
-The ten original synthetic cases cover Vitest, Jest, TypeScript, ESLint, Git status/diff, search, JSON, exact repeated logs, and an unknown format. Version labels identify the grammar represented; they do not mean the named tool was run to capture that text. The fixtures and pilot tasks are Apache-2.0 licensed with this repository.
+The ten original synthetic cases cover Vitest, Jest, TypeScript, ESLint, Git status/diff, search, JSON, exact repeated logs, and an unknown format. Version labels identify the grammar represented; they do not mean the named tool was run to capture that text. The original fixtures and pilot tasks retain their Apache-2.0 license independently of the current application license; see [legacy license](../LEGACY_LICENSE) and [license policy](../LICENSING.md).
 
 The latest CLI replay evidence is [replay-final.json](replay-final.json). Its two corpora remain separate:
 

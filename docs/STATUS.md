@@ -1,6 +1,6 @@
 # Status
 
-Checkpoint: 2026-09-29. Local beta 0.1.0-beta.1 is implemented, verified, packaged and pushed to GitHub. Primary delivery is the native Claude plugin, offline CLI/core and three MCP tools; the dashboard is a local companion. Real Claude model-visible acceptance remains **unverified**.
+Checkpoint: 2026-09-29. Local beta 0.1.0-beta.2 is implemented, locally verified and packaged with the free-use/commercial-permission license policy. The previously verified and pushed beta.1 is the Apache-2.0 legacy boundary; beta.2 verification is recorded separately below. Primary delivery is the native Claude plugin, offline CLI/core and three MCP tools; the dashboard is a local companion. Real Claude model-visible acceptance remains **unverified**.
 
 ## Delivered
 
@@ -12,9 +12,13 @@ Checkpoint: 2026-09-29. Local beta 0.1.0-beta.1 is implemented, verified, packag
 - Usage imports with missing-field coverage, cumulative-series diagnostics, unknown unique subagent identity and safe overflow handling.
 - Neutral dashboard with search, result filters, race-safe evidence inspection, saved light/dark theme and mobile layout. README includes both themes and a shorter quickstart.
 - Thirty-task evaluator/experiment harness; experimental model transports remain default-off and locally mock-tested.
-- Apache-2.0, 107 runtime dependency license records/texts, standalone plugin notices, English docs and Turkish quickstart.
+- CodeBudget Free Use License 1.0 for new first-party material: free personal/internal business use, commercial offerings require prior written permission from vahapogut. Prior Apache-2.0 grants remain intact. All 107 dependency license records/texts, standalone plugin notices, English docs and Turkish quickstart are preserved.
 
 ## Executed verification
+
+Beta.2 follow-up: `pnpm install --frozen-lockfile`, `pnpm verify` (244 tests in 14 files, 2 Chromium tests, lint/types/build) and `pnpm smoke:package` (24 installed checks) passed on Windows Node22.16.0. The package checks validate version metadata, exact root/plugin license document parity and the preserved Apache license. `git diff --check` passed. The new remote CI run is not yet recorded; the six-platform-job result below is historical beta.1 evidence.
+
+Earlier beta.1 records:
 
 - pnpm verify: **244 tests in 14 Vitest files, 2 Chromium browser tests**, lint/typecheck/build all passed after portability fixes.
 - pnpm install --frozen-lockfile: all nine workspace projects passed.
@@ -37,6 +41,6 @@ No model request, global IDE change, account connection, npm publication or depl
 1. Execute an explicitly authorized real Claude model session for R22: actual model-facing replacement, retained diagnostics and evidence retrieval. Local protocol fixtures do not satisfy it.
 2. Supply a faithful runner and explicit budget before real task/model-quality experiments. The 270-run plan is not executed evidence.
 3. Verify other real clients/versions independently. Claude's attempted no-model health probe remains inconclusive; Cursor/Antigravity clients were not run.
-4. Resolve npm package identity before npm publication. SaaS, accounts, billing, multi-tenant storage and marketplace remain separate future product decisions, outside local v1.
+4. Resolve npm package identity before npm publication. Team/cloud/accounts/marketplace features remain separate future decisions outside local v1, subject to the free-product policy. Paid tiers, billing and license-key paywalls are excluded from the roadmap.
 
 The local roadmap improvements and the cross-platform distribution gate are complete. [Execution plan](EXECUTION_PLAN.md) maps every requirement; [roadmap](../ROADMAP.md) separates completed work from external evidence and future products.

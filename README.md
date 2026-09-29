@@ -5,7 +5,7 @@
 CodeBudget is a local Claude Code plugin and CLI. It keeps noisy command output in a retrievable evidence archive, preserves useful diagnostics, and builds task-focused context from your actual source files. CodeBudget stores project configuration and evidence locally. No CodeBudget account or API key is required.
 
 [![Verification](https://github.com/vahapogut/CodeBudget/actions/workflows/ci.yml/badge.svg)](https://github.com/vahapogut/CodeBudget/actions/workflows/ci.yml)
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-586069.svg)](LICENSE)
+[![License: Free Use](https://img.shields.io/badge/license-Free_Use-586069.svg)](LICENSE)
 [![Local beta](https://img.shields.io/badge/status-local_beta-586069.svg)](docs/STATUS.md)
 
 [Quickstart](docs/QUICKSTART.md) · [Türkçe başlangıç](docs/QUICKSTART.tr.md) · [Claude plugin](plugins/claude-codebudget/README.md) · [Compatibility](docs/ADAPTERS.md) · [Roadmap](ROADMAP.md)
@@ -34,6 +34,8 @@ The dashboard reads your local SQLite database and remembers your light/dark pre
 The default mode is **observe**. Switch to **balanced** to enable validated reductions. Redaction is separate from optimization. Commands retain executable/argv boundaries and run once; CodeBudget does not rewrite shell commands or grant permissions.
 
 ## Get started
+
+**Free to use, including inside a company.** Offering CodeBudget or a modified version as a commercial product, paid bundle or commercial hosted service requires prior written permission from **vahapogut**. There is no paid CodeBudget tier. These are custom source-available terms; previously published Apache-2.0 material retains its original rights. See the [license policy and examples](LICENSING.md).
 
 Requires **Node.js 22.16+ on the 22 line, or Node.js 24**, and **pnpm 10.33.2**. Installation needs network access; core workflows use packaged local assets afterward.
 
@@ -136,7 +138,8 @@ The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do no
 | [Benchmark methodology](docs/BENCHMARKS.md) | Replays, task evaluations and valid claims |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common setup and runtime issues |
 | [Contributing](CONTRIBUTING.md) | Local development and review expectations |
+| [License policy](LICENSING.md) | Free use, commercial permission and prior Apache rights |
 | [Execution plan](docs/EXECUTION_PLAN.md) | Requirement-by-requirement evidence |
 | [Roadmap](ROADMAP.md) | Completed local work and remaining external gates |
 
-Created by [vahapogut](https://github.com/vahapogut). Licensed under [Apache-2.0](LICENSE). Bundled dependencies retain their [original licenses](THIRD_PARTY_NOTICES.md).
+Created by [vahapogut](https://github.com/vahapogut). Current terms: [CodeBudget Free Use License 1.0](LICENSE). Commercial offerings require written permission. [Prior Apache-2.0 grants](LICENSING.md#prior-apache-20-releases-remain-usable) and dependencies' [original licenses](THIRD_PARTY_NOTICES.md) remain in effect.

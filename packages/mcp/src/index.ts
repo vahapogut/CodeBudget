@@ -9,7 +9,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 export async function createMcpServer(root: string, options: { sessionId?: string; timeoutMs?: number } = {}) {
   const store = new Store(root, loadConfig(root));
   if (options.sessionId) store.assertSession(options.sessionId);
-  const server = new McpServer({ name: 'codebudget', version: '0.1.0-beta.1' });
+  const server = new McpServer({ name: 'codebudget', version: '0.1.0-beta.2' });
   const sourceScopes = new Map<string, string | undefined>();
   let busy = false;
   const result = (value: unknown): CallToolResult => {

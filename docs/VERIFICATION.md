@@ -1,6 +1,23 @@
 # Verification record
 
-Date: 2026-09-29. Product: 0.1.0-beta.1. Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+Date: 2026-09-29. Current product: 0.1.0-beta.2. Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+
+## Free-use license follow-up: beta.2
+
+The owner requested free use and prior written permission for commercial products. New first-party material uses CodeBudget Free Use License 1.0; personal/internal business use remains free. Prior Apache grants, explicitly licensed fixtures and all third-party licenses are preserved. `LEGACY_LICENSE` and the former published root license have the same Git blob hash, `d645695673349e3947e8e5ae42332d0ac3164cd7`. This is packaging/policy verification, not a legal enforceability opinion; [LICENSING.md](../LICENSING.md) records the scope and history.
+
+Actual Windows Node22.16.0 / pnpm10.33.2 results:
+
+- `pnpm install --frozen-lockfile`: all nine workspace projects passed.
+- `pnpm verify`: lint, strict typecheck, 14 Vitest files / **244 tests**, production build and **2 Chromium tests** passed.
+- `pnpm smoke:package`: **24 installed-package checks** passed, including current/legacy license text parity at root and in the standalone plugin, manifest/build/CLI/MCP version consistency and strict Claude2.1.216 plugin validation.
+- `git diff --check`: passed. No third-party license texts or inventories changed.
+
+The installed archive is `dist/codebudget-0.1.0-beta.2.tgz`; [package evidence](package-smoke-result.json) records this run. No model call, global setting change, account link or npm publication was performed. Actual Codex/Claude model-client acceptance was not rerun for this license-only follow-up. Remote beta.2 CI is not yet recorded here; the six successful jobs below belong to the beta.1 code checkpoint.
+
+## Historical beta.1 verification
+
+The following sections retain the previously executed 0.1.0-beta.1 evidence and its boundaries.
 
 ## Roadmap completion follow-up
 

@@ -10,12 +10,12 @@ export async function packRelease() {
   const staging = await mkdtemp(path.join(tmpdir(), 'codebudget-package-'));
   try {
     for (const name of ['dist', 'plugins', 'docs', 'examples']) await cp(path.join(root, name), path.join(staging, name), { recursive: true, filter: source => !source.endsWith('.tgz') });
-    for (const name of ['README.md', 'LICENSE', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'SECURITY.md', 'PRIVACY.md', 'CONTRIBUTING.md', 'ROADMAP.md']) await copyFile(path.join(root, name), path.join(staging, name));
+    for (const name of ['README.md', 'LICENSE', 'LEGACY_LICENSE', 'LICENSING.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'SECURITY.md', 'PRIVACY.md', 'CONTRIBUTING.md', 'ROADMAP.md']) await copyFile(path.join(root, name), path.join(staging, name));
     await writeFile(path.join(staging, 'package.json'), JSON.stringify({
       name: manifest.name, version: manifest.version, description: manifest.description, type: 'module', license: manifest.license,
       author: 'vahapogut', repository: manifest.repository, engines: manifest.engines, bin: manifest.bin,
       exports: { './core': './dist/core.mjs', './benchmarks': './dist/benchmarks.mjs' },
-      files: ['dist', 'plugins', 'docs', 'examples', '*.md', 'LICENSE', 'NOTICE'],
+      files: ['dist', 'plugins', 'docs', 'examples', '*.md', 'LICENSE', 'LEGACY_LICENSE', 'NOTICE'],
       dependencies: { typescript: manifest.devDependencies.typescript },
     }, null, 2) + '\n');
     await mkdir(path.join(root, 'dist'), { recursive: true });
