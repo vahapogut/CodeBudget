@@ -15,7 +15,7 @@ node dist/cli.js run -- node -e "console.log('CodeBudget denemesi')"
 node dist/cli.js report --format json
 ```
 
-Başka projede kullanmak için `node /tam/yol/codebudget/dist/cli.js --root /tam/yol/proje init` çalıştırın. `.codebudget.json` proje ayarıdır; `.codebudget/` yerel veriyi saklar ve Git dışında tutulur. Global IDE ayarı değiştirilmez. Genel npm paket adının kullanılabilirliği doğrulanmadığından yayımlanmış bir paket varsaymayın; yerel derlemeyi veya `pnpm pack:release` arşivini kullanın. Düz `pnpm pack`, dağıtım için kullanılan paketleme akışı değildir.
+Örneklerdeki `node dist/cli.js` komutları CodeBudget klasöründen çalıştırılır. Başka bir projede kullanmak için her komutta `node /tam/yol/codebudget/dist/cli.js --root /tam/yol/proje <komut>` biçimini kullanın; ilk komut `init` olmalıdır. `.codebudget.json` proje ayarıdır; `.codebudget/` yerel veriyi saklar ve Git dışında tutulur. Global IDE ayarı değiştirilmez. Genel npm paket adının kullanılabilirliği doğrulanmadığından yayımlanmış bir paket varsaymayın; yerel derlemeyi veya `pnpm pack:release` arşivini kullanın. Düz `pnpm pack`, dağıtım için kullanılan paketleme akışı değildir.
 
 Varsayılan `observe` modunda anlamsal azaltım uygulanmaz. Hassas bilgi maskeleme ayrı güvenlik işlemidir. Azaltımı açıkça etkinleştirmek için:
 
@@ -38,8 +38,9 @@ Hook sözleşmesi Claude Code 2.1.216 için test edilmiştir. Gerçek model otur
 
 ```sh
 node dist/cli.js index
-node dist/cli.js context --task "Refresh token yeniden kullanım hatasını düzelt" --budget 8000
 node dist/cli.js session start --task "Refresh token düzeltmesi"
+# <id> yerine dönen oturum kimliğini yazın.
+node dist/cli.js context --task "Refresh token yeniden kullanım hatasını düzelt" --budget 8000 --session <id>
 node dist/cli.js session checkpoint --session <id>
 node dist/cli.js artifact read <id> --offset 0 --limit 200
 node dist/cli.js dashboard

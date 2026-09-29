@@ -2,7 +2,7 @@
 
 **Give coding agents the evidence they need, within a budget you control.**
 
-CodeBudget is a local Claude Code plugin and CLI. It keeps noisy command output in a searchable evidence archive, preserves useful diagnostics, and builds task-focused context from your actual source files. Your project, configuration and history stay on your machine. No CodeBudget account or API key is required.
+CodeBudget is a local Claude Code plugin and CLI. It keeps noisy command output in a retrievable evidence archive, preserves useful diagnostics, and builds task-focused context from your actual source files. CodeBudget stores project configuration and evidence locally. No CodeBudget account or API key is required.
 
 [![Verification](https://github.com/vahapogut/CodeBudget/actions/workflows/ci.yml/badge.svg)](https://github.com/vahapogut/CodeBudget/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache_2.0-586069.svg)](LICENSE)

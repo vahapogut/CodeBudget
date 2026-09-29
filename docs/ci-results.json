@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "recordedAt": "2026-09-29T19:28:31.067Z",
+  "recordedAt": "2026-09-29T19:36:53.542Z",
   "initialRun": {
     "id": 36618600353,
     "commit": "507f96fddd657eceb9f5933ec6ef8bd1641a1ff5",
@@ -59,5 +59,109 @@
     ]
   },
   "initialDiagnosis": "macOS canonical /var aliases and Windows 8.3 names caused boundary/test path mismatches; both Linux jobs passed. Fix preserves descendant link and outside-root rejection.",
-  "finalRun": null
+  "finalRun": {
+    "id": 36619601746,
+    "commit": "1948b6d82338454da7ad24423859f38c11b57680",
+    "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 109581319748,
+        "name": "verify (windows-latest, 22)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581319748",
+        "startedAt": "2026-09-29T19:29:29Z",
+        "completedAt": "2026-09-29T19:35:06Z",
+        "runtime": "v22.23.3",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      },
+      {
+        "id": 109581320018,
+        "name": "verify (ubuntu-latest, 24)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581320018",
+        "startedAt": "2026-09-29T19:29:30Z",
+        "completedAt": "2026-09-29T19:30:56Z",
+        "runtime": "v24.21.0",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      },
+      {
+        "id": 109581320074,
+        "name": "verify (macos-latest, 22)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581320074",
+        "startedAt": "2026-09-29T19:29:33Z",
+        "completedAt": "2026-09-29T19:30:35Z",
+        "runtime": "v22.23.2",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      },
+      {
+        "id": 109581320092,
+        "name": "verify (macos-latest, 24)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581320092",
+        "startedAt": "2026-09-29T19:29:34Z",
+        "completedAt": "2026-09-29T19:30:57Z",
+        "runtime": "v24.20.0",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      },
+      {
+        "id": 109581320169,
+        "name": "verify (windows-latest, 24)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581320169",
+        "startedAt": "2026-09-29T19:29:29Z",
+        "completedAt": "2026-09-29T19:33:43Z",
+        "runtime": "v24.21.0",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      },
+      {
+        "id": 109581321102,
+        "name": "verify (ubuntu-latest, 22)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36619601746/job/109581321102",
+        "startedAt": "2026-09-29T19:29:29Z",
+        "completedAt": "2026-09-29T19:30:48Z",
+        "runtime": "v22.23.2",
+        "tests": 244,
+        "browserTests": 2,
+        "installedPackageChecks": 16,
+        "unavailableChecks": [
+          "installed native Claude manifest validation"
+        ],
+        "modelCalls": 0
+      }
+    ]
+  }
 }

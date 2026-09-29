@@ -18,6 +18,7 @@ For the following examples, `codebudget` means the locally installed CLI or `nod
 ```sh
 codebudget --root /absolute/path/to/project init
 codebudget --root /absolute/path/to/project doctor
+cd /absolute/path/to/project
 ```
 
 Configuration lives in `.codebudget.json`. Local data defaults to `.codebudget/`, which `init` adds to `.gitignore`. Never commit the data directory. The default mode is `observe`; masking still applies because security redaction is separate from optimization.
@@ -48,7 +49,8 @@ Unknown formats, non-beneficial transformations and failed preservation checks r
 ```sh
 codebudget index
 codebudget session start --task "Fix refresh token rotation"
-codebudget context --task "Fix refresh token rotation" --budget 8000
+# Replace <id> below with the returned session ID.
+codebudget context --task "Fix refresh token rotation" --budget 8000 --session <id>
 codebudget session checkpoint --session <id>
 codebudget report --session <id>
 codebudget session close --session <id>

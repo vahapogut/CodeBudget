@@ -18,7 +18,7 @@ The local delivery is a beta native Claude plugin, offline CLI/core, context/MCP
 | 7 Experimental contracts | verified | Default-off flags, isolated mock transports and budget/cancellation tests |
 | 7 Model quality | deferred_experimental | Real summarizer/provider quality untested |
 | 8 Local hardening/package | verified | Full verify, clean archive install, audit, licenses and documentation |
-| 8 Other platforms/publication | in_progress | GitHub push and CI authorized; results will be recorded after the matrix runs |
+| 8 Other platforms/source publication | verified | GitHub main pushed; all six Linux/macOS/Windows × Node22/24 jobs passed on 1948b6d; npm publication remains separate |
 
 ## Requirement evidence
 
@@ -58,10 +58,10 @@ Paths are repository-relative. Test evidence comes from actual runs in VERIFICAT
 | R29 real experiment | blocked_external | No model runner used; 270 planned runs are not executed runs. Real consumption per success unknown. |
 | R30 | verified | Core/indexer/MCP/adapter security and fault tests; parameterized transactional SQLite, FKs, busy/concurrent connections, corrupt-file preservation and safe paths. |
 | R31 local | verified | Locked dependencies, zero known advisories, 107 license records/texts and clean Windows CLI/MCP/dashboard/plugin/WASM smoke. |
-| R31 other platforms | blocked_external | Node22/24 x Linux/macOS/Windows CI prepared; only local Windows Node22.16.0 run. |
+| R31 other platforms | verified | All six Node22/24 × Linux/macOS/Windows CI jobs passed: 244 tests, 2 browser tests and 16 installed-package checks each; hosted Claude CLI checks unavailable. See ci-results.json. |
 | R32 contracts | verified | Separate default-off flags, allowlist/BYOK authorization, request limits, cancellation/concurrency/budgets and no silent retry tested with mocks. |
 | R32 quality | deferred_experimental | Real summarizer/provider quality and cost unknown; no closed-IDE subscription routing claim. |
 | R33 | verified | pnpm verify, clean archive, required English docs, Turkish quickstart, Apache-2.0 and standalone notices. |
-| R34 | verified | ROADMAP separates SaaS/accounts/payments/marketplace; npm identity unresolved; author vahapogut; GitHub source push authorized, npm publication remains separate. |
+| R34 | verified | ROADMAP separates SaaS/accounts/payments/marketplace; npm identity unresolved; author vahapogut; GitHub source push completed; npm publication remains separate. |
 
 After separate authorization, execute R22 against pinned Claude2.1.216 before broadening support or claiming user-facing acceptance. Paid benchmarks, additional clients, experimental model quality and npm publication remain separate gates. GitHub source push and its CI matrix are authorized.

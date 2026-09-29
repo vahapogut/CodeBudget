@@ -39,7 +39,7 @@ The first test run exposed null-prototype TOML equality differences; structural 
 
 ## Unverified behavior
 
-Real Claude model-visible output substitution, real client MCP connection acceptance, macOS/Linux installation behavior, current Cursor/Antigravity local versions, and measured provider/quota savings have not been verified by this adapter work. The implementation keeps these distinct from contract-tested code paths. The supported-version list is deliberately exact; a new version requires fixtures and separate client verification before broader claims.
+Real Claude model-visible output substitution, actual Claude/Cursor/Antigravity MCP connections, current Cursor/Antigravity local versions, and measured provider/quota savings remain unverified. The later isolated Codex0.139.0 handshake and six-job installed-package matrix passed; their exact scope is recorded in VERIFICATION.md. The implementation keeps these distinct from contract-tested code paths. The supported-version list is deliberately exact; a new version requires fixtures and separate client verification before broader claims.
 
 ## Usage and lifecycle roadmap follow-up
 

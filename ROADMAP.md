@@ -22,8 +22,8 @@ These items replace the previous open-ended local product-improvement list. Furt
 | Gate | Completion criterion | Current boundary |
 | --- | --- | --- |
 | Real Claude model-visible acceptance | A supported noisy command reaches an actual model with smaller output, preserved diagnostics and retrievable evidence | Requires a separately authorized model call; local hook fixtures are insufficient |
-| Real client MCP connection | Launch the pinned client, connect to CodeBudget and discover its tools; record client/version and limitations | Config contracts and SDK tests are separate from client acceptance; see verification for executed client probes |
-| Cross-platform distribution | Pass the installed archive, WASM, worker and browser checks on Node 22/24 across Linux, macOS and Windows | The GitHub Actions matrix records each actual job independently |
+| Real client MCP connection | Launch the pinned client, connect to CodeBudget and discover its tools; record client/version and limitations | Codex0.139.0 handshake passed; Claude health isolation was not established, and Cursor/Antigravity remain unverified |
+| Cross-platform distribution | Pass the installed archive, WASM, worker and browser checks on Node 22/24 across Linux, macOS and Windows | Completed: all six jobs passed on 1948b6d; actual runtimes and unavailable Claude CLI checks are recorded in verification |
 | Thirty-task pilot | Run randomized repeated native, optimized and CodeBudget conditions with faithful baselines, usage coverage and hidden evaluators | 270 planned runs are not completed runs; a model runner and explicit spending budget are required |
 | Human review | Review the tasks requiring judgment and assess broader behavior equivalence | Automated evaluator passes do not establish universal quality |
 

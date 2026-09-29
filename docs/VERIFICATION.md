@@ -12,9 +12,20 @@ The actual installed Codex0.139.0 app-server also connected to CodeBudget and di
 
 ## Cross-platform CI
 
-The authorized initial push507f96f ran [all six OS/Node jobs](https://github.com/vahapogut/CodeBudget/actions/runs/36618600353). Both Ubuntu jobs passed the full verification and installed-package checks. Both macOS jobs exposed a real path-alias issue: canonical /private/var roots were compared with lexical /var targets. Both Windows jobs exposed adapter-test expectations comparing 8.3 temporary paths with canonical names. The first run is retained in [ci-results.json](ci-results.json), including failures.
+The authorized initial push 507f96f ran [all six OS/Node jobs](https://github.com/vahapogut/CodeBudget/actions/runs/36618600353). Both Ubuntu jobs passed the full verification and installed-package checks. Both macOS jobs exposed a real path-alias issue: canonical /private/var roots were compared with lexical /var targets. Both Windows jobs exposed adapter-test expectations comparing 8.3 temporary paths with canonical names. The first run is retained in [ci-results.json](ci-results.json), including failures.
 
-The fix resolves only a verified repository-root alias, then checks every descendant for links. It continues rejecting outside paths, linked descendants, self-links and dangling links. Indexer data-directory resolution uses the same boundary, and adapter tests compare canonical roots. New regression tests cover these cases. The corrected local pnpm verify passed all244 tests in14 files,2 browser tests, lint/types/build; the22-check clean package install and actual Codex handshake also passed again. The corrected CI run will be recorded after completion.
+The fix resolves only a verified repository-root alias, then checks every descendant for links. It continues rejecting outside paths, linked descendants, self-links and dangling links. Indexer data-directory resolution uses the same boundary, and adapter tests compare canonical roots. New regression tests cover these cases. The corrected local pnpm verify passed all 244 tests in 14 files, 2 browser tests, lint/types/build; the 22-check clean package install and actual Codex handshake also passed again. [The corrected CI run](https://github.com/vahapogut/CodeBudget/actions/runs/36619601746) passed **all six jobs** on code commit 1948b6d. The table below comes from actual job logs, including each runtime.
+
+| Runner | Actual Node runtime | Unit/integration tests | Browser tests | Installed-package checks |
+| --- | --- | ---: | ---: | ---: |
+| windows-latest, 22 | v22.23.3 | 244 | 2 | 16 |
+| ubuntu-latest, 24 | v24.21.0 | 244 | 2 | 16 |
+| macos-latest, 22 | v22.23.2 | 244 | 2 | 16 |
+| macos-latest, 24 | v24.20.0 | 244 | 2 | 16 |
+| windows-latest, 24 | v24.21.0 | 244 | 2 | 16 |
+| ubuntu-latest, 22 | v22.23.2 | 244 | 2 | 16 |
+
+Each job also passed lint, typecheck, production build and archive installation. Claude CLI is absent on the hosted runners: its strict manifest check is explicitly unavailable and the five dependent native-client process checks are skipped there. All 22 installed-package checks, including those six Claude-dependent checks, passed separately on the local Windows Node22.16.0 host with Claude2.1.216. The CI result does not claim a real Claude model session.
 
 The optional [Claude no-model health probe](CLAUDE_CLIENT_PROBE.md) did not establish the requested configuration isolation and was stopped. It does not count as a successful client connection. No prompt or model request was submitted.
 
@@ -48,7 +59,7 @@ The redesign passed pnpm verify (201 unit/integration tests, lint/typecheck/buil
 
 Tests include injected failures, reducer preservation, real task evaluators, protocol and browser flows. Temporary roots and local/mock transports are used; a real model is never connected by these checks.
 
-The final review added regressions for exact CLI context serialization, complete MCP dashboard records and validated persisted task constraints/acceptance criteria. A focused parallel run initially hit two process-startup timeouts; sequential focused checks then passed, and the final unmodified four-worker pnpm verify passed all201 tests. Timeout thresholds were not increased. If startup timeouts recur on a loaded machine, retain the failure evidence and investigate contention rather than suppressing them.
+An earlier review added regressions for exact CLI context serialization, complete MCP dashboard records and validated persisted task constraints/acceptance criteria. A focused parallel run initially hit two process-startup timeouts; sequential focused checks then passed, and the then-current unmodified four-worker pnpm verify passed all 201 tests. Timeout thresholds were not increased. If startup timeouts recur on a loaded machine, retain the failure evidence and investigate contention rather than suppressing them.
 
 ## Installed-package evidence
 
@@ -92,7 +103,7 @@ Unknown native hook versions decline semantic replacement. MCP does not intercep
 
 - R22 blocked_external: model invocation needs separate explicit authorization in the user's request. Manifest/process tests do not satisfy that gate.
 - No paid task benchmark, billing/quota experiment or real experimental summarizer/BYOK quality test.
-- First CI run: Ubuntu22/24 passed; macOS/Windows path mismatches are being corrected and reverified. See the cross-platform section and exact run evidence.
+- The six-job OS/Node matrix passed on commit 1948b6d. Hosted runners lack Claude CLI; native-client process checks remain limited to the separate local Windows run.
 - SQLite API is experimental on this runtime. Quotas limit main pages; active WAL transactions may transiently use additional disk. Prune excludes source files.
 - Redaction is imperfect defense in depth. Explicit run --raw forwards original unmasked machine bytes while archives stay masked. Unsupported native responses are not a universal secret filter.
 - Context ranking is syntactic/heuristic, not complete type/call resolution. Explicit local BPE counts cover only the controlled text; default estimates and hidden provider overhead are not exact provider counts. Unsaved editor buffers are invisible.
