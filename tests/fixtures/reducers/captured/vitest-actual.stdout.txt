@@ -1,0 +1,24 @@
+
+ RUN  v5.0.2 <fixture>
+
+ × failure.test.ts > rejects reused refresh token 7ms
+   → expected 200 to be 401 // Object.is equality
+ ↓ failure.test.ts > keeps skipped count
+ □ failure.test.ts > keeps todo count
+ ✓ success-0.test.ts > successful case 0 1ms
+ ✓ success-1.test.ts > successful case 1 1ms
+ ✓ success-2.test.ts > successful case 2 1ms
+ ✓ success-3.test.ts > successful case 3 1ms
+ ✓ success-4.test.ts > successful case 4 1ms
+ ✓ success-5.test.ts > successful case 5 1ms
+ ✓ success-6.test.ts > successful case 6 1ms
+ ✓ success-7.test.ts > successful case 7 1ms
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 8 passed | 1 skipped | 1 todo (11)
+   Start at  22:04:57
+   Duration  1.84s (worker 45%, transform 29%, import 17%, tests 8%)
+
+    Isolate  9 workers spawned · ~164ms startup each (spawn + environment, per file)
+             at least ~1.31s faster with isolate: false — reuses workers across files instead of one per file
+

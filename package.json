@@ -1,0 +1,67 @@
+{
+  "name": "codebudget",
+  "version": "0.1.0-beta.1",
+  "description": "Local-first evidence and context budgets for coding agents",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "vahapogut",
+  "repository": "https://github.com/vahapogut/CodeBudget.git",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22.16.0 <23 || >=24 <25"
+  },
+  "bin": {
+    "codebudget": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "plugins",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "dev": "tsx apps/cli/src/index.ts",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint apps packages scripts tests --no-error-on-unmatched-pattern",
+    "build": "node scripts/build.mjs",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm test:e2e",
+    "benchmark": "tsx apps/cli/src/index.ts benchmark replay",
+    "smoke:package": "node scripts/package-smoke.mjs",
+    "smoke:clients": "node scripts/smoke-clients.mjs",
+    "pack:release": "node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "commander": "15.0.0",
+    "ignore": "7.0.10",
+    "js-tiktoken": "1.0.21",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "smol-toml": "1.9.0",
+    "tree-sitter-javascript": "0.25.0",
+    "tree-sitter-typescript": "0.23.2",
+    "web-tree-sitter": "0.27.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.19.15",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.2",
+    "jest": "30.5.2",
+    "tsup": "8.5.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}

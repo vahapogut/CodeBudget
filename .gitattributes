@@ -1,0 +1,7 @@
+* text=auto eol=lf
+# Preserve captured evidence bytes and upstream license texts across platforms.
+tests/fixtures/reducers/** -text
+docs/third-party-licenses/** -text
+plugins/claude-codebudget/docs/third-party-licenses/** -text
+CODEBUDGET_MASTER_PROMPT.md -text
+*.wasm binary

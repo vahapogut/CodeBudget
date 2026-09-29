@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-29T19:18:14.815Z",
+  "platform": "win32",
+  "nodeVersion": "v22.16.0",
+  "client": "codex",
+  "clientVersion": "codex-cli 0.139.0",
+  "status": "passed",
+  "modelCalls": 0,
+  "threadsStarted": 0,
+  "turnsStarted": 0,
+  "accountAccess": false,
+  "globalConfigurationChanges": false,
+  "isolatedClientHome": true,
+  "outboundMethods": [
+    "initialize",
+    "initialized",
+    "mcpServerStatus/list"
+  ],
+  "checks": [
+    {
+      "name": "built CLI installs owned project-local Codex registration",
+      "passed": true
+    },
+    {
+      "name": "actual Codex app-server initializes CodeBudget MCP and discovers all three tool schemas",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "MCP inventory handshake only; no model session, usage export, output replacement or quality claim.",
+    "Claude health check is not exercised by this script."
+  ],
+  "schemaSource": "Installed codex app-server generate-json-schema (ClientRequest, InitializeParams, ListMcpServerStatusParams/Response)",
+  "clientArgv": [
+    "codex",
+    "app-server",
+    "--stdio"
+  ],
+  "configSource": "CLI adapter install writes <temporary>/project/.codex/config.toml; trust and analytics settings live only in <temporary>/codex-home/config.toml",
+  "server": {
+    "name": "codebudget",
+    "authStatus": "unsupported",
+    "serverInfo": {
+      "name": "codebudget",
+      "title": null,
+      "version": "0.1.0-beta.1",
+      "description": null,
+      "icons": null,
+      "websiteUrl": null
+    },
+    "tools": [
+      "get_changes",
+      "prepare_context",
+      "read_evidence"
+    ]
+  },
+  "clientStderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"<system-temp>\\\\\" (codex_home: AbsolutePathBuf(\"<temporary>\\\\codex-home\"))\n",
+  "temporaryFilesRemoved": true
+}

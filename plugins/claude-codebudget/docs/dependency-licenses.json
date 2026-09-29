@@ -1,0 +1,1135 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-29T19:11:21.677Z",
+  "source": "pnpm licenses list --prod --json against the installed lockfile, plus the staged release TypeScript evaluator compiler",
+  "platform": "win32",
+  "entries": [
+    {
+      "name": "@hono/node-server",
+      "version": "2.1.3",
+      "license": "MIT",
+      "homepage": "https://github.com/honojs/node-server",
+      "author": "Yusuke Wada <yusuke@kamawada.com> (https://github.com/yusukebe)",
+      "notices": [
+        "docs/third-party-licenses/_hono_node-server-2.1.3-LICENSE"
+      ]
+    },
+    {
+      "name": "@modelcontextprotocol/sdk",
+      "version": "1.31.0",
+      "license": "MIT",
+      "homepage": "https://modelcontextprotocol.io",
+      "author": "Anthropic, PBC (https://anthropic.com)",
+      "notices": [
+        "docs/third-party-licenses/_modelcontextprotocol_sdk-1.31.0-LICENSE"
+      ]
+    },
+    {
+      "name": "accepts",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/accepts#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/accepts-2.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "ajv",
+      "version": "8.20.0",
+      "license": "MIT",
+      "homepage": "https://ajv.js.org",
+      "author": "Evgeny Poberezkin",
+      "notices": [
+        "docs/third-party-licenses/ajv-8.20.0-LICENSE"
+      ]
+    },
+    {
+      "name": "ajv-formats",
+      "version": "3.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ajv-validator/ajv-formats#readme",
+      "author": "Evgeny Poberezkin",
+      "notices": [
+        "docs/third-party-licenses/ajv-formats-3.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "base64-js",
+      "version": "1.5.1",
+      "license": "MIT",
+      "homepage": "https://github.com/beatgammit/base64-js",
+      "author": "T. Jameson Little <t.jameson.little@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/base64-js-1.5.1-LICENSE"
+      ]
+    },
+    {
+      "name": "body-parser",
+      "version": "2.3.0",
+      "license": "MIT",
+      "homepage": "https://github.com/expressjs/body-parser#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/body-parser-2.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "bytes",
+      "version": "3.1.2",
+      "license": "MIT",
+      "homepage": "https://github.com/visionmedia/bytes.js#readme",
+      "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+      "notices": [
+        "docs/third-party-licenses/bytes-3.1.2-LICENSE"
+      ]
+    },
+    {
+      "name": "call-bind-apply-helpers",
+      "version": "1.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/call-bind-apply-helpers#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/call-bind-apply-helpers-1.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "call-bound",
+      "version": "1.0.4",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/call-bound#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/call-bound-1.0.4-LICENSE"
+      ]
+    },
+    {
+      "name": "commander",
+      "version": "15.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/tj/commander.js#readme",
+      "author": "TJ Holowaychuk <tj@vision-media.ca>",
+      "notices": [
+        "docs/third-party-licenses/commander-15.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "content-disposition",
+      "version": "1.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/content-disposition#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/content-disposition-1.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "content-type",
+      "version": "1.0.5",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/content-type#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/content-type-1.0.5-LICENSE"
+      ]
+    },
+    {
+      "name": "content-type",
+      "version": "2.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/content-type#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/content-type-2.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "cookie",
+      "version": "0.7.2",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/cookie#readme",
+      "author": "Roman Shtylman <shtylman@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/cookie-0.7.2-LICENSE"
+      ]
+    },
+    {
+      "name": "cookie-signature",
+      "version": "1.2.2",
+      "license": "MIT",
+      "homepage": "https://github.com/visionmedia/node-cookie-signature#readme",
+      "author": "TJ Holowaychuk <tj@learnboost.com>",
+      "notices": [
+        "docs/third-party-licenses/cookie-signature-1.2.2-LICENSE"
+      ]
+    },
+    {
+      "name": "cors",
+      "version": "2.8.6",
+      "license": "MIT",
+      "homepage": "https://github.com/expressjs/cors#readme",
+      "author": "Troy Goode <troygoode@gmail.com> (https://github.com/troygoode/)",
+      "notices": [
+        "docs/third-party-licenses/cors-2.8.6-LICENSE"
+      ]
+    },
+    {
+      "name": "cross-spawn",
+      "version": "7.0.6",
+      "license": "MIT",
+      "homepage": "https://github.com/moxystudio/node-cross-spawn",
+      "author": "André Cruz <andre@moxy.studio>",
+      "notices": [
+        "docs/third-party-licenses/cross-spawn-7.0.6-LICENSE"
+      ]
+    },
+    {
+      "name": "debug",
+      "version": "4.4.3",
+      "license": "MIT",
+      "homepage": "https://github.com/debug-js/debug#readme",
+      "author": "Josh Junon (https://github.com/qix-)",
+      "notices": [
+        "docs/third-party-licenses/debug-4.4.3-LICENSE"
+      ]
+    },
+    {
+      "name": "depd",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/dougwilson/nodejs-depd#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/depd-2.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "dunder-proto",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/es-shims/dunder-proto#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/dunder-proto-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "ee-first",
+      "version": "1.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/jonathanong/ee-first#readme",
+      "author": {
+        "name": "Jonathan Ong",
+        "email": "me@jongleberry.com",
+        "url": "http://jongleberry.com",
+        "twitter": "https://twitter.com/jongleberry"
+      },
+      "notices": [
+        "docs/third-party-licenses/ee-first-1.1.1-LICENSE"
+      ]
+    },
+    {
+      "name": "encodeurl",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/encodeurl#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/encodeurl-2.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "es-define-property",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/es-define-property#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/es-define-property-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "es-errors",
+      "version": "1.3.0",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/es-errors#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/es-errors-1.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "es-object-atoms",
+      "version": "1.1.2",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/es-object-atoms#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/es-object-atoms-1.1.2-LICENSE"
+      ]
+    },
+    {
+      "name": "escape-html",
+      "version": "1.0.3",
+      "license": "MIT",
+      "homepage": "https://github.com/component/escape-html#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/escape-html-1.0.3-LICENSE"
+      ]
+    },
+    {
+      "name": "etag",
+      "version": "1.8.1",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/etag#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/etag-1.8.1-LICENSE"
+      ]
+    },
+    {
+      "name": "eventsource",
+      "version": "3.0.7",
+      "license": "MIT",
+      "homepage": "https://github.com/EventSource/eventsource#readme",
+      "author": "Espen Hovlandsdal <espen@hovlandsdal.com>",
+      "notices": [
+        "docs/third-party-licenses/eventsource-3.0.7-LICENSE"
+      ]
+    },
+    {
+      "name": "eventsource-parser",
+      "version": "3.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/rexxars/eventsource-parser#readme",
+      "author": "Espen Hovlandsdal <espen@hovlandsdal.com>",
+      "notices": [
+        "docs/third-party-licenses/eventsource-parser-3.1.1-LICENSE"
+      ]
+    },
+    {
+      "name": "express",
+      "version": "5.2.1",
+      "license": "MIT",
+      "homepage": "https://expressjs.com/",
+      "author": "TJ Holowaychuk <tj@vision-media.ca>",
+      "notices": [
+        "docs/third-party-licenses/express-5.2.1-LICENSE"
+      ]
+    },
+    {
+      "name": "express-rate-limit",
+      "version": "8.7.0",
+      "license": "MIT",
+      "homepage": "https://github.com/express-rate-limit/express-rate-limit",
+      "author": {
+        "name": "Nathan Friedly",
+        "url": "http://nfriedly.com/"
+      },
+      "notices": [
+        "docs/third-party-licenses/express-rate-limit-8.7.0-license"
+      ]
+    },
+    {
+      "name": "fast-deep-equal",
+      "version": "3.1.3",
+      "license": "MIT",
+      "homepage": "https://github.com/epoberezkin/fast-deep-equal#readme",
+      "author": "Evgeny Poberezkin",
+      "notices": [
+        "docs/third-party-licenses/fast-deep-equal-3.1.3-LICENSE"
+      ]
+    },
+    {
+      "name": "fast-uri",
+      "version": "3.1.8",
+      "license": "BSD-3-Clause",
+      "homepage": "https://github.com/fastify/fast-uri",
+      "author": "Vincent Le Goff <vince.legoff@gmail.com> (https://github.com/zekth)",
+      "notices": [
+        "docs/third-party-licenses/fast-uri-3.1.8-LICENSE"
+      ]
+    },
+    {
+      "name": "finalhandler",
+      "version": "2.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/finalhandler#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/finalhandler-2.1.1-LICENSE"
+      ]
+    },
+    {
+      "name": "forwarded",
+      "version": "0.2.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/forwarded#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/forwarded-0.2.0-LICENSE"
+      ]
+    },
+    {
+      "name": "fresh",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/fresh#readme",
+      "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+      "notices": [
+        "docs/third-party-licenses/fresh-2.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "function-bind",
+      "version": "1.1.2",
+      "license": "MIT",
+      "homepage": "https://github.com/Raynos/function-bind",
+      "author": "Raynos <raynos2@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/function-bind-1.1.2-LICENSE"
+      ]
+    },
+    {
+      "name": "get-intrinsic",
+      "version": "1.3.0",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/get-intrinsic#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/get-intrinsic-1.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "get-proto",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/get-proto#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/get-proto-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "gopd",
+      "version": "1.2.0",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/gopd#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/gopd-1.2.0-LICENSE"
+      ]
+    },
+    {
+      "name": "has-symbols",
+      "version": "1.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/has-symbols#readme",
+      "author": {
+        "name": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "url": "http://ljharb.codes"
+      },
+      "notices": [
+        "docs/third-party-licenses/has-symbols-1.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "hasown",
+      "version": "2.0.4",
+      "license": "MIT",
+      "homepage": "https://github.com/inspect-js/hasOwn#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/hasown-2.0.4-LICENSE"
+      ]
+    },
+    {
+      "name": "hono",
+      "version": "4.13.11",
+      "license": "MIT",
+      "homepage": "https://hono.dev",
+      "author": "Yusuke Wada <yusuke@kamawada.com> (https://github.com/yusukebe)",
+      "notices": [
+        "docs/third-party-licenses/hono-4.13.11-LICENSE"
+      ]
+    },
+    {
+      "name": "http-errors",
+      "version": "2.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/http-errors#readme",
+      "author": "Jonathan Ong <me@jongleberry.com> (http://jongleberry.com)",
+      "notices": [
+        "docs/third-party-licenses/http-errors-2.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "iconv-lite",
+      "version": "0.7.3",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/iconv-lite",
+      "author": "Alexander Shtuchkin <ashtuchkin@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/iconv-lite-0.7.3-LICENSE"
+      ]
+    },
+    {
+      "name": "ignore",
+      "version": "7.0.10",
+      "license": "MIT",
+      "homepage": "https://github.com/kaelzhang/node-ignore#readme",
+      "author": "kael",
+      "notices": [
+        "docs/third-party-licenses/ignore-7.0.10-LICENSE-MIT"
+      ]
+    },
+    {
+      "name": "inherits",
+      "version": "2.0.4",
+      "license": "ISC",
+      "homepage": "https://github.com/isaacs/inherits#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/inherits-2.0.4-LICENSE"
+      ]
+    },
+    {
+      "name": "ip-address",
+      "version": "10.7.2",
+      "license": "MIT",
+      "homepage": "https://github.com/beaugunderson/ip-address#readme",
+      "author": "Beau Gunderson <beau@beaugunderson.com> (https://beaugunderson.com/)",
+      "notices": [
+        "docs/third-party-licenses/ip-address-10.7.2-LICENSE"
+      ]
+    },
+    {
+      "name": "ipaddr.js",
+      "version": "1.9.1",
+      "license": "MIT",
+      "homepage": "https://github.com/whitequark/ipaddr.js#readme",
+      "author": "whitequark <whitequark@whitequark.org>",
+      "notices": [
+        "docs/third-party-licenses/ipaddr.js-1.9.1-LICENSE"
+      ]
+    },
+    {
+      "name": "is-promise",
+      "version": "4.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/then/is-promise#readme",
+      "author": "ForbesLindesay",
+      "notices": [
+        "docs/third-party-licenses/is-promise-4.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "isexe",
+      "version": "2.0.0",
+      "license": "ISC",
+      "homepage": "https://github.com/isaacs/isexe#readme",
+      "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)",
+      "notices": [
+        "docs/third-party-licenses/isexe-2.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "jose",
+      "version": "6.2.12",
+      "license": "MIT",
+      "homepage": "https://github.com/panva/jose",
+      "author": "Filip Skokan <panva.ip@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/jose-6.2.12-LICENSE.md"
+      ]
+    },
+    {
+      "name": "js-tiktoken",
+      "version": "1.0.21",
+      "license": "MIT",
+      "homepage": "https://github.com/dqbd/tiktoken#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/js-tiktoken-1.0.21-LICENSE"
+      ],
+      "supplementalLicense": {
+        "path": "docs/third-party-licenses/js-tiktoken-1.0.21-LICENSE",
+        "source": "https://github.com/dqbd/tiktoken/blob/4c8b748e07992c00386f3180af5c574b27b65139/LICENSE",
+        "sha256": "418cb499b436128d653d79941333a5437b7be2ea9213dcc2f04d15d5d2c51d86"
+      }
+    },
+    {
+      "name": "json-schema-traverse",
+      "version": "1.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/epoberezkin/json-schema-traverse#readme",
+      "author": "Evgeny Poberezkin",
+      "notices": [
+        "docs/third-party-licenses/json-schema-traverse-1.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "json-schema-typed",
+      "version": "8.0.2",
+      "license": "BSD-2-Clause",
+      "homepage": "https://github.com/RemyRylan/json-schema-typed/tree/main/dist/node",
+      "author": {
+        "name": "Remy Rylan",
+        "url": "https://github.com/RemyRylan"
+      },
+      "notices": [
+        "docs/third-party-licenses/json-schema-typed-8.0.2-LICENSE.md"
+      ]
+    },
+    {
+      "name": "math-intrinsics",
+      "version": "1.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/es-shims/math-intrinsics#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/math-intrinsics-1.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "media-typer",
+      "version": "1.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/media-typer#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/media-typer-1.1.1-LICENSE"
+      ]
+    },
+    {
+      "name": "merge-descriptors",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/sindresorhus/merge-descriptors#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/merge-descriptors-2.0.0-license"
+      ]
+    },
+    {
+      "name": "mime-db",
+      "version": "1.54.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/mime-db#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/mime-db-1.54.0-LICENSE"
+      ]
+    },
+    {
+      "name": "mime-types",
+      "version": "3.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/mime-types#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/mime-types-3.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "ms",
+      "version": "2.1.3",
+      "license": "MIT",
+      "homepage": "https://github.com/vercel/ms#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/ms-2.1.3-license.md"
+      ]
+    },
+    {
+      "name": "negotiator",
+      "version": "1.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/negotiator#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/negotiator-1.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "node-addon-api",
+      "version": "8.9.2",
+      "license": "MIT",
+      "homepage": "https://github.com/nodejs/node-addon-api",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/node-addon-api-8.9.2-LICENSE.md"
+      ]
+    },
+    {
+      "name": "node-gyp-build",
+      "version": "4.8.4",
+      "license": "MIT",
+      "homepage": "https://github.com/prebuild/node-gyp-build",
+      "author": "Mathias Buus (@mafintosh)",
+      "notices": [
+        "docs/third-party-licenses/node-gyp-build-4.8.4-LICENSE"
+      ]
+    },
+    {
+      "name": "object-assign",
+      "version": "4.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/sindresorhus/object-assign#readme",
+      "author": {
+        "name": "Sindre Sorhus",
+        "email": "sindresorhus@gmail.com",
+        "url": "sindresorhus.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/object-assign-4.1.1-license"
+      ]
+    },
+    {
+      "name": "object-inspect",
+      "version": "1.13.4",
+      "license": "MIT",
+      "homepage": "https://github.com/inspect-js/object-inspect",
+      "author": {
+        "name": "James Halliday",
+        "email": "mail@substack.net",
+        "url": "http://substack.net"
+      },
+      "notices": [
+        "docs/third-party-licenses/object-inspect-1.13.4-LICENSE"
+      ]
+    },
+    {
+      "name": "on-finished",
+      "version": "2.4.1",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/on-finished#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/on-finished-2.4.1-LICENSE"
+      ]
+    },
+    {
+      "name": "once",
+      "version": "1.4.0",
+      "license": "ISC",
+      "homepage": "https://github.com/isaacs/once#readme",
+      "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)",
+      "notices": [
+        "docs/third-party-licenses/once-1.4.0-LICENSE"
+      ]
+    },
+    {
+      "name": "parseurl",
+      "version": "1.3.3",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/parseurl#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/parseurl-1.3.3-LICENSE"
+      ]
+    },
+    {
+      "name": "path-key",
+      "version": "3.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/sindresorhus/path-key#readme",
+      "author": {
+        "name": "Sindre Sorhus",
+        "email": "sindresorhus@gmail.com",
+        "url": "sindresorhus.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/path-key-3.1.1-license"
+      ]
+    },
+    {
+      "name": "path-to-regexp",
+      "version": "8.4.2",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/path-to-regexp#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/path-to-regexp-8.4.2-LICENSE"
+      ]
+    },
+    {
+      "name": "pkce-challenge",
+      "version": "5.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/crouchcd/pkce-challenge#readme",
+      "author": "crouchcd",
+      "notices": [
+        "docs/third-party-licenses/pkce-challenge-5.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "proxy-addr",
+      "version": "2.0.8",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/proxy-addr#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/proxy-addr-2.0.8-LICENSE"
+      ]
+    },
+    {
+      "name": "qs",
+      "version": "6.16.0",
+      "license": "BSD-3-Clause",
+      "homepage": "https://github.com/ljharb/qs",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/qs-6.16.0-LICENSE.md"
+      ]
+    },
+    {
+      "name": "range-parser",
+      "version": "1.3.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/range-parser#readme",
+      "author": "TJ Holowaychuk <tj@vision-media.ca> (http://tjholowaychuk.com)",
+      "notices": [
+        "docs/third-party-licenses/range-parser-1.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "raw-body",
+      "version": "3.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/stream-utils/raw-body#readme",
+      "author": "Jonathan Ong <me@jongleberry.com> (http://jongleberry.com)",
+      "notices": [
+        "docs/third-party-licenses/raw-body-3.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "react",
+      "version": "19.3.0",
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/react-19.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "react-dom",
+      "version": "19.3.0",
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/react-dom-19.3.0-LICENSE"
+      ]
+    },
+    {
+      "name": "require-from-string",
+      "version": "2.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/floatdrop/require-from-string#readme",
+      "author": {
+        "name": "Vsevolod Strukchinsky",
+        "email": "floatdrop@gmail.com",
+        "url": "github.com/floatdrop"
+      },
+      "notices": [
+        "docs/third-party-licenses/require-from-string-2.0.2-license"
+      ]
+    },
+    {
+      "name": "router",
+      "version": "2.2.0",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/router#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/router-2.2.0-LICENSE"
+      ]
+    },
+    {
+      "name": "safer-buffer",
+      "version": "2.1.2",
+      "license": "MIT",
+      "homepage": "https://github.com/ChALkeR/safer-buffer#readme",
+      "author": {
+        "name": "Nikita Skovoroda",
+        "email": "chalkerx@gmail.com",
+        "url": "https://github.com/ChALkeR"
+      },
+      "notices": [
+        "docs/third-party-licenses/safer-buffer-2.1.2-LICENSE"
+      ]
+    },
+    {
+      "name": "scheduler",
+      "version": "0.28.0",
+      "license": "MIT",
+      "homepage": "https://react.dev/",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/scheduler-0.28.0-LICENSE"
+      ]
+    },
+    {
+      "name": "send",
+      "version": "1.2.1",
+      "license": "MIT",
+      "homepage": "https://github.com/pillarjs/send#readme",
+      "author": "TJ Holowaychuk <tj@vision-media.ca>",
+      "notices": [
+        "docs/third-party-licenses/send-1.2.1-LICENSE"
+      ]
+    },
+    {
+      "name": "serve-static",
+      "version": "2.2.1",
+      "license": "MIT",
+      "homepage": "https://github.com/expressjs/serve-static#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/serve-static-2.2.1-LICENSE"
+      ]
+    },
+    {
+      "name": "setprototypeof",
+      "version": "1.2.0",
+      "license": "ISC",
+      "homepage": "https://github.com/wesleytodd/setprototypeof",
+      "author": "Wes Todd",
+      "notices": [
+        "docs/third-party-licenses/setprototypeof-1.2.0-LICENSE"
+      ]
+    },
+    {
+      "name": "shebang-command",
+      "version": "2.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/kevva/shebang-command#readme",
+      "author": {
+        "name": "Kevin Mårtensson",
+        "email": "kevinmartensson@gmail.com",
+        "url": "github.com/kevva"
+      },
+      "notices": [
+        "docs/third-party-licenses/shebang-command-2.0.0-license"
+      ]
+    },
+    {
+      "name": "shebang-regex",
+      "version": "3.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/sindresorhus/shebang-regex#readme",
+      "author": {
+        "name": "Sindre Sorhus",
+        "email": "sindresorhus@gmail.com",
+        "url": "sindresorhus.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/shebang-regex-3.0.0-license"
+      ]
+    },
+    {
+      "name": "side-channel",
+      "version": "1.1.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/side-channel#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/side-channel-1.1.1-LICENSE"
+      ]
+    },
+    {
+      "name": "side-channel-list",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/side-channel-list#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/side-channel-list-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "side-channel-map",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/side-channel-map#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/side-channel-map-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "side-channel-weakmap",
+      "version": "1.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/ljharb/side-channel-weakmap#readme",
+      "author": "Jordan Harband <ljharb@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/side-channel-weakmap-1.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "smol-toml",
+      "version": "1.9.0",
+      "license": "BSD-3-Clause",
+      "homepage": "https://github.com/squirrelchat/smol-toml#readme",
+      "author": "Cynthia Rey <cynthia@cynthia.dev>",
+      "notices": [
+        "docs/third-party-licenses/smol-toml-1.9.0-LICENSE"
+      ]
+    },
+    {
+      "name": "statuses",
+      "version": "2.0.2",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/statuses#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/statuses-2.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "toidentifier",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/component/toidentifier#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/toidentifier-1.0.1-LICENSE"
+      ]
+    },
+    {
+      "name": "tree-sitter-javascript",
+      "version": "0.23.1",
+      "license": "MIT",
+      "homepage": "https://github.com/tree-sitter/tree-sitter-javascript#readme",
+      "author": {
+        "name": "Max Brunsfeld",
+        "email": "maxbrunsfeld@gmail.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/tree-sitter-javascript-0.23.1-LICENSE"
+      ]
+    },
+    {
+      "name": "tree-sitter-javascript",
+      "version": "0.25.0",
+      "license": "MIT",
+      "homepage": "https://github.com/tree-sitter/tree-sitter-javascript#readme",
+      "author": {
+        "name": "Max Brunsfeld",
+        "email": "maxbrunsfeld@gmail.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/tree-sitter-javascript-0.25.0-LICENSE"
+      ]
+    },
+    {
+      "name": "tree-sitter-typescript",
+      "version": "0.23.2",
+      "license": "MIT",
+      "homepage": "https://github.com/tree-sitter/tree-sitter-typescript#readme",
+      "author": "Max Brunsfeld <maxbrunsfeld@gmail.com>",
+      "notices": [
+        "docs/third-party-licenses/tree-sitter-typescript-0.23.2-LICENSE"
+      ]
+    },
+    {
+      "name": "type-is",
+      "version": "2.1.0",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/type-is#readme",
+      "author": null,
+      "notices": [
+        "docs/third-party-licenses/type-is-2.1.0-LICENSE"
+      ]
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "license": "Apache-2.0",
+      "homepage": "https://www.typescriptlang.org/",
+      "author": "Microsoft Corp.",
+      "notices": [
+        "docs/third-party-licenses/typescript-5.9.3-LICENSE.txt"
+      ]
+    },
+    {
+      "name": "unpipe",
+      "version": "1.0.0",
+      "license": "MIT",
+      "homepage": "https://github.com/stream-utils/unpipe#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/unpipe-1.0.0-LICENSE"
+      ]
+    },
+    {
+      "name": "vary",
+      "version": "1.1.2",
+      "license": "MIT",
+      "homepage": "https://github.com/jshttp/vary#readme",
+      "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+      "notices": [
+        "docs/third-party-licenses/vary-1.1.2-LICENSE"
+      ]
+    },
+    {
+      "name": "web-tree-sitter",
+      "version": "0.27.0",
+      "license": "MIT",
+      "homepage": "https://github.com/tree-sitter/tree-sitter#readme",
+      "author": {
+        "name": "Max Brunsfeld",
+        "email": "maxbrunsfeld@gmail.com"
+      },
+      "notices": [
+        "docs/third-party-licenses/web-tree-sitter-0.27.0-LICENSE"
+      ]
+    },
+    {
+      "name": "which",
+      "version": "2.0.2",
+      "license": "ISC",
+      "homepage": "https://github.com/isaacs/node-which#readme",
+      "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me)",
+      "notices": [
+        "docs/third-party-licenses/which-2.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "wrappy",
+      "version": "1.0.2",
+      "license": "ISC",
+      "homepage": "https://github.com/npm/wrappy",
+      "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)",
+      "notices": [
+        "docs/third-party-licenses/wrappy-1.0.2-LICENSE"
+      ]
+    },
+    {
+      "name": "zod",
+      "version": "4.6.5",
+      "license": "MIT",
+      "homepage": "https://zod.dev",
+      "author": "Colin McDonnell <zod@colinhacks.com>",
+      "notices": [
+        "docs/third-party-licenses/zod-4.6.5-LICENSE"
+      ]
+    },
+    {
+      "name": "zod-to-json-schema",
+      "version": "3.25.2",
+      "license": "ISC",
+      "homepage": "https://github.com/StefanTerdell/zod-to-json-schema#readme",
+      "author": "Stefan Terdell",
+      "notices": [
+        "docs/third-party-licenses/zod-to-json-schema-3.25.2-LICENSE"
+      ]
+    }
+  ]
+}

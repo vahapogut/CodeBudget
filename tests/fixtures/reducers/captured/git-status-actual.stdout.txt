@@ -1,0 +1,8 @@
+AM diff-0.ts
+AM diff-1.ts
+AM diff-2.ts
+AM diff-3.ts
+AM diff-4.ts
+AM diff-5.ts
+AM diff-6.ts
+AM diff-7.ts

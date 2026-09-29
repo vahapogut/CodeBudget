@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "archive": "codebudget-0.1.0-beta.1.tgz",
+  "platform": "win32",
+  "runtime": "v22.16.0",
+  "results": [
+    {
+      "name": "clean tarball install without native build scripts",
+      "passed": true
+    },
+    {
+      "name": "installed init observes by default",
+      "passed": true
+    },
+    {
+      "name": "installed offline WASM index",
+      "passed": true
+    },
+    {
+      "name": "installed actual context",
+      "passed": true
+    },
+    {
+      "name": "installed offline o200k tokenizer with explicit model mapping",
+      "passed": true
+    },
+    {
+      "name": "installed unknown model uses labeled estimate",
+      "passed": true
+    },
+    {
+      "name": "installed argv run + session report",
+      "passed": true
+    },
+    {
+      "name": "installed artifact read",
+      "passed": true
+    },
+    {
+      "name": "installed offline asset list",
+      "passed": true
+    },
+    {
+      "name": "installed MCP stdio schema",
+      "passed": true
+    },
+    {
+      "name": "installed MCP worker, WASM and protocol",
+      "passed": true
+    },
+    {
+      "name": "installed offline cl100k tokenizer through MCP worker",
+      "passed": true
+    },
+    {
+      "name": "installed dashboard static assets",
+      "passed": true
+    },
+    {
+      "name": "installed dashboard requires authentication",
+      "passed": true
+    },
+    {
+      "name": "installed dashboard reads actual SQLite report",
+      "passed": true
+    },
+    {
+      "name": "installed standalone plugin license inventory and texts",
+      "passed": true
+    },
+    {
+      "name": "installed native Claude manifest validation",
+      "passed": true,
+      "unavailable": false
+    },
+    {
+      "name": "installed plugin overhead measured without injected context",
+      "passed": true
+    },
+    {
+      "name": "installed compaction lifecycle resets visibility without storing summaries",
+      "passed": true
+    },
+    {
+      "name": "installed standalone hook protocol reduction (not a model session)",
+      "passed": true
+    },
+    {
+      "name": "installed hook archive retrieval",
+      "passed": true
+    },
+    {
+      "name": "installed plugin MCP shares hook project root from a subdirectory",
+      "passed": true
+    }
+  ],
+  "modelCalls": 0,
+  "globalChanges": false
+}

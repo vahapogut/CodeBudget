@@ -1,0 +1,13 @@
+{
+  "status": "failed",
+  "requestId": 90071992547409931234,
+  "negativeZero": -0,
+  "details": {
+    "expected": "fresh",
+    "actual": "reused",
+    "path": "src/auth.ts",
+    "line": 42
+  },
+  "skipped": 2,
+  "cancelled": 1
+}

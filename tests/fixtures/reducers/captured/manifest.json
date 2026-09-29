@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "generatorVersion": "2",
+  "capturedAt": "2026-09-29T19:05:13.751Z",
+  "platform": "win32",
+  "node": "v22.16.0",
+  "cwd": "<fixture>",
+  "redaction": "CodeBudget core redact; temporary/repository absolute paths normalized. No other semantic rewriting.",
+  "stdoutStderrSeparate": true,
+  "captures": [
+    {
+      "id": "vitest-actual",
+      "format": "vitest",
+      "filename": "vitest-actual.stdout.txt",
+      "stderrFilename": "vitest-actual.stderr.txt",
+      "toolVersion": "5.0.2",
+      "executable": "node",
+      "args": [
+        "<repository>\\node_modules\\.pnpm\\vitest@5.0.2_@types+node@22_109bf4ae224372c134412f2e1c7027ca\\node_modules\\vitest\\vitest.mjs",
+        "run",
+        "--config",
+        "<fixture>\\vitest.config.mjs",
+        "--root",
+        "<fixture>",
+        "--reporter",
+        "verbose",
+        "--no-color"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "expectedEvidence": [
+        "rejects reused refresh token",
+        "401",
+        "200",
+        "failure.test.ts:1",
+        "skipped",
+        "todo"
+      ],
+      "description": "Eight passing files, one failed assertion, one skipped and one todo case; actually executed.",
+      "inputs": [],
+      "stdoutBytes": 979,
+      "stderrBytes": 549
+    },
+    {
+      "id": "jest-actual",
+      "format": "jest",
+      "filename": "jest-actual.stdout.txt",
+      "stderrFilename": "jest-actual.stderr.txt",
+      "toolVersion": "30.5.2",
+      "executable": "node",
+      "args": [
+        "<repository>\\node_modules\\.pnpm\\jest@30.5.2_@types+node@22.19.15\\node_modules\\jest\\bin\\jest.js",
+        "--config",
+        "<fixture>\\jest.config.cjs",
+        "--runInBand",
+        "--no-cache",
+        "--ci"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "expectedEvidence": [
+        "rejects reused refresh token",
+        "Expected: 401",
+        "Received: 200",
+        "jest-failure.test.cjs:1",
+        "1 skipped",
+        "1 todo"
+      ],
+      "description": "Actually executed Jest tests: three passing suites, one failed assertion, one skipped case and one todo. Original temporary test code; no application/model run.",
+      "inputs": [
+        {
+          "path": "jest.config.cjs",
+          "sha256": "b6f519d7cf4786da2c2688f0f76443dc9da08c2d1c6b3f6027336721a35d570d",
+          "bytes": 117
+        },
+        {
+          "path": "jest-failure.test.cjs",
+          "sha256": "b9c816315e25a6e9dc4084d38e1528d3b33eca7b88f2e6b4acb587335e9dce7b",
+          "bytes": 146
+        },
+        {
+          "path": "jest-success-0.test.cjs",
+          "sha256": "aae68f25d398180b052479ae47c87aa57eb525f28c2794ffb5306136809076eb",
+          "bytes": 61
+        },
+        {
+          "path": "jest-success-1.test.cjs",
+          "sha256": "b41cfc89bc458401fa2da05cae479db4895eb8f65aba1b11d1d9ffa7ab31a84f",
+          "bytes": 61
+        },
+        {
+          "path": "jest-success-2.test.cjs",
+          "sha256": "25f0a50d276efddb6741bdf100cae1e746ae77fed27f5cfd94465e429957ceac",
+          "bytes": 61
+        }
+      ],
+      "stdoutBytes": 0,
+      "stderrBytes": 637
+    },
+    {
+      "id": "tsc-actual",
+      "format": "tsc",
+      "filename": "tsc-actual.stdout.txt",
+      "stderrFilename": "tsc-actual.stderr.txt",
+      "toolVersion": "5.9.3",
+      "executable": "node",
+      "args": [
+        "<repository>\\node_modules\\.pnpm\\typescript@5.9.3\\node_modules\\typescript\\bin\\tsc",
+        "type-failure.ts",
+        "--noEmit",
+        "--strict",
+        "--pretty",
+        "false",
+        "--target",
+        "ES2022",
+        "--skipLibCheck"
+      ],
+      "exitCode": 2,
+      "signal": null,
+      "expectedEvidence": [
+        "type-failure.ts(1,14)",
+        "TS2322",
+        "Type 'string' is not assignable to type 'number'",
+        "type-failure.ts(2,14)"
+      ],
+      "description": "Two genuine strict TypeScript assignment errors.",
+      "inputs": [],
+      "stdoutBytes": 176,
+      "stderrBytes": 0
+    },
+    {
+      "id": "eslint-actual",
+      "format": "eslint",
+      "filename": "eslint-actual.stdout.txt",
+      "stderrFilename": "eslint-actual.stderr.txt",
+      "toolVersion": "9.39.2",
+      "executable": "node",
+      "args": [
+        "<repository>\\node_modules\\.pnpm\\eslint@9.39.2\\node_modules\\eslint\\bin\\eslint.js",
+        "--no-config-lookup",
+        "--config",
+        "<fixture>\\eslint.config.mjs",
+        "--format",
+        "json",
+        "lint-failure.js"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "expectedEvidence": [
+        "no-unused-vars",
+        "eqeqeq",
+        "lint-failure.js",
+        "\"errorCount\":2"
+      ],
+      "description": "Real ESLint JSON reporter output; original structured values retained.",
+      "inputs": [],
+      "stdoutBytes": 1052,
+      "stderrBytes": 0
+    },
+    {
+      "id": "git-status-actual",
+      "format": "git-status",
+      "filename": "git-status-actual.stdout.txt",
+      "stderrFilename": "git-status-actual.stderr.txt",
+      "toolVersion": "git version 2.49.0.windows.1",
+      "executable": "git",
+      "args": [
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=no"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "expectedEvidence": [
+        "AM diff-0.ts",
+        "AM diff-7.ts"
+      ],
+      "description": "Actual staged initial files with unstaged edits. No commit was created.",
+      "inputs": [],
+      "stdoutBytes": 104,
+      "stderrBytes": 0
+    },
+    {
+      "id": "git-diff-actual",
+      "format": "git-diff",
+      "filename": "git-diff-actual.stdout.txt",
+      "stderrFilename": "git-diff-actual.stderr.txt",
+      "toolVersion": "git version 2.49.0.windows.1",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--no-ext-diff",
+        "--no-textconv",
+        "--no-color",
+        "--",
+        "diff-0.ts",
+        "diff-1.ts",
+        "diff-2.ts",
+        "diff-3.ts",
+        "diff-4.ts",
+        "diff-5.ts",
+        "diff-6.ts",
+        "diff-7.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "expectedEvidence": [
+        "@@ -1 +1 @@",
+        "-export const count0 = 1;",
+        "+export const count0 = 2;",
+        "diff-7.ts"
+      ],
+      "description": "Actual unstaged patch against the temporary index; no global Git settings changed.",
+      "inputs": [],
+      "stdoutBytes": 1288,
+      "stderrBytes": 0
+    },
+    {
+      "id": "rg-actual",
+      "format": "search",
+      "filename": "rg-actual.stdout.txt",
+      "stderrFilename": "rg-actual.stderr.txt",
+      "toolVersion": "ripgrep 15.2.0",
+      "executable": "rg",
+      "args": [
+        "--line-number",
+        "--column",
+        "--with-filename",
+        "--no-heading",
+        "--color",
+        "never",
+        "refresh",
+        "search/refresh-token-service.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "expectedEvidence": [
+        "refresh-token-service.ts",
+        "1:14:export const refreshToken0",
+        "12:14:export const refreshToken11"
+      ],
+      "description": "Actual ripgrep line/column results from original fixture source.",
+      "inputs": [],
+      "stdoutBytes": 835,
+      "stderrBytes": 0
+    },
+    {
+      "id": "json-actual",
+      "format": "json",
+      "filename": "json-actual.stdout.txt",
+      "stderrFilename": "json-actual.stderr.txt",
+      "toolVersion": "v22.16.0",
+      "executable": "node",
+      "args": [
+        "json-output.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "expectedEvidence": [
+        "\"status\":\"failure\"",
+        "Refresh session rejected",
+        "\"expected\":401",
+        "\"actual\":200",
+        "\"file\":\"src/auth.ts\"",
+        "\"line\":42",
+        "\"skipped\":1",
+        "\"cancelled\":1",
+        "İstanbul 🙂",
+        "a  b"
+      ],
+      "description": "Actual Node stdout from an original JSON emitter. This is formatter/diagnostic coverage, not production application traffic.",
+      "inputs": [
+        {
+          "path": "json-output.mjs",
+          "sha256": "a89773c68383c56225352c0b91f99cbbf2cf1a75631c58b5155112d552d79011",
+          "bytes": 469
+        }
+      ],
+      "stdoutBytes": 461,
+      "stderrBytes": 0
+    },
+    {
+      "id": "logs-actual",
+      "format": "logs",
+      "filename": "logs-actual.stdout.txt",
+      "stderrFilename": "logs-actual.stderr.txt",
+      "toolVersion": "v22.16.0",
+      "executable": "node",
+      "args": [
+        "repeated-logs.mjs"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "expectedEvidence": [
+        "8 occurrences",
+        "12:00:00Z",
+        "12:00:08Z",
+        "request 28 expected 200 actual 503",
+        "request 29 expected 200 actual 504"
+      ],
+      "description": "Actual Node stdout from an original repeated-log emitter with fixed fixture timestamps, eight exact repeats and two distinct errors. Not a captured production incident or performance sample.",
+      "inputs": [
+        {
+          "path": "repeated-logs.mjs",
+          "sha256": "8abf59fa9157774e59c2614d52fe8dc6a26740ca8ef13d13bfc6df405c38bb55",
+          "bytes": 482
+        }
+      ],
+      "stdoutBytes": 738,
+      "stderrBytes": 0
+    }
+  ],
+  "license": "Apache-2.0",
+  "note": "Actual local command output from deliberately authored coverage fixtures. JSON/log emitters use original fixture payloads and fixed timestamps. This curated set is not representative production traffic, model task runs or provider usage."
+}

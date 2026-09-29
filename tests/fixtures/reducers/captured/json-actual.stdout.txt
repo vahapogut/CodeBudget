@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "status": "failure",
+  "message": "Refresh session rejected",
+  "diagnostic": {
+    "expected": 401,
+    "actual": 200,
+    "file": "src/auth.ts",
+    "line": 42
+  },
+  "cases": [
+    {
+      "name": "rejects reused refresh token",
+      "status": "failed"
+    },
+    {
+      "name": "expired session",
+      "status": "skipped"
+    }
+  ],
+  "skipped": 1,
+  "cancelled": 1,
+  "note": "Preserve spaces: a  b; Unicode: İstanbul 🙂"
+}

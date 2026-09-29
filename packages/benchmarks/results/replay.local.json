@@ -1,0 +1,141 @@
+{
+  "recordedAt": "2026-09-29T16:10:27.479Z",
+  "platform": "win32",
+  "node": "v22.16.0",
+  "schemaVersion": 1,
+  "kind": "replay",
+  "rows": [
+    {
+      "id": "vitest-3-human",
+      "reducerId": "vitest",
+      "originalBytes": 5578,
+      "reducedBytes": 228,
+      "reducedEnvelopeBytes": 713,
+      "durationMs": 1.0069000000000017,
+      "observedHeapDeltaBytes": 188864,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "jest-29-human",
+      "reducerId": "jest",
+      "originalBytes": 1970,
+      "reducedBytes": 219,
+      "reducedEnvelopeBytes": 698,
+      "durationMs": 0.17929999999998358,
+      "observedHeapDeltaBytes": 82464,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "tsc-5-human",
+      "reducerId": "tsc",
+      "originalBytes": 120,
+      "reducedBytes": 113,
+      "reducedEnvelopeBytes": 580,
+      "durationMs": 0.11949999999998795,
+      "observedHeapDeltaBytes": 8208,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "eslint-9-json",
+      "reducerId": "eslint",
+      "originalBytes": 334,
+      "reducedBytes": 158,
+      "reducedEnvelopeBytes": 656,
+      "durationMs": 0.24509999999997945,
+      "observedHeapDeltaBytes": 82744,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "git-status-human",
+      "reducerId": "identity",
+      "originalBytes": 90,
+      "reducedBytes": 90,
+      "reducedEnvelopeBytes": 590,
+      "durationMs": 0.14619999999999322,
+      "observedHeapDeltaBytes": 16432,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": false
+    },
+    {
+      "id": "git-diff-patch",
+      "reducerId": "git-diff",
+      "originalBytes": 1424,
+      "reducedBytes": 739,
+      "reducedEnvelopeBytes": 1278,
+      "durationMs": 0.18360000000001264,
+      "observedHeapDeltaBytes": 33536,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "rg-14-lines",
+      "reducerId": "search",
+      "originalBytes": 3680,
+      "reducedBytes": 840,
+      "reducedEnvelopeBytes": 1366,
+      "durationMs": 0.456799999999987,
+      "observedHeapDeltaBytes": 100448,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "json-response",
+      "reducerId": "json",
+      "originalBytes": 2938,
+      "reducedBytes": 1039,
+      "reducedEnvelopeBytes": 1690,
+      "durationMs": 0.880599999999987,
+      "observedHeapDeltaBytes": -546488,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "exact-logs",
+      "reducerId": "logs",
+      "originalBytes": 6688,
+      "reducedBytes": 210,
+      "reducedEnvelopeBytes": 684,
+      "durationMs": 0.3246000000000038,
+      "observedHeapDeltaBytes": 63064,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": true
+    },
+    {
+      "id": "unknown-future-format",
+      "reducerId": "identity",
+      "originalBytes": 59,
+      "reducedBytes": 59,
+      "reducedEnvelopeBytes": 560,
+      "durationMs": 0.010699999999985721,
+      "observedHeapDeltaBytes": 1632,
+      "preservationPassed": true,
+      "missingEvidence": [],
+      "applied": false
+    }
+  ],
+  "originalBytes": 22881,
+  "reducedBytes": 3695,
+  "byteReductionFraction": 0.8385123027839693,
+  "preservationPassed": true,
+  "measurement": "UTF-8 output bytes at one already-redacted boundary; schema envelope shown separately.",
+  "memoryMeasurement": "Heap samples before/after each reducer; not peak RSS, allocation profiling, or a bounded-memory guarantee.",
+  "taskSavingsConclusion": "not_measured",
+  "limitations": [
+    "Synthetic versioned fixtures, not executed tool captures.",
+    "No model calls, task completion, billing or subscription quota measured.",
+    "Replay percentages are not end-to-end task savings."
+  ]
+}

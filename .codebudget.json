@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "mode": "observe",
+  "dataDir": ".codebudget",
+  "contextBudget": 8000,
+  "outputMaxBytes": 4194304,
+  "outputPreviewBytes": 65536,
+  "diskBudgetBytes": 134217728,
+  "artifactRetentionDays": 14,
+  "commandTimeoutMs": 120000,
+  "rawArchive": false,
+  "experimental": {
+    "localSummary": false,
+    "apiRouting": false
+  }
+}

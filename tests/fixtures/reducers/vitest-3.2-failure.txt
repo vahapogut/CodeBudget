@@ -1,0 +1,19 @@
+ RUN  v3.2.4 /project
+
+ ✓ tests/addition.test.ts (12 tests) 12ms
+ ✓ tests/subtraction.test.ts (14 tests) 14ms
+ ✓ tests/multiplication.test.ts (16 tests) 16ms
+ ✓ tests/division.test.ts (18 tests) 18ms
+ ✓ tests/helpers.test.ts (20 tests) 20ms
+ × tests/auth.test.ts > token rotation > rejects reused refresh token 3ms
+
+ FAIL  tests/auth.test.ts > token rotation > rejects reused refresh token
+AssertionError: expected status to be 401
+Expected: 401
+Received: 200
+ ❯ tests/auth.test.ts:42:19
+ ❯ src/auth.ts:89:7
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 80 passed | 2 skipped | 1 cancelled (84)
+   Duration  481ms

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.codebudget/
+*.tgz
+test-results/
+playwright-report/
+coverage/
+.env
+.env.*
+*.log
+.cache/
+!plugins/claude-codebudget/dist/
+!plugins/claude-codebudget/dist/**

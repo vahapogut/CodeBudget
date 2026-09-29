@@ -1,0 +1,23 @@
+# Decisions
+
+- D001: TypeScript strict, pnpm workspace; one bundled distributable retains logical package boundaries.
+- D002: Use built-in node:sqlite (SQLite 3.49.1 verified on Node 22.16.0) to avoid a third-party native ABI download. Its Node 22 API remains experimental; beta status and runtime floor are explicit.
+- D003: Tree-sitter WASM plus packaged grammars supports offline parsing. Runtime/grammar ABI must pass a real probe.
+- D004: UTF-8 byte counts and conservative local token estimates are distinct from provider usage and quota. No savings claims without experiments.
+- D005: Plugin integration precedes reporting UI. Use documented post-tool replacement only with validated shapes and version allowlist; never rewrite permission-sensitive commands.
+- D006: Unknown client versions fail to observe/no mutation. Real model acceptance testing needs separate spending authorization.
+- D007: Keep TypeScript 5.9.3 and ESLint 9.39.2 (registry verified), avoiding the new compiler major until ecosystem compatibility is proven.
+- D008: Repository Git identity is vahapogut. Remote publication is not part of local verification.
+- D009: Replace the incompatible old grammar bundle with official JavaScript0.25 and TypeScript0.23.2 WASMs. Ship all four runtime/grammar assets with CLI and plugin; no grammar downloads during use.
+- D010: Preserve node: imports in tsup with removeNodeProtocol:false. Removing the prefix breaks the built-in SQLite module in the distributed bundle.
+- D011: Keep generated native-plugin bundles in the plugin directory so a built checkout is locally loadable. Release staging removes workspace development dependencies; TypeScript remains a runtime dependency for the optional hidden evaluator. Include license inventory and original texts in the standalone plugin too.
+- D012: Override esbuild to0.28.2 after the audit identified a Windows development-server path advisory in0.27.7. Record the actual zero-advisory rerun without equating audit success with complete security.
+- D013: Partition configured SQLite main-page budget75% state /25% derived index. Bound retained index metadata by age/count. WAL can transiently exceed page budgets; never claim a physical-filesystem hard cap.
+- D014: Keep real captured and intentionally noisy synthetic replay data separate. Default CLI replay displays both and emits no blended percentage. Count final native replacement envelope before deciding whether a hook transformation is beneficial.
+- D015: Await terminated MCP workers before Windows cleanup. Batch artifact writes per observed stream chunk to avoid a transaction for every output line.
+- D016: Emit CLI context as the exact compact serialization counted by its budget. Retain the entire MCP context package for dashboard inspection rather than discarding omissions, purpose and overflow metadata.
+- D017: Place adapter backups in ignored restricted local data, including installations before init. Preserve the ignore entry after uninstall because data/backups may remain.
+- D018: Use js-tiktoken1.0.21 with two packaged local rank tables for explicitly selected encodings. Keep byte estimates as the default and fall back for unknown model mappings. Exact local text encoding does not establish provider billing.
+- D019: Expand only unambiguous indexed relative imports with bounded depth/file counts and path provenance. Dynamic imports, ambiguous paths and unresolved dependencies remain explicit limitations.
+- D020: Report usage-field gaps and cumulative metric series separately from request totals. Agent types and subsystem names do not establish unique subagent identities.
+- D021: The user authorized GitHub push on 2026-09-29. Run the prepared public-repository CI matrix; retain separate authorization gates for paid models, account linking, npm publication and deployment.

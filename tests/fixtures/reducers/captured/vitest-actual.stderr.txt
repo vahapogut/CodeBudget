@@ -1,0 +1,20 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  failure.test.ts > rejects reused refresh token
+AssertionError: expected 200 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 200
+
+ ❯ failure.test.ts:1:54
+      1| it('rejects reused refresh token', () => expect(200).toBe(401));
+       |                                                      ^
+      2| it.skip('keeps skipped count', () => {});
+      3| it.todo('keeps todo count');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

@@ -1,0 +1,11 @@
+src/auth.ts(18,7): error TS2322: Type 'string' is not assignable to type 'number'.
+
+
+  18 const expiresAt: number = token.expiry;
+           ~~~~~~~~~
+
+
+src/routes.ts(42,11): error TS2345: Argument of type 'undefined' is not assignable to parameter of type 'User'.
+
+
+Found 2 errors in 2 files.

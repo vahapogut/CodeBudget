@@ -1,0 +1,1894 @@
+{
+  "schemaVersion": 1,
+  "kind": "task-plan",
+  "status": "not_run",
+  "dryRun": true,
+  "seed": 42,
+  "repeats": 3,
+  "taskCount": 30,
+  "runCount": 270,
+  "conditions": [
+    "native-baseline",
+    "optimized-baseline",
+    "codebudget"
+  ],
+  "categories": [
+    "bugfix",
+    "type-error",
+    "regression-test",
+    "refactor",
+    "log-diagnosis"
+  ],
+  "tasks": [
+    {
+      "id": "bug-01",
+      "title": "Clamp both boundaries",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "id": "bug-02",
+      "title": "Chunk final remainder",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "id": "bug-03",
+      "title": "Apply percentage discount",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "id": "bug-04",
+      "title": "Preserve query values",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "id": "bug-05",
+      "title": "Gregorian leap years",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "id": "bug-06",
+      "title": "Numeric median",
+      "category": "bugfix",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "id": "type-01",
+      "title": "Nullable display name",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "id": "type-02",
+      "title": "Discriminated response",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "id": "type-03",
+      "title": "Readonly sorted view",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "id": "type-04",
+      "title": "Complete coordinates",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "id": "type-05",
+      "title": "Async result typing",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "id": "type-06",
+      "title": "Safe dictionary lookup",
+      "category": "type-error",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "id": "reg-01",
+      "title": "Test inclusive bound",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "id": "reg-02",
+      "title": "Test zero discount",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "id": "reg-03",
+      "title": "Test leap centuries",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "id": "reg-04",
+      "title": "Test empty collection",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "id": "reg-05",
+      "title": "Test numeric sort",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "id": "reg-06",
+      "title": "Test case normalization",
+      "category": "regression-test",
+      "license": "Apache-2.0",
+      "humanReviewRequired": false,
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "id": "ref-01",
+      "title": "Share name normalization",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "id": "ref-02",
+      "title": "Remove array mutation",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "id": "ref-03",
+      "title": "Replace recursion with iteration",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "id": "ref-04",
+      "title": "Share valid-entry predicate",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "id": "ref-05",
+      "title": "Remove JSON cloning",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "id": "ref-06",
+      "title": "Replace repeated string assembly",
+      "category": "refactor",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "id": "log-01",
+      "title": "Identify retry root cause",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "id": "log-02",
+      "title": "Locate failed request",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "id": "log-03",
+      "title": "Explain compiler failure",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "id": "log-04",
+      "title": "Identify failing assertion",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "id": "log-05",
+      "title": "Distinguish warning from crash",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "id": "log-06",
+      "title": "Recover incident count",
+      "category": "log-diagnosis",
+      "license": "Apache-2.0",
+      "humanReviewRequired": true,
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    }
+  ],
+  "schedule": [
+    {
+      "taskId": "bug-03",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "ref-06",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1cd9df1f7fa98ddbea7075b4471d11d2fa6d3efc706bdcf469f9df7abbd5487a"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "type-05",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "9c136a2096630aa9b9fe8bfea63bbb42a5b3b057b80abd99431cb42970607120"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "ref-03",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "facd01b97e405927dc079d342f01fa086891fca80e9da5449349cc54f6cc585d"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "type-03",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "a590832781e72f0ad81d91e0912a3f640a2c6057a2984704635b0ed43e83b2cb"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "bug-06",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "4b9ec381fd877a840586bc889af9ed8a2e285b378f0769450bca587cce9faf23"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "ref-02",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "0bfab756d52416449156e3d44c7ec9434ce48b1cd45eea1fa62d0a7891e37527"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "type-04",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "9afc1cbcf4122264d94d50f1934f5d0b256b2422926d55d9f2e5c11408d328b4"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "ref-04",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "503510084945c9d4ad4dcf24f9a9d4fdb152d09b37573f05ed01585be090032c"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "bug-02",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "e12b551e33b26a38d34237504810db556ccb1f5d9e578780f9951571558afe47"
+    },
+    {
+      "taskId": "reg-01",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "590e60f948fe92c4c92bb7cc98951be83d0ec392aff9939d7734d78d9c99a36a"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "ref-05",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "29432ad78290566e1573c68cbeef0b90265a19513136f1dfb4b9fcfc478393a2"
+    },
+    {
+      "taskId": "log-04",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "784ef5d3fb5cfd8a4dc1d353539691f8e97d12664a7d566f1aa51b39c3e8051c"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "bug-05",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "faf95ac449be0723edacd6e14cbd7685a0c38951df2518e37041246c143cca74"
+    },
+    {
+      "taskId": "reg-04",
+      "repeat": 0,
+      "condition": "codebudget",
+      "initialFilesHash": "d50d5576fae04fe3e36edbd511b68444f6f316ae1682697b93a11a6250e28983"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "log-03",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "4e656de01cb15fe9d321a5a3c4e823c9810581a672671832686e1da7686a6b2f"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "log-06",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "4ffd6e653582e32b2808ca9837ef180e4d5243a5aadccd8e6542e034db437523"
+    },
+    {
+      "taskId": "reg-05",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "bfb419fc56d61e5cc76b46203aecce1ac9a6089e68fc4092585539552332c920"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 2,
+      "condition": "codebudget",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "ref-01",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "f73a5e0457348288783e48e82ed5545084b0b0251da7ff4491c5dcdbaa0af6cb"
+    },
+    {
+      "taskId": "reg-03",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "4cbb5d435dfeaeb9c71062d6b7e828a169aea76ad7544e36800a215bf974db09"
+    },
+    {
+      "taskId": "log-01",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "1c291fc904160cdd1516eb3ce68704baae4f8910fcc57787a6de64b7fc3ad2cc"
+    },
+    {
+      "taskId": "log-05",
+      "repeat": 2,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "51a5f4bef8331cfa288d10d934adde747b2125e3979e141d52a25807d45735ab"
+    },
+    {
+      "taskId": "log-02",
+      "repeat": 1,
+      "condition": "native-baseline",
+      "initialFilesHash": "d81049777c8bd2aab8e1e5e24177cf4bd33c1259925d316733da98315c7b1b4a"
+    },
+    {
+      "taskId": "bug-04",
+      "repeat": 1,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "6de08d4b3f90583624e61703be341079fecfacb58f5947256e36f97b2d5fd3b0"
+    },
+    {
+      "taskId": "reg-02",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "fa014a1baa0cc73843664e34bfcf8db988132cb6dc64f68e490638a3c53fef39"
+    },
+    {
+      "taskId": "bug-01",
+      "repeat": 2,
+      "condition": "native-baseline",
+      "initialFilesHash": "ea33f0af6b9a128167b4d0895b33d6b49f6c117fb9fca88d0e22d25bf2bd3bde"
+    },
+    {
+      "taskId": "type-06",
+      "repeat": 0,
+      "condition": "native-baseline",
+      "initialFilesHash": "b5d7e04b778a00ed00f9f07d71ab45395a1b504e823d5e68b91804957674ddee"
+    },
+    {
+      "taskId": "type-01",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "046ab7d87f3a1ee15602af703e8437be4f6c2b544f5bcf9b46973b5a399ba741"
+    },
+    {
+      "taskId": "reg-06",
+      "repeat": 0,
+      "condition": "optimized-baseline",
+      "initialFilesHash": "b973d32afc1eb17fd5c235e0e6e5c65fd3485385b1bbee953789f9f7cb50bab5"
+    },
+    {
+      "taskId": "bug-03",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "ffda73c6e810817f0d8e13c0fbc83df570bdc674bcac2349c1d180a41122cf07"
+    },
+    {
+      "taskId": "type-02",
+      "repeat": 1,
+      "condition": "codebudget",
+      "initialFilesHash": "1bc1269d70c454375f6e4c5b2393582629e506e8663cec5d80a0174859ba0503"
+    }
+  ],
+  "modelCalls": 0,
+  "cacheState": "uncontrolled/unknown",
+  "baselinePolicy": {
+    "native-baseline": "Native client defaults with the full task files.",
+    "optimized-baseline": "Same client/model, native file search, targeted reads and output options enabled as documented by the runner.",
+    "codebudget": "Same client/model and permissions, with CodeBudget context/reducers and all retrieval costs included."
+  },
+  "note": "A dry-run plan is not a completed model benchmark. Runner, pinned versions, spend/run limits and explicit opt-in are required."
+}

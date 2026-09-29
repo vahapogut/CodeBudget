@@ -1,0 +1,56 @@
+diff --git a/diff-0.ts b/diff-0.ts
+index 2873edc..a5610a4 100644
+--- a/diff-0.ts
++++ b/diff-0.ts
+@@ -1 +1 @@
+-export const count0 = 1;
++export const count0 = 2;
+diff --git a/diff-1.ts b/diff-1.ts
+index cc559b7..f917e7b 100644
+--- a/diff-1.ts
++++ b/diff-1.ts
+@@ -1 +1 @@
+-export const count1 = 1;
++export const count1 = 2;
+diff --git a/diff-2.ts b/diff-2.ts
+index ea0a0f0..bade307 100644
+--- a/diff-2.ts
++++ b/diff-2.ts
+@@ -1 +1 @@
+-export const count2 = 1;
++export const count2 = 2;
+diff --git a/diff-3.ts b/diff-3.ts
+index 052179a..1bb6302 100644
+--- a/diff-3.ts
++++ b/diff-3.ts
+@@ -1 +1 @@
+-export const count3 = 1;
++export const count3 = 2;
+diff --git a/diff-4.ts b/diff-4.ts
+index fc95eba..0bd065c 100644
+--- a/diff-4.ts
++++ b/diff-4.ts
+@@ -1 +1 @@
+-export const count4 = 1;
++export const count4 = 2;
+diff --git a/diff-5.ts b/diff-5.ts
+index af115e2..f3af72f 100644
+--- a/diff-5.ts
++++ b/diff-5.ts
+@@ -1 +1 @@
+-export const count5 = 1;
++export const count5 = 2;
+diff --git a/diff-6.ts b/diff-6.ts
+index bae5e93..9049ac9 100644
+--- a/diff-6.ts
++++ b/diff-6.ts
+@@ -1 +1 @@
+-export const count6 = 1;
++export const count6 = 2;
+diff --git a/diff-7.ts b/diff-7.ts
+index 8c8b48e..ca73582 100644
+--- a/diff-7.ts
++++ b/diff-7.ts
+@@ -1 +1 @@
+-export const count7 = 1;
++export const count7 = 2;

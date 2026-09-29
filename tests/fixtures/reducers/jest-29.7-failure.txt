@@ -1,0 +1,14 @@
+PASS tests/price-validation.test.ts
+PASS tests/currency-formatting.test.ts
+PASS tests/shipping-calculation.test.ts
+PASS tests/inventory-tracking.test.ts
+FAIL tests/refund.test.ts
+  ● refund rejects negative amount
+
+    expect(received).toEqual(expected)
+    Expected: "invalid amount"
+    Received: "accepted"
+      at tests/refund.test.ts:18:23
+
+Test Suites: 1 failed, 4 passed, 5 total
+Tests:       1 failed, 1 skipped, 4 passed, 6 total

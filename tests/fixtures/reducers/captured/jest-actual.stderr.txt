@@ -1,0 +1,21 @@
+FAIL ./jest-failure.test.cjs
+  ● rejects reused refresh token
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 200
+
+    > 1 | test('rejects reused refresh token', () => expect(200).toBe(401));
+        |                                                        ^
+      2 | test.skip('retains skipped count', () => {});
+      3 | test.todo('retains todo count');
+      4 |
+
+      at Object.<anonymous> (jest-failure.test.cjs:1:56)
+
+Test Suites: 1 failed, 3 passed, 4 total
+Tests:       1 failed, 1 skipped, 1 todo, 3 passed, 6 total
+Snapshots:   0 total
+Time:        7.416 s
+Ran all test suites.

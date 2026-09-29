@@ -1,0 +1,11 @@
+2026-09-29T12:00:00Z INFO starting queue processing
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+INFO queue poll succeeded with no pending jobs for tenant alpha
+2026-09-29T12:00:05Z ERROR request 28 failed: expected 200, actual 503
+2026-09-29T12:00:06Z ERROR request 29 failed: expected 200, actual 504
+2026-09-29T12:00:08Z INFO stopped queue processing

@@ -1,0 +1,13 @@
+On branch feature/auth
+
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+
+
+        modified:   src/auth.ts
+        deleted:    src/legacy.ts
+
+
+Untracked files:
+        tests/auth.test.ts
