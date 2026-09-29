@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { createIndexer, createLocalTokenizer, estimatedTokenizer, type RepositoryIndexer, type Tokenizer } from './index.js';
@@ -46,6 +46,28 @@ describe('Tree-sitter + SQLite FTS5 index', () => {
       expect((await reopened.prepareContext({ task: 'identity.ts', budget: 8000 })).repositoryId).toBe(store.repositoryId);
       expect(reopened.getChanges().repositoryId).toBe(store.repositoryId);
     } finally { store.close(); }
+  });
+
+  it('accepts root aliases for absolute data paths while rejecting linked data descendants', async () => {
+    const root = project();
+    const aliasParent = project();
+    const aliasRoot = join(aliasParent, 'repository');
+    symlinkSync(root, aliasRoot, process.platform === 'win32' ? 'junction' : 'dir');
+    file(root, 'value.ts', 'export const value = 1;');
+    const first = await indexer(aliasRoot);
+    expect(first.root).toBe(realpathSync(root));
+    expect(first.dataDir).toBe(join(realpathSync(root), '.codebudget'));
+    expect((await first.index()).files).toBe(1);
+    const reopened = await createIndexer(realpathSync(root), join(aliasRoot, '.codebudget'));
+    open.push(reopened);
+    expect(reopened.repositoryId).toBe(first.repositoryId);
+    expect((await reopened.index()).unchanged).toBe(1);
+    const relativeRoot = await createIndexer(relative(process.cwd(), root));
+    open.push(relativeRoot);
+    expect(relativeRoot.dataDir).toBe(first.dataDir);
+    expect((await relativeRoot.index()).unchanged).toBe(1);
+    symlinkSync(join(root, '.codebudget'), join(root, 'linked-data'), process.platform === 'win32' ? 'junction' : 'dir');
+    await expect(createIndexer(aliasRoot, join(aliasRoot, 'linked-data'))).rejects.toThrow('Symlink index data directory');
   });
   it('parses actual TS/JS/JSX/TSX bodies and keeps recovered syntax and text fallback honest', async () => {
     const root = project();

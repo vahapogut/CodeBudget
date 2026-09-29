@@ -1279,15 +1279,64 @@ import { parentPort, workerData } from "node:worker_threads";
 
 // packages/indexer/src/index.ts
 var import_ignore = __toESM(require_ignore(), 1);
-import { mkdirSync, readdirSync, realpathSync as realpathSync2, existsSync as existsSync2, chmodSync, lstatSync as lstatSync2 } from "node:fs";
-import { basename, extname as extname2, join as join2, relative as relative2, resolve as resolve2 } from "node:path";
+import { mkdirSync as mkdirSync2, readdirSync, realpathSync as realpathSync3, existsSync as existsSync3, chmodSync, lstatSync as lstatSync3 } from "node:fs";
+import { basename, extname as extname2, join as join2, relative as relative3, resolve as resolve3 } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { randomUUID } from "node:crypto";
 
+// packages/core/src/security.ts
+import { lstatSync, existsSync, realpathSync, writeFileSync, renameSync, unlinkSync, mkdirSync } from "node:fs";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
+var SECURITY_VERSION = "redaction-2";
+function sanitize(value) {
+  if (typeof value === "string") return redact(value);
+  if (Array.isArray(value)) return value.map(sanitize);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [redact(key), /(?:secret|password|api[_-]?key|(?:access|refresh)[_-]?token|authorization|cookie)/i.test(key) && typeof item === "string" ? "[REDACTED]" : sanitize(item)]));
+  return value;
+}
+function redact(text) {
+  if (typeof text !== "string") throw new Error("Redaction requires text");
+  return text.replace(/\u001b\][\s\S]*?(?:\u0007|\u001b\\)/g, "").replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").replace(/-----BEGIN (?:[A-Z ]*PRIVATE KEY|OPENSSH PRIVATE KEY)-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/g, "[REDACTED PRIVATE KEY]").replace(/\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{16,}|AKIA[A-Z0-9]{16})\b/g, "[REDACTED TOKEN]").replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[REDACTED JWT]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(["'])(?:\\.|(?!\2)[\s\S])*?\2/gi, "$1$2[REDACTED]$2").replace(/((?:authorization|proxy-authorization)\s*[:=]\s*["']?(?:Bearer|Basic)\s+)[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(?!["'])[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(https?:\/\/)[^/\s:@]+:[^/\s@]+@/g, "$1[REDACTED]@");
+}
+function safePath(root2, target) {
+  const base = realpathSync(root2);
+  let candidate = resolve(base, target);
+  let rel = relative(base, candidate);
+  const escapes = (path) => path === ".." || path.startsWith(`..${sep}`) || isAbsolute(path);
+  if (escapes(rel) && isAbsolute(target)) {
+    let anchor2;
+    for (let current2 = candidate; ; current2 = dirname(current2)) {
+      try {
+        if (relative(base, realpathSync(current2)) === "") anchor2 = current2;
+      } catch (error62) {
+        if (!["ENOENT", "ENOTDIR"].includes(error62.code ?? "")) throw error62;
+      }
+      if (dirname(current2) === current2) break;
+    }
+    if (anchor2) {
+      candidate = resolve(base, relative(anchor2, candidate));
+      rel = relative(base, candidate);
+    }
+  }
+  if (escapes(rel)) throw new Error("Path escapes repository");
+  let current = base;
+  for (const component of rel.split(sep).filter(Boolean)) {
+    current = resolve(current, component);
+    let linked = false;
+    try {
+      linked = lstatSync(current).isSymbolicLink();
+    } catch (error62) {
+      if (error62.code !== "ENOENT") throw error62;
+    }
+    if (linked) throw new Error("Symlink access denied");
+  }
+  return candidate;
+}
+
 // packages/indexer/src/parser.ts
 import { createRequire } from "node:module";
-import { existsSync } from "node:fs";
-import { dirname, extname, join } from "node:path";
+import { existsSync as existsSync2 } from "node:fs";
+import { dirname as dirname2, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // node_modules/.pnpm/web-tree-sitter@0.27.0/node_modules/web-tree-sitter/web-tree-sitter.js
@@ -5339,14 +5388,14 @@ var ready;
 var PARSER_VERSION = "web-tree-sitter@0.27.0/javascript@0.25.0/typescript@0.23.2/schema1";
 async function loadLanguages() {
   ready ??= (async () => {
-    const assets = join(dirname(fileURLToPath(import.meta.url)), "assets");
+    const assets = join(dirname2(fileURLToPath(import.meta.url)), "assets");
     const bundledRuntime = join(assets, "web-tree-sitter.wasm");
-    await Parser.init(existsSync(bundledRuntime) ? { locateFile: () => bundledRuntime } : void 0);
+    await Parser.init(existsSync2(bundledRuntime) ? { locateFile: () => bundledRuntime } : void 0);
     const languages = /* @__PURE__ */ new Map();
     for (const language of ["javascript", "typescript", "tsx"]) {
       const packageName = language === "javascript" ? "tree-sitter-javascript" : "tree-sitter-typescript";
       const bundledGrammar = join(assets, `tree-sitter-${language}.wasm`);
-      languages.set(language, await Language.load(existsSync(bundledGrammar) ? bundledGrammar : require2.resolve(`${packageName}/tree-sitter-${language}.wasm`)));
+      languages.set(language, await Language.load(existsSync2(bundledGrammar) ? bundledGrammar : require2.resolve(`${packageName}/tree-sitter-${language}.wasm`)));
     }
     return languages;
   })();
@@ -5407,8 +5456,8 @@ function parseSource(path, source, languages) {
 
 // packages/indexer/src/security.ts
 import { createHash } from "node:crypto";
-import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, realpathSync } from "node:fs";
-import { isAbsolute, relative, resolve, sep, win32 } from "node:path";
+import { closeSync, constants, fstatSync, lstatSync as lstatSync2, openSync, readFileSync, realpathSync as realpathSync2 } from "node:fs";
+import { isAbsolute as isAbsolute2, relative as relative2, resolve as resolve2, sep as sep2, win32 } from "node:path";
 function hash(value) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -5418,7 +5467,7 @@ function sensitivePath(path) {
   return parts2.some((part) => excludedDirectories.has(part.toLowerCase()) || /^\.env(?:\..*)?$/i.test(part) || /^(?:id_rsa|id_ed25519|id_ecdsa|credentials|secrets?)(?:\..*)?$/i.test(part) || /\.(?:pem|key|p12|pfx|jks|keystore|sqlite|sqlite3|db)(?:-wal|-shm)?$/i.test(part));
 }
 function normalizePath(path) {
-  if (path.includes("\0") || isAbsolute(path) || win32.isAbsolute(path) || /^[a-z]:/i.test(path)) {
+  if (path.includes("\0") || isAbsolute2(path) || win32.isAbsolute(path) || /^[a-z]:/i.test(path)) {
     throw new Error("Source path must be repository-relative");
   }
   const normalized = path.replaceAll("\\", "/").replace(/^\.\//, "");
@@ -5428,28 +5477,28 @@ function normalizePath(path) {
   return normalized;
 }
 function within(root2, candidate) {
-  const rel = relative(root2, candidate);
-  return rel === "" || !rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel);
+  const rel = relative2(root2, candidate);
+  return rel === "" || !rel.startsWith(`..${sep2}`) && rel !== ".." && !isAbsolute2(rel);
 }
 function readSource(root2, relativePath, maxBytes) {
   const safePath2 = normalizePath(relativePath);
   if (sensitivePath(safePath2)) throw new Error("Sensitive or excluded source path");
-  const absolute = resolve(root2, safePath2);
+  const absolute = resolve2(root2, safePath2);
   if (!within(root2, absolute)) throw new Error("Source escapes repository root");
   let current = root2;
   for (const part of safePath2.split("/")) {
-    current = resolve(current, part);
-    if (lstatSync(current).isSymbolicLink()) throw new Error("Symlink sources are excluded");
+    current = resolve2(current, part);
+    if (lstatSync2(current).isSymbolicLink()) throw new Error("Symlink sources are excluded");
   }
-  if (!within(root2, realpathSync(absolute))) throw new Error("Resolved source escapes repository root");
-  const before = lstatSync(absolute, { bigint: true });
+  if (!within(root2, realpathSync2(absolute))) throw new Error("Resolved source escapes repository root");
+  const before = lstatSync2(absolute, { bigint: true });
   if (!before.isFile() || before.size > BigInt(maxBytes)) throw new Error("Source is not a supported regular file or exceeds size limit");
   const descriptor = openSync(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
   try {
     const opened = fstatSync(descriptor, { bigint: true });
     const deviceChanged = before.dev !== 0n && opened.dev !== before.dev;
     if (deviceChanged || opened.ino !== before.ino || opened.size > BigInt(maxBytes)) throw new Error("Source identity changed while opening");
-    if (!within(root2, realpathSync(absolute))) throw new Error("Source containment changed while opening");
+    if (!within(root2, realpathSync2(absolute))) throw new Error("Source containment changed while opening");
     const bytes = readFileSync(descriptor);
     if (bytes.length > maxBytes) throw new Error("Source exceeded size limit while reading");
     if (bytes.includes(0)) throw new Error("Binary source is excluded");
@@ -5605,13 +5654,19 @@ var RepositoryIndexer = class {
   weights;
   dependencies;
   constructor(root2, dataDir2, options = {}) {
-    this.root = realpathSync2(resolve2(root2));
-    this.dataDir = resolve2(this.root, dataDir2);
+    this.root = realpathSync3(resolve3(root2));
+    try {
+      this.dataDir = safePath(this.root, dataDir2);
+    } catch (error62) {
+      if (error62 instanceof Error && error62.message === "Symlink access denied") throw new Error("Symlink index data directory denied");
+      if (error62 instanceof Error && error62.message === "Path escapes repository") throw new Error("Index data directory must be a dedicated directory inside the repository");
+      throw error62;
+    }
     if (!within(this.root, this.dataDir) || this.dataDir === this.root) throw new Error("Index data directory must be a dedicated directory inside the repository");
     let dataComponent = this.root;
-    for (const component of relative2(this.root, this.dataDir).split(/[\\/]/)) {
+    for (const component of relative3(this.root, this.dataDir).split(/[\\/]/)) {
       dataComponent = join2(dataComponent, component);
-      if (existsSync2(dataComponent) && lstatSync2(dataComponent).isSymbolicLink()) throw new Error("Symlink index data directory denied");
+      if (existsSync3(dataComponent) && lstatSync3(dataComponent).isSymbolicLink()) throw new Error("Symlink index data directory denied");
     }
     this.repositoryId = hash(process.platform === "win32" ? this.root.toLowerCase() : this.root);
     const legacyCacheId = hash(this.root).slice(0, 24);
@@ -5625,9 +5680,9 @@ var RepositoryIndexer = class {
     for (const weight of Object.values(this.weights)) if (!Number.isFinite(weight) || weight < 0) throw new Error("Ranking weights must be finite non-negative numbers");
     this.dependencies = { maxDepth: 2, maxFiles: 64, ...options.dependencies };
     if (!Number.isSafeInteger(this.dependencies.maxDepth) || this.dependencies.maxDepth < 0 || this.dependencies.maxDepth > 8 || !Number.isSafeInteger(this.dependencies.maxFiles) || this.dependencies.maxFiles < 0 || this.dependencies.maxFiles > 512) throw new Error("Dependency limits require maxDepth 0..8 and maxFiles 0..512");
-    mkdirSync(this.dataDir, { recursive: true, mode: 448 });
+    mkdirSync2(this.dataDir, { recursive: true, mode: 448 });
     const databasePath = join2(this.dataDir, `index-${legacyCacheId}.sqlite`);
-    for (const suffix of ["", "-wal", "-shm"]) if (existsSync2(databasePath + suffix) && lstatSync2(databasePath + suffix).isSymbolicLink()) throw new Error("Symlink index database denied");
+    for (const suffix of ["", "-wal", "-shm"]) if (existsSync3(databasePath + suffix) && lstatSync3(databasePath + suffix).isSymbolicLink()) throw new Error("Symlink index database denied");
     this.db = new DatabaseSync(databasePath);
     try {
       const version2 = this.db.prepare("PRAGMA user_version").get().user_version;
@@ -5682,8 +5737,8 @@ var RepositoryIndexer = class {
       const currentMatchers = [...matchers];
       for (const filename of [".gitignore", ".codebudgetignore"]) {
         const ignorePath = join2(directory, filename);
-        if (existsSync2(ignorePath)) {
-          const local = relative2(this.root, ignorePath).replaceAll("\\", "/");
+        if (existsSync3(ignorePath)) {
+          const local = relative3(this.root, ignorePath).replaceAll("\\", "/");
           try {
             currentMatchers.push({ base: directory, matcher: (0, import_ignore.default)().add(readSource(this.root, local, this.options.maxFileBytes)) });
           } catch {
@@ -5693,7 +5748,7 @@ var RepositoryIndexer = class {
       }
       for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => stableCompare(a.name, b.name))) {
         const absolute = join2(directory, entry.name);
-        const path = relative2(this.root, absolute).replaceAll("\\", "/");
+        const path = relative3(this.root, absolute).replaceAll("\\", "/");
         if (sensitivePath(path) || within(this.dataDir, absolute)) continue;
         if (entry.isSymbolicLink()) {
           skipped.push({ path, reason: "symlink" });
@@ -5701,7 +5756,7 @@ var RepositoryIndexer = class {
         }
         let ignored = false;
         for (const { base, matcher } of currentMatchers) {
-          const candidate = relative2(base, absolute).replaceAll("\\", "/") + (entry.isDirectory() ? "/" : "");
+          const candidate = relative3(base, absolute).replaceAll("\\", "/") + (entry.isDirectory() ? "/" : "");
           const result = matcher.test(candidate);
           if (result.ignored) ignored = true;
           if (result.unignored) ignored = false;
@@ -6061,38 +6116,11 @@ var RepositoryIndexer = class {
     return pkg;
   }
 };
-async function createIndexer(root2, dataDir2 = join2(root2, ".codebudget"), options = {}) {
+async function createIndexer(root2, dataDir2 = ".codebudget", options = {}) {
   await loadLanguages();
   if (options.tokenizer && options.tokenizerConfig) throw new Error("Choose injected tokenizer or tokenizerConfig, not both");
   const tokenizer = options.tokenizer ?? await createLocalTokenizer(options.tokenizerConfig);
   return new RepositoryIndexer(root2, dataDir2, { ...options, tokenizer });
-}
-
-// packages/core/src/security.ts
-import { lstatSync as lstatSync3, existsSync as existsSync3, realpathSync as realpathSync3, writeFileSync, renameSync, unlinkSync, mkdirSync as mkdirSync2 } from "node:fs";
-import { dirname as dirname2, isAbsolute as isAbsolute2, relative as relative3, resolve as resolve3, sep as sep2 } from "node:path";
-var SECURITY_VERSION = "redaction-2";
-function sanitize(value) {
-  if (typeof value === "string") return redact(value);
-  if (Array.isArray(value)) return value.map(sanitize);
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [redact(key), /(?:secret|password|api[_-]?key|(?:access|refresh)[_-]?token|authorization|cookie)/i.test(key) && typeof item === "string" ? "[REDACTED]" : sanitize(item)]));
-  return value;
-}
-function redact(text) {
-  if (typeof text !== "string") throw new Error("Redaction requires text");
-  return text.replace(/\u001b\][\s\S]*?(?:\u0007|\u001b\\)/g, "").replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").replace(/-----BEGIN (?:[A-Z ]*PRIVATE KEY|OPENSSH PRIVATE KEY)-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/g, "[REDACTED PRIVATE KEY]").replace(/\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{16,}|AKIA[A-Z0-9]{16})\b/g, "[REDACTED TOKEN]").replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[REDACTED JWT]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(["'])(?:\\.|(?!\2)[\s\S])*?\2/gi, "$1$2[REDACTED]$2").replace(/((?:authorization|proxy-authorization)\s*[:=]\s*["']?(?:Bearer|Basic)\s+)[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(?!["'])[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(https?:\/\/)[^/\s:@]+:[^/\s@]+@/g, "$1[REDACTED]@");
-}
-function safePath(root2, target) {
-  const base = realpathSync3(root2);
-  const candidate = resolve3(base, target);
-  const rel = relative3(base, candidate);
-  if (rel === ".." || rel.startsWith(`..${sep2}`) || isAbsolute2(rel)) throw new Error("Path escapes repository");
-  let current = base;
-  for (const component of rel.split(sep2).filter(Boolean)) {
-    current = resolve3(current, component);
-    if (existsSync3(current) && lstatSync3(current).isSymbolicLink()) throw new Error("Symlink access denied");
-  }
-  return candidate;
 }
 
 // packages/core/src/config.ts

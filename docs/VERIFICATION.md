@@ -6,9 +6,17 @@ Date: 2026-09-29. Product: 0.1.0-beta.1. Only executed checks are reported as pa
 
 The local roadmap improvements are implemented: nine captured reducer families, bounded transitive relative imports with provenance/freshness checks, two offline tokenizers with explicit model mapping, usage-gap/cumulative-series diagnostics and Claude2.1.216 PostCompact handling. The README now includes both dashboard themes and a concise native-plugin quickstart. The tokenizers remain opt-in; exact local encoding does not establish provider billing.
 
-The final pnpm verify passed lint, strict types, **13 Vitest files / 240 tests**, production build and **2 browser tests**. The updated frozen lockfile installs across all nine workspace projects. The refreshed dependency audit reports zero known advisories. There are 107 production/runtime license records, including a SHA-256-checked MIT text from the exact js-tiktoken npm gitHead because its npm archive omits that text.
+The final pnpm verify passed lint, strict types, **14 Vitest files / 244 tests**, production build and **2 browser tests**. The updated frozen lockfile installs across all nine workspace projects. The refreshed dependency audit reports zero known advisories. There are 107 production/runtime license records, including a SHA-256-checked MIT text from the exact js-tiktoken npm gitHead because its npm archive omits that text.
 
 The actual installed Codex0.139.0 app-server also connected to CodeBudget and discovered all three MCP tool schemas using an isolated temporary home and project. Only initialize, initialized and mcpServerStatus/list were sent: zero threads, turns, model or account requests. The final-build rerun passed; see [client smoke](CLIENT_SMOKE.md) and [result](client-smoke-result.json). This is client handshake evidence, not a model acceptance test.
+
+## Cross-platform CI
+
+The authorized initial push507f96f ran [all six OS/Node jobs](https://github.com/vahapogut/CodeBudget/actions/runs/36618600353). Both Ubuntu jobs passed the full verification and installed-package checks. Both macOS jobs exposed a real path-alias issue: canonical /private/var roots were compared with lexical /var targets. Both Windows jobs exposed adapter-test expectations comparing 8.3 temporary paths with canonical names. The first run is retained in [ci-results.json](ci-results.json), including failures.
+
+The fix resolves only a verified repository-root alias, then checks every descendant for links. It continues rejecting outside paths, linked descendants, self-links and dangling links. Indexer data-directory resolution uses the same boundary, and adapter tests compare canonical roots. New regression tests cover these cases. The corrected local pnpm verify passed all244 tests in14 files,2 browser tests, lint/types/build; the22-check clean package install and actual Codex handshake also passed again. The corrected CI run will be recorded after completion.
+
+The optional [Claude no-model health probe](CLAUDE_CLIENT_PROBE.md) did not establish the requested configuration isolation and was stopped. It does not count as a successful client connection. No prompt or model request was submitted.
 
 ## Dashboard redesign follow-up
 
@@ -28,7 +36,7 @@ The redesign passed pnpm verify (201 unit/integration tests, lint/typecheck/buil
 
 | Executed command | Actual result |
 |---|---|
-| pnpm verify | Passed after roadmap integration: lint, strict TypeScript, 13 Vitest files / 240 tests, production build, 2 Chromium Playwright tests. No model calls. |
+| pnpm verify | Passed after roadmap integration: lint, strict TypeScript, 14 Vitest files / 244 tests, production build, 2 Chromium Playwright tests. No model calls. |
 | pnpm install --frozen-lockfile | Passed for all 9 workspace projects after final manifests. |
 | pnpm build | Passed after standalone plugin license/assets packaging updates. |
 | pnpm smoke:package | 22 installed-package checks passed on Windows Node22.16.0; see [package-smoke-result.json](package-smoke-result.json). |
@@ -84,7 +92,7 @@ Unknown native hook versions decline semantic replacement. MCP does not intercep
 
 - R22 blocked_external: model invocation needs separate explicit authorization in the user's request. Manifest/process tests do not satisfy that gate.
 - No paid task benchmark, billing/quota experiment or real experimental summarizer/BYOK quality test.
-- Linux/macOS/Node24 CI prepared but unexecuted. Local results establish Windows Node22.16.0 behavior only.
+- First CI run: Ubuntu22/24 passed; macOS/Windows path mismatches are being corrected and reverified. See the cross-platform section and exact run evidence.
 - SQLite API is experimental on this runtime. Quotas limit main pages; active WAL transactions may transiently use additional disk. Prune excludes source files.
 - Redaction is imperfect defense in depth. Explicit run --raw forwards original unmasked machine bytes while archives stay masked. Unsupported native responses are not a universal secret filter.
 - Context ranking is syntactic/heuristic, not complete type/call resolution. Explicit local BPE counts cover only the controlled text; default estimates and hidden provider overhead are not exact provider counts. Unsaved editor buffers are invisible.

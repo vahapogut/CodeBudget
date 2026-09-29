@@ -66,13 +66,30 @@ export function isSensitivePath(path: string): boolean {
 
 export function safePath(root: string, target: string): string {
   const base = realpathSync(root);
-  const candidate = resolve(base, target);
-  const rel = relative(base, candidate);
-  if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) throw new Error('Path escapes repository');
+  let candidate = resolve(base, target);
+  let rel = relative(base, candidate);
+  const escapes = (path: string): boolean => path === '..' || path.startsWith(`..${sep}`) || isAbsolute(path);
+  if (escapes(rel) && isAbsolute(target)) {
+    // macOS /var -> /private/var (or a user-supplied root alias) may name the
+    // same repository. Resolve only its root anchor, never linked descendants.
+    let anchor: string | undefined;
+    for (let current = candidate; ; current = dirname(current)) {
+      try { if (relative(base, realpathSync(current)) === '') anchor = current; }
+      catch (error) { if (!['ENOENT', 'ENOTDIR'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error; }
+      if (dirname(current) === current) break;
+    }
+    // Use the outermost matching anchor: root/loop -> root must still be
+    // checked as a descendant link rather than accepted as another root.
+    if (anchor) { candidate = resolve(base, relative(anchor, candidate)); rel = relative(base, candidate); }
+  }
+  if (escapes(rel)) throw new Error('Path escapes repository');
   let current = base;
   for (const component of rel.split(sep).filter(Boolean)) {
     current = resolve(current, component);
-    if (existsSync(current) && lstatSync(current).isSymbolicLink()) throw new Error('Symlink access denied');
+    let linked = false;
+    try { linked = lstatSync(current).isSymbolicLink(); }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    if (linked) throw new Error('Symlink access denied');
   }
   return candidate;
 }

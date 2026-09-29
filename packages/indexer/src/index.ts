@@ -3,6 +3,7 @@ import { basename, extname, join, relative, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import ignore, { type Ignore } from 'ignore';
+import { safePath } from '../../core/src/security.js';
 import { loadLanguages, PARSER_VERSION, parseSource } from './parser.js';
 import { hash, normalizePath, readSource, redactSource, sensitivePath, within } from './security.js';
 import { expandDependencies } from './dependencies.js';
@@ -34,7 +35,12 @@ export class RepositoryIndexer {
 
   constructor(root: string, dataDir: string, options: IndexerOptions = {}) {
     this.root = realpathSync(resolve(root));
-    this.dataDir = resolve(this.root, dataDir);
+    try { this.dataDir = safePath(this.root, dataDir); }
+    catch (error) {
+      if (error instanceof Error && error.message === 'Symlink access denied') throw new Error('Symlink index data directory denied');
+      if (error instanceof Error && error.message === 'Path escapes repository') throw new Error('Index data directory must be a dedicated directory inside the repository');
+      throw error;
+    }
     if (!within(this.root, this.dataDir) || this.dataDir === this.root) throw new Error('Index data directory must be a dedicated directory inside the repository');
     let dataComponent = this.root;
     for (const component of relative(this.root, this.dataDir).split(/[\\/]/)) {
@@ -437,7 +443,7 @@ export class RepositoryIndexer {
   }
 }
 
-export async function createIndexer(root: string, dataDir = join(root, '.codebudget'), options: IndexerOptions = {}): Promise<RepositoryIndexer> {
+export async function createIndexer(root: string, dataDir = '.codebudget', options: IndexerOptions = {}): Promise<RepositoryIndexer> {
   await loadLanguages();
   if (options.tokenizer && options.tokenizerConfig) throw new Error('Choose injected tokenizer or tokenizerConfig, not both');
   const tokenizer = options.tokenizer ?? await createLocalTokenizer(options.tokenizerConfig);

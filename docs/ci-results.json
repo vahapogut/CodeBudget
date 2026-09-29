@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-29T19:28:31.067Z",
+  "initialRun": {
+    "id": 36618600353,
+    "commit": "507f96fddd657eceb9f5933ec6ef8bd1641a1ff5",
+    "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "id": 109577908451,
+        "name": "verify (macos-latest, 24)",
+        "conclusion": "failure",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577908451",
+        "startedAt": "2026-09-29T19:21:04Z",
+        "completedAt": "2026-09-29T19:21:47Z"
+      },
+      {
+        "id": 109577908870,
+        "name": "verify (ubuntu-latest, 22)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577908870",
+        "startedAt": "2026-09-29T19:21:01Z",
+        "completedAt": "2026-09-29T19:22:07Z"
+      },
+      {
+        "id": 109577908926,
+        "name": "verify (windows-latest, 24)",
+        "conclusion": "failure",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577908926",
+        "startedAt": "2026-09-29T19:21:01Z",
+        "completedAt": "2026-09-29T19:26:08Z"
+      },
+      {
+        "id": 109577908932,
+        "name": "verify (windows-latest, 22)",
+        "conclusion": "failure",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577908932",
+        "startedAt": "2026-09-29T19:21:02Z",
+        "completedAt": "2026-09-29T19:26:02Z"
+      },
+      {
+        "id": 109577909095,
+        "name": "verify (macos-latest, 22)",
+        "conclusion": "failure",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577909095",
+        "startedAt": "2026-09-29T19:21:07Z",
+        "completedAt": "2026-09-29T19:22:22Z"
+      },
+      {
+        "id": 109577909158,
+        "name": "verify (ubuntu-latest, 24)",
+        "conclusion": "success",
+        "url": "https://github.com/vahapogut/CodeBudget/actions/runs/36618600353/job/109577909158",
+        "startedAt": "2026-09-29T19:21:01Z",
+        "completedAt": "2026-09-29T19:22:18Z"
+      }
+    ]
+  },
+  "initialDiagnosis": "macOS canonical /var aliases and Windows 8.3 names caused boundary/test path mismatches; both Linux jobs passed. Fix preserves descendant link and outside-root rejection.",
+  "finalRun": null
+}

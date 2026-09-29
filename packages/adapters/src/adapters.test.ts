@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join, relative } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -17,7 +17,8 @@ describe('project-local adapter installation', () => {
     const options = { client, projectRoot, action: 'install' as const };
     const plan = await planAdapterChange(options);
     expect(plan.changes).toHaveLength(3);
-    expect(plan.changes.every((change) => change.path.startsWith(projectRoot))).toBe(true);
+    const canonicalRoot = await realpath(projectRoot);
+    expect(plan.changes.every((change) => change.path.startsWith(canonicalRoot))).toBe(true);
     await expect(readFile(plan.changes[0]!.path)).rejects.toMatchObject({ code: 'ENOENT' });
     expect((await applyAdapterPlan(plan)).applied).toBe(true);
     expect((await planAdapterChange(options)).changes).toHaveLength(0);
@@ -34,7 +35,8 @@ describe('project-local adapter installation', () => {
     await writeFile(path, JSON.stringify({ setting: 'before', mcpServers: { other: { command: 'other-tool' } } }));
     const install = await planAdapterChange({ client: 'claude', projectRoot, action: 'install' });
     const result = await applyAdapterPlan(install);
-    expect(result.backups.every(path => path.startsWith(join(projectRoot, '.codebudget', 'adapters', 'backups')))).toBe(true);
+    const canonicalRoot = await realpath(projectRoot);
+    expect(result.backups.every(path => path.startsWith(join(canonicalRoot, '.codebudget', 'adapters', 'backups')))).toBe(true);
     expect(JSON.parse(await readFile(result.backups[0]!, 'utf8')).setting).toBe('before');
     const config = JSON.parse(await readFile(path, 'utf8')) as { setting: string; mcpServers: Record<string, unknown> };
     config.setting = 'user-edited'; config.mcpServers.newUserServer = { command: 'later' }; await writeFile(path, JSON.stringify(config));
@@ -115,7 +117,7 @@ describe('project-local adapter installation', () => {
     await writeFile(path, '{"mcpServers":{"other":{"env":{"API_KEY":"private"}}}}');
     await writeFile(join(projectRoot, '.gitignore'), 'mine/\n.codebudget/\n!.codebudget/\n!.codebudget/**\n');
     const plan = await planAdapterChange({ client: 'claude', projectRoot, action: 'install' });
-    expect(plan.changes[0]!.path).toBe(join(projectRoot, '.gitignore'));
+    expect(plan.changes[0]!.path).toBe(join(await realpath(projectRoot), '.gitignore'));
     const result = await applyAdapterPlan(plan); expect(result.backups.length).toBeGreaterThan(0);
     expect((await readFile(join(projectRoot, '.gitignore'), 'utf8')).endsWith('/.codebudget/\n')).toBe(true);
     await applyAdapterPlan(await planAdapterChange({ client: 'claude', projectRoot, action: 'uninstall' }));

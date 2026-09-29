@@ -20550,13 +20550,35 @@ function redact(text) {
 }
 function safePath(root, target) {
   const base = realpathSync(root);
-  const candidate = resolve(base, target);
-  const rel = relative(base, candidate);
-  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) throw new Error("Path escapes repository");
+  let candidate = resolve(base, target);
+  let rel = relative(base, candidate);
+  const escapes = (path) => path === ".." || path.startsWith(`..${sep}`) || isAbsolute(path);
+  if (escapes(rel) && isAbsolute(target)) {
+    let anchor2;
+    for (let current2 = candidate; ; current2 = dirname(current2)) {
+      try {
+        if (relative(base, realpathSync(current2)) === "") anchor2 = current2;
+      } catch (error62) {
+        if (!["ENOENT", "ENOTDIR"].includes(error62.code ?? "")) throw error62;
+      }
+      if (dirname(current2) === current2) break;
+    }
+    if (anchor2) {
+      candidate = resolve(base, relative(anchor2, candidate));
+      rel = relative(base, candidate);
+    }
+  }
+  if (escapes(rel)) throw new Error("Path escapes repository");
   let current = base;
   for (const component of rel.split(sep).filter(Boolean)) {
     current = resolve(current, component);
-    if (existsSync(current) && lstatSync(current).isSymbolicLink()) throw new Error("Symlink access denied");
+    let linked = false;
+    try {
+      linked = lstatSync(current).isSymbolicLink();
+    } catch (error62) {
+      if (error62.code !== "ENOENT") throw error62;
+    }
+    if (linked) throw new Error("Symlink access denied");
   }
   return candidate;
 }

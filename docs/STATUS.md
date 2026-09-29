@@ -16,7 +16,7 @@ Checkpoint: 2026-09-29. Local beta0.1.0-beta.1 is implemented, verified and pack
 
 ## Completed checks
 
-- pnpm verify:240 tests in13 Vitest files,2 Chromium browser tests, lint/typecheck/production build all passed after roadmap integration.
+- pnpm verify:244 tests in 14 Vitest files,2 Chromium browser tests, lint/typecheck/production build all passed after roadmap integration.
 - pnpm install --frozen-lockfile: all9 workspace projects passed.
 - pnpm smoke:package:22 installed-package checks passed on Windows Node22.16.0, including both offline encodings, unknown-model fallback, MCP worker, compaction lifecycle, hook reduction/archive and standalone licenses.
 - pnpm smoke:clients: installed Codex0.139.0 app-server connected and discovered all3 tools; temporary client home/project removed; no thread/turn/model/account requests.
@@ -26,16 +26,16 @@ Checkpoint: 2026-09-29. Local beta0.1.0-beta.1 is implemented, verified and pack
 
 ## Git and authority
 
-The initial directory contained only the master prompt; the remote had no refs. The user explicitly authorized GitHub push on2026-09-29. Remote: https://github.com/vahapogut/CodeBudget.git; branch:main. Author: vahapogut <110431024+vahapogut@users.noreply.github.com>. GitHub source push and the prepared CI matrix are in progress at this checkpoint. Local data and temporary outputs are ignored; plugin bundles are distributable files.
+The initial directory contained only the master prompt; the remote had no refs. The user explicitly authorized GitHub push on2026-09-29. Remote: https://github.com/vahapogut/CodeBudget.git; branch:main. Author: vahapogut <110431024+vahapogut@users.noreply.github.com>. Initial source commit507f96f is pushed. Its Linux22/24 CI jobs passed; macOS and Windows path mismatches are fixed locally and the corrected matrix is being reverified. Local data and temporary outputs are ignored; plugin bundles are distributable files.
 
 No model call, global IDE change, account connection, npm publication or deployment occurred.
 
 ## Remaining evidence and separate scope
 
 1. Execute an explicitly authorized real Claude session for R22: actual model-facing replacement, retained diagnostics and evidence retrieval. Local protocol fixtures do not satisfy it.
-2. Record each Linux/macOS/Windows × Node22/24 CI job after the authorized push; local results currently establish Windows Node22.16.0 only.
+2. Complete the corrected Linux/macOS/Windows × Node22/24 CI matrix and retain the initial failure evidence.
 3. Supply a faithful runner and explicit budget before real task/model-quality experiments. The270-run plan is not executed evidence.
 4. Verify other real clients/versions independently. Resolve npm package identity before npm publication.
 5. SaaS, accounts, billing, multi-tenant storage and marketplace remain a separate future product decision, outside local v1.
 
-There is no known failing local gate at this checkpoint. [Execution plan](EXECUTION_PLAN.md) maps requirements and [roadmap](../ROADMAP.md) lists the completed local improvements and external gates.
+The initial CI failures are recorded and addressed; corrected local/remote verification is in progress. [Execution plan](EXECUTION_PLAN.md) maps requirements and [roadmap](../ROADMAP.md) lists the completed local improvements and external gates.
