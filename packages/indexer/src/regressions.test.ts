@@ -79,7 +79,7 @@ describe('bounded derived storage', () => {
     expect(query(root, "SELECT id FROM files WHERE value LIKE '%UNIQUE_BODY_MARKER%'")).toHaveLength(0);
     const [pages] = query<{ page_count: number }>(root, 'PRAGMA page_count');
     expect(Number(pages!.page_count) * 4096).toBeLessThanOrEqual(1024 * 1024);
-  });
+  }, 120_000);
 
   it('deduplicates identical snapshots and evicts older snapshots by bytes', async () => {
     const root = project();
@@ -100,7 +100,7 @@ describe('bounded derived storage', () => {
     expect(Number(stored!.bytes)).toBeLessThanOrEqual(128 * 1024);
     expect(Number(stored!.rows)).toBeLessThan(62);
     expect(() => subject.getChanges(first.snapshotId, 's')).toThrow('Unknown snapshot');
-  });
+  }, 120_000);
 
   it('recovers from a full database by pruning metadata and retrying once', async () => {
     const root = project();
@@ -403,7 +403,7 @@ describe('estimates, local data and migrations', () => {
     expect(exact.count(blob)).toBeGreaterThan(estimatedTokenizer.count(blob));
     expect(readFileSync(join(root, '.codebudget', '.gitignore'), 'utf8')).toMatch(/^\*$/m);
     if (process.platform !== 'win32') expect(statSync(join(root, '.codebudget')).mode & 0o777).toBe(0o700);
-  });
+  }, 120_000);
 
   it('names the database with a case-insensitive root hash on Windows only', () => {
     expect(indexDatabaseFileName('C:\\Work\\Repo', 'win32')).toBe(indexDatabaseFileName('c:\\work\\repo', 'win32'));

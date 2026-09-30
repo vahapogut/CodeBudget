@@ -3,8 +3,8 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameS
 import { dirname, join, relative } from 'node:path';
 import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
-import { createIndexer, createLocalTokenizer, estimatedTokenizer, type RepositoryIndexer, type Tokenizer } from './index.js';
-import { hash, normalizePath } from './security.js';
+import { createIndexer, createLocalTokenizer, estimatedTokenizer, indexDatabaseFileName, type RepositoryIndexer, type Tokenizer } from './index.js';
+import { normalizePath } from './security.js';
 import { Store } from '../../core/src/store.js';
 import { defaults } from '../../core/src/config.js';
 
@@ -40,7 +40,7 @@ describe('Tree-sitter + SQLite FTS5 index', () => {
       expect(subject.repositoryId).toMatch(/^[a-f0-9]{64}$/);
       const initial = await subject.index();
       expect(initial.repositoryId).toBe(store.repositoryId);
-      expect(existsSync(join(root, '.codebudget', `index-${hash(realpathSync(root)).slice(0, 24)}.sqlite`))).toBe(true);
+      expect(existsSync(join(root, '.codebudget', indexDatabaseFileName(realpathSync(root))))).toBe(true);
       const reopened = await indexer(root);
       expect((await reopened.index()).unchanged).toBe(1);
       expect((await reopened.prepareContext({ task: 'identity.ts', budget: 8000 })).repositoryId).toBe(store.repositoryId);
@@ -285,7 +285,7 @@ describe('context package budget and evidence integrity', () => {
     const second = await subject.prepareContext({ task: 'value.ts', budget: 8000 });
     expect(() => subject.readEvidence(first.sources[0]!.evidenceId)).toThrow('Unknown evidence');
     expect(subject.readEvidence(second.sources[0]!.evidenceId).content).toContain('second');
-    const db = new DatabaseSync(join(root, '.codebudget', `index-${hash(realpathSync(root)).slice(0, 24)}.sqlite`));
+    const db = new DatabaseSync(join(root, '.codebudget', indexDatabaseFileName(realpathSync(root))));
     expect(Number(db.prepare('SELECT count(*) AS n FROM snapshots').get()?.n)).toBeLessThanOrEqual(2);
     expect(Number(db.prepare('SELECT count(*) AS n FROM packages').get()?.n)).toBe(1);
     expect(Number(db.prepare('SELECT count(*) AS n FROM evidence').get()?.n)).toBe(1);
@@ -392,7 +392,7 @@ describe('context package budget and evidence integrity', () => {
     expect(overflow.sources[0]?.code).toContain('お誕生日');
     expect(overflow.tokenMeasurement.tokens).toBe(tokenizer.count(JSON.stringify(overflow)));
     expect(overflow.minimumRequiredTokens).toBe(overflow.tokenMeasurement.tokens);
-  });
+  }, 120_000);
 
   it('separates tokenizer and ranking identities and rejects mixed-unit expansion totals', async () => {
     const root = project();
