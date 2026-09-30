@@ -110,7 +110,7 @@ describe('SQLite evidence and isolation', () => {
     expect(store.artifactText(artifact.id)).toBe('one\ntwo\n');
     expect(store.getArtifact(artifact.id)).toMatchObject({ complete: false, hash: null });
     expect(store.finishArtifact(artifact.id).complete).toBe(true);
-    expect(() => store.db.prepare('INSERT INTO chunks VALUES (?,?,?,?,?)').run('missing', 0, 'stdout', '', '')).toThrow();
+    expect(() => store.db.prepare('INSERT INTO chunks(artifact,seq,stream,time,text,first_line,line_count) VALUES (?,?,?,?,?,?,?)').run('missing', 0, 'stdout', '', '', 0, 1)).toThrow(/FOREIGN KEY/);
     expect(store.db.prepare('PRAGMA quick_check').get()?.quick_check).toBe('ok');
   });
   it('preserves a corrupt database instead of destroying evidence', () => {
@@ -181,10 +181,13 @@ describe('argv runner', () => {
     expect((await runCommand(store, options)).repeatedFailure).toBe(true);
     writeFileSync(join(root, 'a.ts'), 'export const a=2;'); expect((await runCommand(store, options)).repeatedFailure).toBe(false);
   });
-  it('catches injected SQLite disk failure without exposing output', async () => {
-    const { store } = fixture(); store.append = () => { throw new Error('SQLITE_FULL injected'); };
-    const result = await runCommand(store, { executable: process.execPath, args: ['-e', 'console.log("api_key=supersecret");setTimeout(()=>{},5000)'] });
-    expect(result.wrapperError).toContain('SQLITE_FULL'); expect(result.truncated).toBe(true); expect(result.output).not.toContain('supersecret');
+  it('lets the command finish when evidence storage fails and never exposes unmasked output', async () => {
+    const { root, store } = fixture(); store.append = () => { throw new Error('SQLITE_FULL injected'); };
+    const marker = join(root, 'finished.marker');
+    const result = await runCommand(store, { executable: process.execPath, args: ['-e', `console.log("api_key=supersecret");setTimeout(()=>require("fs").writeFileSync(${JSON.stringify(marker)},"done"),300)`] });
+    expect(result.childExitCode).toBe(0); expect(result.signal).toBeNull(); expect(readFileSync(marker, 'utf8')).toBe('done');
+    expect(result.wrapperError).toBeNull(); expect(result.archiveError).toContain('SQLITE_FULL'); expect(result.truncated).toBe(true);
+    expect(result.output).toContain('api_key=[REDACTED]'); expect(result.output).not.toContain('supersecret');
   });
   it('stores exact unterminated output and keeps raw bytes separate from model evidence', async () => {
     const { store } = fixture({ rawArchive: true });
@@ -197,7 +200,7 @@ describe('argv runner', () => {
   it('preserves child status when artifact finalization or report recording fails', async () => {
     const { store } = fixture(); store.finishArtifact = () => { throw new Error('SQLITE_FULL finalization'); }; store.recordRun = () => { throw new Error('SQLITE_FULL record'); };
     const result = await runCommand(store, { executable: process.execPath, args: ['-e', 'console.log("secret=private");process.exit(9)'] });
-    expect(result.childExitCode).toBe(9); expect(result.status).toBe('failure'); expect(result.wrapperError).toContain('finalization'); expect(result.output).not.toContain('private');
+    expect(result.childExitCode).toBe(9); expect(result.status).toBe('failure'); expect(result.wrapperError).toBeNull(); expect(result.archiveError).toContain('finalization'); expect(result.output).not.toContain('private');
   });
   it('times out even when a machine sink never releases backpressure', async () => {
     const { store } = fixture(); const sink = new Writable({ highWaterMark: 1, write(_chunk, _encoding, _callback) { /* Simulate a stuck downstream pipe. */ } });

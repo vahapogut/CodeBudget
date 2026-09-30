@@ -66,7 +66,9 @@ it('retains the complete MCP context package for dashboard inspection, including
   const context = JSON.parse(content[0]!.text) as ContextPackage;
   expect(context.status).toBe('budget_exceeded');
   expect(context.minimumRequiredTokens).toBeGreaterThan(context.budget);
-  const stored = runtime.store.report().contextPackages[0] as ContextPackage & { timestamp: string };
+  // The report lists a bounded summary; the complete package stays available on demand.
+  expect(runtime.store.report().contextPackages[0]).toMatchObject({ id: context.id, purpose: 'auth.ts', status: 'budget_exceeded', detail: 'summary' });
+  const stored = runtime.store.contextPackage(context.id) as ContextPackage & { timestamp: string };
   const { timestamp, ...retainedPackage } = stored;
   expect(Date.parse(timestamp)).not.toBeNaN();
   expect(retainedPackage).toEqual(context);
@@ -101,5 +103,5 @@ it('MCP worker applies offline tokenizer and dependency config to its complete m
   expect(context.tokenMeasurement.tokens).toBe(tokenizer.count(JSON.stringify({ content })));
   expect(context.sources.find(source => source.path === 'final.ts')?.dependency).toMatchObject({ depth: 2, path: ['auth.ts', 'helper.ts', 'final.ts'] });
   expect(context.dependencyExpansion).toMatchObject({ maxDepth: 3, maxFiles: 4, expandedFiles: 2 });
-  expect(runtime.store.report().contextPackages[0]).toMatchObject(context);
+  expect(runtime.store.contextPackage(context.id)).toMatchObject(context);
 }, 15000);
