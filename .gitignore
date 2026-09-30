@@ -19,3 +19,5 @@ coverage/
 .cursorrules
 .windsurfrules
 copilot-instructions.md
+# Local assistant workspaces and settings never enter the repository.
+.claude/
