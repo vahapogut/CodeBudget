@@ -14,7 +14,8 @@ function fixture(overrides: Partial<Config> = {}) {
   const root = mkdtempSync(join(tmpdir(), 'codebudget-store-')); dirs.push(root);
   const store = new Store(root, { ...defaults(), ...overrides }); stores.push(store); return { root, store };
 }
-afterEach(() => { for (const store of stores.splice(0)) store.close(); for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true }); });
+// Windows can briefly keep a just-closed database or child working directory locked.
+afterEach(() => { for (const store of stores.splice(0)) store.close(); for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); });
 const node = (script: string) => ({ executable: process.execPath, args: ['-e', script] });
 
 describe('evidence storage', () => {
@@ -58,7 +59,8 @@ describe('evidence storage', () => {
 
   it('bounds evidence pages and returns a slim header without chunk timing detail', async () => {
     const { store } = fixture();
-    const result = await runCommand(store, node('let i=0;const t=setInterval(()=>{process.stdout.write(`line ${i}\\n`);if(++i===3000)clearInterval(t)},0)'));
+    // Many separate writes without timers: a zero-delay interval runs at the OS timer resolution (about 16 ms on Windows).
+    const result = await runCommand(store, node('let i=0;const step=()=>{process.stdout.write(`line ${i}\\n`);if(++i<3000)setImmediate(step)};step()'));
     const page = store.readEvidence(result.artifactId!, 0, 1000);
     const serialized = JSON.stringify(page);
     expect(serialized.length).toBeLessThan(70 * 1024); expect(serialized).not.toContain('chunkOrder'); expect(page.artifact.id).toBe(result.artifactId);

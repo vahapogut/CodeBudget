@@ -86,7 +86,9 @@ export class Store {
     this.db = new DatabaseSync(dbFile, { timeout: 5000 });
     try {
       chmodSync(dbFile, 0o600);
-      this.db.exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;');
+      // WAL with synchronous=NORMAL stays consistent after a crash and syncs at checkpoints instead of on every
+      // evidence batch (a per-commit sync costs tens of milliseconds on Windows); a power loss can drop the latest batches.
+      this.db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;');
       this.migrate();
       // The index database reserves the remaining quarter of the configured page budget.
       // WAL files are transient and can exceed this total while readers hold snapshots.
