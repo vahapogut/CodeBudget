@@ -54,7 +54,7 @@ cd /absolute/path/to/your-project
 claude --plugin-dir /absolute/path/to/CodeBudget/plugins/claude-codebudget
 ```
 
-Use quoted absolute paths when they contain spaces. Plugin loading is session-scoped: omit `--plugin-dir` to stop loading it. Avoid registering a second copy of its MCP server. Claude Code **2.1.216** is the exact tested hook-contract version; real model-visible replacement is still an [acceptance gate](docs/VERIFICATION.md#adapter-boundary).
+Use quoted absolute paths when they contain spaces. Plugin loading is session-scoped: omit `--plugin-dir` to stop loading it. Avoid registering a second copy of its MCP server. Output replacement is enabled for Claude Code **2.1.216 and later 2.x releases**; hook-contract fixtures run on 2.1.216 and 2.1.285, and CI checks the installed plugin against the newest published client. Unrecognized output shapes keep the original result, and `codebudget doctor` reports why the hook stayed inactive. Real model-visible replacement is still an [acceptance gate](docs/VERIFICATION.md#adapter-boundary).
 
 To use the CLI from this checkout:
 
@@ -66,7 +66,7 @@ node dist/cli.js report --format json
 node dist/cli.js dashboard
 ```
 
-Open the dashboard URL printed by the CLI. Its access token is local and should stay private. No daemon starts until you request one.
+Open the dashboard URL printed by the CLI. The link works once: the page exchanges it for a session token, so a copied browser-history entry cannot reopen the dashboard. Keep the running process private. No daemon starts until you request one.
 
 For a portable local installation, use `pnpm pack:release` and install the resulting archive from `dist/`. An npm registry release is not yet available; plain `pnpm pack` is not the release workflow.
 
@@ -115,7 +115,7 @@ The [benchmark report](docs/BENCHMARKS.md) separates synthetic fixtures from cap
 
 ## Privacy and compatibility
 
-Evidence is masked before normal storage and is repository-scoped. Raw archival is a separate explicit opt-in. Redaction is imperfect; the existing coding client still controls what it sends to its provider. `run --raw` forwards original unmasked machine output while keeping the normal archive masked.
+Evidence is masked before normal storage and is repository-scoped. Raw archival is a separate explicit opt-in that a committed `.codebudget.json` cannot enable: use the ignored `.codebudget/local.json` or `CODEBUDGET_RAW_ARCHIVE=1`. Storage stays within `diskBudgetBytes` by evicting the oldest evidence first. Redaction is imperfect; the existing coding client still controls what it sends to its provider. `run --raw` forwards original unmasked machine output while keeping the normal archive masked.
 
 The dashboard has no analytics, remote fonts or hosted backend. It uses loopback authentication and renders evidence as text. Client integrations preserve normal permissions and do not alter global settings. MCP registration exposes tools; it does not intercept every built-in client operation. See [privacy](PRIVACY.md), [security](SECURITY.md) and the [client support matrix](docs/ADAPTERS.md).
 
@@ -141,5 +141,6 @@ The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do no
 | [License policy](LICENSING.md) | Free use, commercial permission and prior Apache rights |
 | [Execution plan](docs/EXECUTION_PLAN.md) | Requirement-by-requirement evidence |
 | [Roadmap](ROADMAP.md) | Completed local work and remaining external gates |
+| [Changelog](CHANGELOG.md) | Changes by version |
 
 Created by [vahapogut](https://github.com/vahapogut). Current terms: [CodeBudget Free Use License 1.0](LICENSE). Commercial offerings require written permission. [Prior Apache-2.0 grants](LICENSING.md#prior-apache-20-releases-remain-usable) and dependencies' [original licenses](THIRD_PARTY_NOTICES.md) remain in effect.

@@ -1,6 +1,6 @@
 # Local dashboard
 
-Start with `codebudget dashboard`. Open the printed URL, including its bootstrap fragment. The server runs only while that CLI process is alive. Its data is the current repository's actual SQLite records; no sample charts or manufactured savings are inserted.
+Start with `codebudget dashboard`. Open the printed URL, including its bootstrap fragment. The link works once; run the command again for a new one. The server runs only while that CLI process is alive. Its data is the current repository's actual SQLite records; no sample charts or manufactured savings are inserted.
 
 The dashboard provides overview, sessions and task state, recorded command/output comparisons, paged evidence, context package inspection, saved benchmark records, and the adapter support matrix. Imported usage, output bytes and unmeasured task savings remain separate. Unknown provider usage, billing and subscription quota are not displayed as zero. Empty states include the relevant CLI action. Adapter version detection is not inferred from a successful HTTP request.
 
@@ -12,7 +12,7 @@ Navigation exposes its current page and a keyboard skip link. Inputs have access
 
 The toolbar switches between light and dark themes. A saved choice in origin-scoped browser local storage survives page reloads; before a choice exists, the operating system's color-scheme preference supplies the initial theme. Storage failure does not disable the toggle. This appearance preference contains no repository data or credentials and does not change IDE settings.
 
-The backend exports `startDashboard({ store, port?, assetsDir?, host?, clientVersions? })` and returns `{ url, origin, close() }`. The only allowed bind address is `127.0.0.1`; default port is zero (a free ephemeral port). The CLI supplies its packaged `dist/dashboard` directory. To build the standalone frontend during development:
+The backend exports `startDashboard({ store, port?, assetsDir?, host?, clientVersions? })` and returns `{ url, origin, newLink(), close() }`; `newLink()` issues a fresh single-use link without restarting the server. The only allowed bind address is `127.0.0.1`; default port is zero (a free ephemeral port). The CLI supplies its packaged `dist/dashboard` directory. To build the standalone frontend during development:
 
 ```sh
 pnpm exec vite build --config apps/dashboard/vite.config.ts
@@ -20,13 +20,17 @@ pnpm exec vite build --config apps/dashboard/vite.config.ts
 
 The Node API is read-only:
 
-- `GET /api/report[?session=<id>]` reads stored report data. At most 200 runs and 100 entries in each displayed event list are returned; counts state the scope.
+- `GET /api/session` exchanges the single-use bootstrap secret for the API token. A second exchange is rejected.
+- `GET /api/report[?session=<id>]` reads stored report data. Runs and context packages are summaries; at most 200 runs and 100 entries in each displayed event list are returned. `runCount` and the byte totals still cover every retained run.
+- `GET /api/run/<run-id>[?session=<id>]` and `GET /api/context/<package-id>[?session=<id>]` return one complete stored record on demand. A session filter rejects records from another session.
 - `GET /api/evidence/<artifact-id>?offset=0&limit=200[&session=<id>]` returns retained, redacted historical records. It never reruns a command or serves raw opt-in archives.
-- `GET /api/export?format=json|csv[&session=<id>]` exports redacted reports or run rows. CSV formula prefixes are escaped.
+- `GET /api/export?format=json|csv[&session=<id>]` exports redacted reports or run rows, up to 64 MiB. CSV formula prefixes are escaped.
 
-All API calls require a fresh random 256-bit bearer token. The initial URL carries it in a fragment (not a request query or server log); the frontend removes the fragment and retains the token in tab-scoped session storage. Restarting the server invalidates the token. Static UI files contain no repository records.
+Evidence views from the dashboard are human inspection, not agent retrievals, and are not recorded as retrieval events. Unknown paths return a generic `{"error":"Not found"}` without local file-system details.
 
-Host must exactly match the bound loopback host and port, Origin when present must exactly match the server, and cross-site Fetch Metadata is rejected. Cookies do not grant access. Non-GET methods and preflight are rejected. Responses have no CORS allowlist, no-store caching, same-origin resource policy, no-referrer policy, frame denial and strict CSP. There are no inline executable scripts, remote fonts, CDN assets, analytics or automatic external network requests. Code and logs render through React text nodes; no HTML interpretation occurs. Sensitive-data redaction is required before JSON and CSV export. API responses larger than 8 MiB fail visibly rather than silently truncate.
+All data API calls require a random 256-bit bearer token that is never printed. The initial URL carries a separate single-use 256-bit bootstrap secret in a fragment (not a request query or server log); the frontend removes the fragment, exchanges the secret once through `/api/session` and retains the API token in tab-scoped session storage. A copied link from terminal scrollback or browser history therefore cannot read data after the first use. Restarting the server invalidates both secrets. Static UI files contain no repository records.
+
+Host must exactly match the bound loopback host and port, Origin when present must exactly match the server, and cross-site Fetch Metadata is rejected. Cookies do not grant access. Non-GET methods and preflight are rejected. Responses have no CORS allowlist, no-store caching, same-origin resource policy, no-referrer policy, frame denial and strict CSP. There are no inline executable scripts, remote fonts, CDN assets, analytics or automatic external network requests. Code and logs render through React text nodes; no HTML interpretation occurs. Sensitive-data redaction is required before JSON and CSV export. API responses larger than 8 MiB (64 MiB for exports) fail visibly with 413 rather than silently truncate.
 
 Security is scoped to browser-origin isolation and the local process. Another process running as the same OS user can potentially inspect process memory, files or browser state; the loopback token is not an OS sandbox. Unsaved editor buffers and invisible IDE requests are unavailable.
 

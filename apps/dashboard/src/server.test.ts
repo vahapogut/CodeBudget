@@ -106,6 +106,9 @@ describe('secure local dashboard API', () => {
     expect(body.runCount).toBe(150); expect(body.limits.retainedRuns).toBe(150); expect(JSON.stringify(body)).not.toContain('xxxxxxxxxx');
     expect(((await (await fetch(`${server.origin}/api/run/run-3`, { headers })).json()) as { output: string }).output).toContain('xxxx');
     expect(JSON.stringify(await (await fetch(`${server.origin}/api/context/pkg-1`, { headers })).json())).toContain('yyyy');
+    const other = store.startSession('Other task');
+    expect((await fetch(`${server.origin}/api/context/pkg-1?session=${other.id}`, { headers })).status).toBe(400);
+    expect((await fetch(`${server.origin}/api/run/run-3?session=${other.id}`, { headers })).status).toBe(400);
     expect((await fetch(`${server.origin}/api/export?format=json`, { headers })).status).toBe(200);
     const missing = await fetch(`${server.origin}/nope.js`);
     expect(missing.status).toBe(404); expect(await missing.text()).toBe('{"error":"Not found"}');

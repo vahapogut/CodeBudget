@@ -36,7 +36,7 @@ claude --plugin-dir /tam/yol/codebudget/plugins/claude-codebudget
 
 Eklenti kısa bir skill, üç sınırlı MCP aracı ve doğrulanan olay biçimleri için hook içerir. Claude'un normal komut izinlerini koruyun. Kaldırmak için sonraki başlatmada `--plugin-dir` seçeneğini kullanmayın. Aynı MCP sunucusunu ayrıca proje ayarına kaydederek iki kopya oluşturmayın.
 
-Hook sözleşmesi Claude Code 2.1.216 için test edilmiştir. Gerçek model oturumunda çıktının değiştiği henüz doğrulanmamıştır. Bilinmeyen sürümlerde ve desteklenmeyen olaylarda anlamsal dönüşüm yapılmaz. MCP kaydı, bütün yerleşik terminal ve dosya çağrılarını otomatik denetlemek anlamına gelmez.
+Çıktı değiştirme Claude Code 2.1.216 ve sonraki 2.x sürümlerinde etkindir. Hook sözleşme testleri 2.1.216 ve 2.1.285 ile çalışır; CI, kurulu eklentiyi yayımlanmış en yeni istemciyle ayrıca kontrol eder. Gerçek model oturumunda çıktının değiştiği henüz doğrulanmamıştır. Başka ana sürümlerde, tanınmayan çıktı biçimlerinde ve desteklenmeyen olaylarda anlamsal dönüşüm yapılmaz; nedeni yerelde kaydedilir ve `node dist/cli.js doctor` çıktısındaki `warnings` alanında görünür. Eklenti için `PATH` üzerinde Node.js 22.16 veya daha yenisi gerekir; eski sürümde hook araç sonucunu değiştirmeden çıkar. MCP kaydı, bütün yerleşik terminal ve dosya çağrılarını otomatik denetlemek anlamına gelmez.
 
 ## Kaynak ve kanıtla çalışma
 
@@ -49,6 +49,8 @@ node dist/cli.js session checkpoint --session <id>
 node dist/cli.js artifact read <id> --offset 0 --limit 200
 node dist/cli.js dashboard
 ```
+
+Dashboard bağlantısı tek kullanımlıktır: sayfa bağlantıyı bir oturum tokenıyla değiştirir, aynı sekmeyi yenilemek çalışmaya devam eder. Yeni bağlantı için `dashboard` komutunu yeniden çalıştırın. `report` varsayılan olarak en yeni 200 komutu listeler; daha fazlası için `--limit`, `--offset`, tek kayıt için `--run <id>` veya `--context <id>` kullanın.
 
 İndeks kaydedilmiş dosyaları okur; editörde kaydedilmemiş değişiklikleri göremez. JS/TS/JSX/TSX için Tree-sitter, diğer dosyalarda açıkça belirtilen metin arama fallback'i kullanılır. Paket gerekli kaynakları bütçeye sığdıramıyorsa bunu bildirir; tahmini token sayımı sağlayıcı faturasının kesin ölçümü değildir.
 
@@ -91,4 +93,4 @@ Bu komutlar ücretli model çağrısı yapmaz. Replay yalnızca kayıtlı/sentet
 
 Model deneyleri, ücretli çağrılar, global IDE ayar değişiklikleri ve npm yayını ayrıca açık yetki gerektirir.
 
-Araç çalıştırıcıya yürütülebilir dosya ve ayrı argümanlar verin; shell pipe ifadesini tek komut metni olarak geçirmeyin. Hassas verileri veya dashboard erişim tokenını paylaşmayın. CodeBudget'ın yerelde çalışması mevcut IDE'nizin kendi sağlayıcısına veri göndermesini engellemez.
+Araç çalıştırıcıya yürütülebilir dosya ve ayrı argümanlar verin; shell pipe ifadesini tek komut metni olarak geçirmeyin. `run` komutuna borudan gelen girdi, çalıştırılan komutun stdin'ine aktarılır; kapatmak için `--no-stdin` kullanın. Kanıt arşivi yazılamazsa (örneğin disk doluysa) komut yine tamamlanır ve bir uyarı yazdırılır. Yerel veri `diskBudgetBytes` sınırının yarısını geçtiğinde önce süresi dolan, sonra en eski kanıtlar silinir. Maskelenmemiş ham arşiv (`rawArchive`) ve deneysel ayarlar Git'e giren `.codebudget.json` dosyasından açılamaz; yalnızca Git dışındaki `.codebudget/local.json` dosyası veya `CODEBUDGET_RAW_ARCHIVE=1` ile etkinleşir. Hassas verileri veya dashboard erişim tokenını paylaşmayın. CodeBudget'ın yerelde çalışması mevcut IDE'nizin kendi sağlayıcısına veri göndermesini engellemez.

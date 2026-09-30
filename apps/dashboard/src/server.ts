@@ -82,7 +82,11 @@ export async function startDashboard(options: DashboardOptions): Promise<Dashboa
           if (sessionId && run.sessionId !== sessionId) throw new Error('Run belongs to another session');
           send(response, 200, run); return;
         }
-        if (url.pathname.startsWith('/api/context/')) { send(response, 200, store.contextPackage(identifier('/api/context/'))); return; }
+        if (url.pathname.startsWith('/api/context/')) {
+          const contextPackage = store.contextPackage(identifier('/api/context/')) as { sessionId?: unknown };
+          if (sessionId && contextPackage.sessionId !== sessionId) throw new Error('Context package belongs to another session');
+          send(response, 200, contextPackage); return;
+        }
         if (url.pathname.startsWith('/api/evidence/')) {
           const id = decodeURIComponent(url.pathname.slice('/api/evidence/'.length));
           if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) { send(response, 400, { error: 'Invalid evidence identifier' }); return; }

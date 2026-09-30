@@ -23,7 +23,7 @@ cd /absolute/path/to/project
 
 Configuration lives in `.codebudget.json`. Local data defaults to `.codebudget/`, which `init` adds to `.gitignore`. Never commit the data directory. The default mode is `observe`; masking still applies because security redaction is separate from optimization.
 
-Precedence is explicit CLI overrides, then the supported environment variables `CODEBUDGET_MODE` and `CODEBUDGET_CONTEXT_BUDGET`, then project configuration, then defaults. The versioned schema rejects unknown fields. `contextBudget`, `outputMaxBytes`, `outputPreviewBytes`, `diskBudgetBytes`, `artifactRetentionDays` and `commandTimeoutMs` are independent limits. The 8,000-token starting budget is an example, not a universal optimum. Do not place secrets in configuration.
+Precedence is explicit CLI overrides, then the supported environment variables `CODEBUDGET_MODE`, `CODEBUDGET_CONTEXT_BUDGET` and `CODEBUDGET_RAW_ARCHIVE`, then the ignored `.codebudget/local.json`, then project configuration, then defaults. Invalid environment values are rejected with a message instead of being ignored. The versioned schema rejects unknown fields. `rawArchive` and `experimental` are local-only: a committed `.codebudget.json` cannot enable them, and `doctor` warns when it tries. `contextBudget`, `outputMaxBytes`, `outputPreviewBytes`, `diskBudgetBytes`, `artifactRetentionDays`, `commandTimeoutMs` and `mcpTimeoutMs` are independent limits. The 8,000-token starting budget is an example, not a universal optimum. Do not place secrets in configuration.
 
 ## Record one execution
 
@@ -32,7 +32,7 @@ codebudget run -- node -e "console.log('example output')"
 codebudget report --format json
 ```
 
-The wrapper runs an executable plus argv without a shell. Use a real executable on Windows; script shims and shell syntax require explicit handling and may be refused. Do not pass a pipeline as one command string. A command is executed once, never rerun for a comparison. The result records its exit/signal/timeout state and the original evidence reference. Read evidence with `codebudget artifact read <id> --offset 0 --limit 200`.
+The wrapper runs an executable plus argv without a shell. Use a real executable on Windows; script shims and shell syntax require explicit handling and may be refused. Do not pass a pipeline as one command string. Piped input is forwarded to the command's stdin; add `--no-stdin` to close it instead. A command is executed once, never rerun for a comparison, and `run` exits with the command's own exit code (124 after a timeout, 130 when cancelled, 125 for a wrapper error). On timeout the child receives SIGTERM and, two seconds later, SIGKILL. The result records its exit/signal/timeout state and the original evidence reference. If archiving fails (for example on a full disk) the command still completes and `run` prints a warning. Read evidence with `codebudget artifact read <id> --offset 0 --limit 200`.
 
 Enable balanced reductions when desired:
 
@@ -40,9 +40,9 @@ Enable balanced reductions when desired:
 codebudget config mode balanced
 ```
 
-Unknown formats, non-beneficial transformations and failed preservation checks retain masked original agent output. For a machine pipeline use `run --raw -- executable args`: this forwards ORIGINAL UNMASKED stdout/stderr bytes; its retained archive is still masked. A truncated artifact is marked incomplete. `rawArchive` is a separate explicit local opt-in to private raw storage; it is never automatically served through MCP or the dashboard.
+Unknown formats, non-beneficial transformations and failed preservation checks retain masked original agent output. For a machine pipeline use `run --raw -- executable args`: this forwards ORIGINAL UNMASKED stdout/stderr bytes; its retained archive is still masked. A truncated artifact is marked incomplete. `rawArchive` is a separate explicit local opt-in to private raw storage, set in `.codebudget/local.json` (`{ "rawArchive": true }`) or with `CODEBUDGET_RAW_ARCHIVE=1`; it is never automatically served through MCP or the dashboard.
 
-`contextWeights` configures name/text/location/dependency/test ranking weights; they are scores, not confidence probabilities. `diskBudgetBytes` (minimum 4 MiB) reserves 75% of SQLite main pages for state and 25% for the derived index. Active WAL transactions can temporarily consume additional space; disk-full conditions are reported. Retention pruning removes evidence and old index metadata, never project source files.
+`contextWeights` configures name/text/location/dependency/test ranking weights; they are scores, not confidence probabilities. `diskBudgetBytes` (minimum 4 MiB) reserves 75% of SQLite main pages for state and 25% for the derived index. Once stored state passes half of the budget, expired and then the oldest evidence is evicted until it is back near 40%; a full database is reclaimed the same way and the write retried once. Active WAL transactions can temporarily consume additional space; disk-full conditions that remain are reported. Retention pruning removes evidence and old index metadata, never project source files.
 
 ## Request context and checkpoint work
 
@@ -86,7 +86,7 @@ codebudget adapters uninstall codex --dry-run
 
 Installation previews and changes project-local settings. Apply only after reviewing the preview. Existing configuration is backed up and structurally merged. Uninstall removes only owned entries; conflicting later user edits are preserved. Global IDE configuration is outside these commands' scope.
 
-Claude's native plugin can instead be loaded with `claude --plugin-dir /absolute/path/to/plugins/claude-codebudget` after building. Its exact supported hook contract and unverified live-session status are documented in the plugin guide. Do not register both plugin and project MCP copies.
+Claude's native plugin can instead be loaded with `claude --plugin-dir /absolute/path/to/plugins/claude-codebudget` after building. Its supported client range (2.1.216 and later 2.x releases) and unverified live-session status are documented in the plugin guide. Do not register both plugin and project MCP copies.
 
 ## Review and retain data
 
@@ -97,7 +97,7 @@ codebudget benchmark tasks --dry-run
 codebudget data prune --dry-run
 ```
 
-Open the dashboard URL printed by the CLI, including its local access token. Data stays local, but the token is a credential: do not paste it into public issues. Prune is limited to CodeBudget artifacts and retention policy; inspect its preview before applying changes.
+Open the dashboard URL printed by the CLI. The link is single-use: the page exchanges it for a session token, and reloading that tab keeps working. Run `codebudget dashboard` again for a new link. Data stays local, but a running dashboard grants access: do not paste its link into public issues. `codebudget report` is bounded to the newest 200 runs; use `--limit`, `--offset`, `--run <id>` and `--context <id>` for more detail. Prune is limited to CodeBudget artifacts and retention policy; inspect its preview before applying changes.
 
 ## Import an explicit usage export
 

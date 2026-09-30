@@ -14,9 +14,10 @@ export async function packRelease() {
   try {
     for (const name of ['dist', 'plugins', 'docs', 'examples']) await cp(path.join(root, name), path.join(staging, name), {
       recursive: true,
-      filter: source => !source.endsWith('.tgz') && !isAgentInstructionFile(source),
+      // Local smoke results describe this machine's last run, not the packaged build.
+      filter: source => !source.endsWith('.tgz') && path.resolve(source) !== path.join(root, 'dist', 'package-smoke-result.json') && !isAgentInstructionFile(source),
     });
-    for (const name of ['README.md', 'LICENSE', 'LEGACY_LICENSE', 'LICENSING.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'SECURITY.md', 'PRIVACY.md', 'CONTRIBUTING.md', 'ROADMAP.md']) await copyFile(path.join(root, name), path.join(staging, name));
+    for (const name of ['README.md', 'LICENSE', 'LEGACY_LICENSE', 'LICENSING.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'SECURITY.md', 'PRIVACY.md', 'CONTRIBUTING.md', 'ROADMAP.md', 'CHANGELOG.md']) await copyFile(path.join(root, name), path.join(staging, name));
     await writeFile(path.join(staging, 'package.json'), JSON.stringify({
       name: manifest.name, version: manifest.version, description: manifest.description, type: 'module', license: manifest.license,
       author: 'vahapogut', repository: manifest.repository, engines: manifest.engines, bin: manifest.bin,

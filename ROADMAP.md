@@ -12,7 +12,9 @@ CodeBudget is a local beta. The local product improvements below are implemented
 | Source dependencies | Bounded traversal of unambiguous static relative imports, source path/depth provenance, cycle handling and explicit unresolved/ambiguous limits | [Indexer](docs/INDEXER.md) |
 | Local tokenizers | Offline `o200k_base` and `cl100k_base`, explicit model mapping, unknown-model fallback and serialized-package budgets | [Indexer](docs/INDEXER.md) |
 | Usage coverage | Missing dimensions, source/scope groups, cumulative snapshots, reset observations and explicit unknown subagent identity | [Usage coverage](docs/USAGE_COVERAGE.md) |
-| Client lifecycle | Claude 2.1.216 `PostCompact` support alongside existing events; visibility resets without storing compacted conversation summaries | [Adapters](docs/ADAPTERS.md) |
+| Client lifecycle | Claude `PostCompact` support alongside existing events; visibility resets without storing compacted conversation summaries | [Adapters](docs/ADAPTERS.md) |
+| Current Claude releases | Output replacement for 2.1.216 and later 2.x releases with strict shape checks, recorded no-op reasons and a CI job against the newest published client | [Plugin guide](plugins/claude-codebudget/README.md) |
+| Bounded local storage | Automatic eviction within `diskBudgetBytes`, recovery from a full database, bounded reports and evidence pages | [Privacy](PRIVACY.md) |
 | Release preparation | Clean archive install, bundled WASMs/tokenizers, original dependency licenses, improved English README and Turkish quickstart | [Verification](docs/VERIFICATION.md) |
 
 These items replace the previous open-ended local product-improvement list. Further changes should begin with a reproducible issue or a specific user workflow.
