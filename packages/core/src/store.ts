@@ -173,6 +173,11 @@ export class Store {
     this.transaction(() => { this.db.prepare('UPDATE sessions SET json=? WHERE id=? AND repo=?').run(JSON.stringify(session), id, this.repositoryId); });
     return session;
   }
+  /** Latest active session opened for a client session identifier (for example a Claude session). */
+  activeSessionForExternal(externalId: string): Session | undefined {
+    const row = this.db.prepare("SELECT json FROM sessions WHERE repo=? AND json_extract(json,'$.state.externalSessionId')=? AND json_extract(json,'$.status')='active' ORDER BY rowid DESC LIMIT 1").get(this.repositoryId, externalId);
+    return row ? JSON.parse(String(row.json)) as Session : undefined;
+  }
   sessions(): Session[] { return this.db.prepare('SELECT json FROM sessions WHERE repo=? ORDER BY rowid DESC').all(this.repositoryId).map(r => JSON.parse(String(r.json)) as Session); }
   createArtifact(options: { sessionId?: string; kind?: string; metadata?: Record<string, unknown> } = {}): Artifact {
     if (options.sessionId) this.assertSession(options.sessionId);

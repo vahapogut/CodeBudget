@@ -150,7 +150,7 @@ describe('Claude native hook contract', () => {
     expect(replacement(result)).not.toHaveProperty('exitCode');
   });
 
-  it.each(['2.1.215', '2.1.999', 'unknown', null])('unknown version %s leaves output untouched', async (clientVersion) => {
+  it.each(['2.1.215', '3.0.0', 'unknown', null])('unsupported version %s leaves output untouched', async (clientVersion) => {
     const archive = vi.fn(); expect((await processClaudeHook(event(), hookOptions({ clientVersion, archive }))).output).toBeNull(); expect(archive).not.toHaveBeenCalled();
   });
 
@@ -200,12 +200,13 @@ describe('Claude native hook contract', () => {
     expect(onLifecycle).toHaveBeenCalledWith('PostCompact', 's'); expect(archive).not.toHaveBeenCalled(); expect(result.output).toBeNull();
     expect(JSON.stringify(onLifecycle.mock.calls)).not.toContain('private'); expect(JSON.stringify(result)).not.toContain('private');
   });
-  it('declines unsupported PostCompact shapes and versions', async () => {
+  it('declines unsupported PostCompact shapes; lifecycle handling does not depend on the output contract version', async () => {
     const onLifecycle = vi.fn(); const input = { hook_event_name: 'PostCompact', session_id: 's', trigger: 'manual', compact_summary: 'summary' };
     expect((await processClaudeHook({ ...input, trigger: 'future' }, hookOptions({ onLifecycle }))).output).toBeNull();
     expect((await processClaudeHook({ ...input, compact_summary: {} }, hookOptions({ onLifecycle }))).output).toBeNull();
-    expect((await processClaudeHook(input, hookOptions({ onLifecycle, clientVersion: '2.1.217' }))).output).toBeNull();
     expect(onLifecycle).not.toHaveBeenCalled();
+    for (const clientVersion of ['2.1.217', '3.0.0', null]) expect((await processClaudeHook(input, hookOptions({ onLifecycle, clientVersion }))).output).toBeNull();
+    expect(onLifecycle).toHaveBeenCalledTimes(3);
   });
   it('measures only owned static instruction text', () => { expect(measurePluginOverhead('abc')).toMatchObject({ bytes: 3, estimatedTokens: 1, additionalHookContextBytes: 0 }); });
   it('never labels contract coverage as real model verification', () => {
