@@ -42,13 +42,16 @@ function resolveCommand(executable: string, args: string[]): [string, string[]] 
 
 const FINGERPRINT_EXTENSIONS = /\.(?:[cm]?[jt]sx?|json|py|rs|go|java|kts?|cs|rb|php|swift|c|cc|cpp|h|hpp|sh|ya?ml|toml)$/i;
 const FINGERPRINT_LIMIT = 50_000;
+const WHOLE_SECOND_NS = 1_000_000_000n;
+const HASHED_FILE_BYTES = 1024n * 1024n;
 /**
- * Source-state identity from path, size and mtime (content hashes only for files modified in the
- * last two seconds, where coarse timestamps are ambiguous). An incomplete walk never supports an
- * "unchanged" claim.
+ * Source-state identity from path, size and nanosecond mtime/ctime. It never depends on the current
+ * time, so the same tree always yields the same value. A whole-second mtime indicates a coarse file
+ * system where a same-size edit within that second keeps both timestamps; such files (up to 1 MiB)
+ * also contribute a content hash. An incomplete walk never supports an "unchanged" claim.
  */
 export function sourceFingerprint(root: string, limit = FINGERPRINT_LIMIT): { value: string; complete: boolean } {
-  const parts: string[] = []; let count = 0; let complete = true; const recent = Date.now() - 2000;
+  const parts: string[] = []; let count = 0; let complete = true;
   const walk = (directory: string, relativeDirectory: string): void => {
     let entries;
     try { entries = readdirSync(directory, { withFileTypes: true }); } catch { complete = false; return; }
@@ -63,8 +66,9 @@ export function sourceFingerprint(root: string, limit = FINGERPRINT_LIMIT): { va
       } else if (entry.isFile() && FINGERPRINT_EXTENSIONS.test(entry.name) && classifyRepositoryPath(path) === null) {
         if (++count > limit) { complete = false; return; }
         try {
-          const file = join(directory, entry.name); const stat = statSync(file);
-          parts.push(`${path}\0${stat.size}\0${Math.trunc(stat.mtimeMs)}${stat.mtimeMs >= recent && stat.size < 1024 * 1024 ? `\0${hash(readFileSync(file))}` : ''}`);
+          const file = join(directory, entry.name); const stat = statSync(file, { bigint: true });
+          const coarse = stat.mtimeNs % WHOLE_SECOND_NS === 0n && stat.size <= HASHED_FILE_BYTES;
+          parts.push(`${path}\0${stat.size}\0${stat.mtimeNs}\0${stat.ctimeNs}${coarse ? `\0${hash(readFileSync(file))}` : ''}`);
         } catch { complete = false; return; }
       }
     }

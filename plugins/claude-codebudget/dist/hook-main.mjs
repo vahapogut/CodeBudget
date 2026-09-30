@@ -21207,6 +21207,9 @@ function reduceOutput(input2) {
   };
 }
 
+// packages/core/src/runner.ts
+var HASHED_FILE_BYTES = 1024n * 1024n;
+
 // packages/core/src/experimental.ts
 var DEFAULT_LIMITS = { maxRequests: 4, maxConcurrent: 1, maxEstimatedTokens: 16e3, maxInputBytes: 24 * 1024, maxOutputBytes: 12 * 1024, maxOutputTokens: 1024, timeoutMs: 1e4 };
 

@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { PassThrough } from 'node:stream';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -102,6 +102,20 @@ describe('argv runner behaviour', () => {
     expect((await runCommand(store, failing)).repeatedFailure).toBe(false);
     expect((await runCommand(store, failing)).repeatedFailure).toBe(true);
     expect(failureSignature('Duration 1.20s')).toBe(failureSignature('Duration 2.75s'));
+  });
+
+  it('keeps the source fingerprint independent of the current time and detects same-size edits', () => {
+    const root = mkdtempSync(join(tmpdir(), 'codebudget-fingerprint-')); dirs.push(root);
+    const file = join(root, 'a.ts'); writeFileSync(file, 'export const a = 1;');
+    const first = sourceFingerprint(root);
+    // A repeated run can start seconds later (slow process start on Windows); the value must not change with it.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try { vi.setSystemTime(Date.now() + 60_000); expect(sourceFingerprint(root)).toEqual(first); } finally { vi.useRealTimers(); }
+    // Whole-second timestamps (coarse file systems): a same-size edit that keeps mtime still changes the value.
+    const second = new Date(Math.floor(Date.now() / 1000) * 1000 - 5000);
+    utimesSync(file, second, second); const before = sourceFingerprint(root).value;
+    writeFileSync(file, 'export const a = 2;'); utimesSync(file, second, second);
+    expect(sourceFingerprint(root).value).not.toBe(before);
   });
 
   it('does not claim an unchanged source state when the walk is incomplete', () => {
