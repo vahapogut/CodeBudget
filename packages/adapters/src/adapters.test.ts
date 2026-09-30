@@ -16,7 +16,8 @@ describe('project-local adapter installation', () => {
     const projectRoot = await project();
     const options = { client, projectRoot, action: 'install' as const };
     const plan = await planAdapterChange(options);
-    expect(plan.changes).toHaveLength(3);
+    // Ownership receipt, then configuration; the project .gitignore is never edited.
+    expect(plan.changes.map(change => change.role)).toEqual(['receipt', 'config']);
     const canonicalRoot = await realpath(projectRoot);
     expect(plan.changes.every((change) => change.path.startsWith(canonicalRoot))).toBe(true);
     await expect(readFile(plan.changes[0]!.path)).rejects.toMatchObject({ code: 'ENOENT' });
@@ -25,8 +26,10 @@ describe('project-local adapter installation', () => {
     const uninstall = await planAdapterChange({ ...options, action: 'uninstall' });
     const result = await applyAdapterPlan(uninstall);
     expect(result.backups).toHaveLength(2);
-    expect((await readFile(join(projectRoot, configPaths[client]), 'utf8'))).not.toContain('"codebudget"');
-    expect(await readFile(join(projectRoot, '.gitignore'), 'utf8')).toContain('/.codebudget/');
+    // CodeBudget created the file (and its directory), so uninstall leaves nothing behind.
+    await expect(readFile(join(projectRoot, configPaths[client]), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    await expect(readFile(join(projectRoot, '.gitignore'), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(await readFile(join(projectRoot, '.codebudget', 'adapters', 'backups', '.gitignore'), 'utf8')).toMatch(/^\*$/m);
     expect((await planAdapterChange({ ...options, action: 'uninstall' })).changes).toHaveLength(0);
   });
 
@@ -112,17 +115,19 @@ describe('project-local adapter installation', () => {
     await symlink(outside, join(projectRoot, '.cursor'), process.platform === 'win32' ? 'junction' : 'dir');
     await expect(planAdapterChange({ client: 'cursor', projectRoot, action: 'install' })).rejects.toThrow('symlink');
   });
-  it('adds an exclusion before credential backups and keeps it after uninstall', async () => {
+  it('keeps credential backups in a self-ignoring directory without editing the project .gitignore', async () => {
     const projectRoot = await project(); const path = join(projectRoot, '.mcp.json');
     await writeFile(path, '{"mcpServers":{"other":{"env":{"API_KEY":"private"}}}}');
-    await writeFile(join(projectRoot, '.gitignore'), 'mine/\n.codebudget/\n!.codebudget/\n!.codebudget/**\n');
+    const rules = 'mine/\n.codebudget/\n!.codebudget/\n!.codebudget/**\n';
+    await writeFile(join(projectRoot, '.gitignore'), rules);
     const plan = await planAdapterChange({ client: 'claude', projectRoot, action: 'install' });
-    expect(plan.changes[0]!.path).toBe(join(await realpath(projectRoot), '.gitignore'));
+    expect(plan.changes.some(change => change.path.endsWith('.gitignore'))).toBe(false);
     const result = await applyAdapterPlan(plan); expect(result.backups.length).toBeGreaterThan(0);
-    expect((await readFile(join(projectRoot, '.gitignore'), 'utf8')).endsWith('/.codebudget/\n')).toBe(true);
+    const backups = join(await realpath(projectRoot), '.codebudget', 'adapters', 'backups');
+    expect(result.backups.every(backup => backup.startsWith(backups))).toBe(true);
+    expect(await readFile(join(backups, '.gitignore'), 'utf8')).toMatch(/^\*$/m);
     await applyAdapterPlan(await planAdapterChange({ client: 'claude', projectRoot, action: 'uninstall' }));
-    expect(await readFile(join(projectRoot, '.gitignore'), 'utf8')).toContain('mine/');
-    expect(await readFile(join(projectRoot, '.gitignore'), 'utf8')).toContain('/.codebudget/');
+    expect(await readFile(join(projectRoot, '.gitignore'), 'utf8')).toBe(rules);
   });
 });
 

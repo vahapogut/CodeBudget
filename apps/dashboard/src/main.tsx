@@ -181,7 +181,7 @@ function App() {
             <div className="metric"><span>Output removed</span><strong>{bytes(saved)}</strong><small>{reduction === null ? 'No output recorded' : `${reduction}% of CLI output · bytes`}</small></div>
             <div className="metric"><span>Commands recorded</span><strong>{number(report.limits.retainedRuns)}</strong><small>{report.runs.filter(run => run.status === 'failure').length} failures in shown records</small></div>
             <div className="metric"><span>Saved sessions</span><strong>{number(report.sessions.length)}</strong><small>{report.sessions.filter(entry => entry.status === 'active').length} active</small></div>
-            <div className="metric"><span>Imported usage</span><strong className={report.observedUsage.total === null ? 'unknown-value' : ''}>{number(report.observedUsage.total)}</strong><small>{report.observedUsage.total === null ? 'No complete usage import' : 'Tokens · imported delta events'}</small></div>
+            <div className="metric"><span>Imported usage</span><strong className={report.observedUsage.total === null ? 'unknown-value' : ''}>{number(report.observedUsage.total)}</strong><small>{report.observedUsage.total === null ? 'No complete usage import' : 'Tokens · reported deltas and running totals'}</small></div>
           </section>
           <div className="overview-grid"><div className="main-column">
             <section className="panel"><SectionTitle title="Command activity"><button className="text-button" onClick={() => navigate('Outputs')}>View all<Icon name="arrow" /></button></SectionTitle>

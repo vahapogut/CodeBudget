@@ -46,7 +46,9 @@ try {
   for (const method of ['initialize', 'mcpServerStatus/list']) assert.ok(supportedMethods.includes(method), `Installed schema must support ${method}`);
   const initialization = JSON.parse(command(process.execPath, [cli, '--root', project, 'init']));
   assert.equal(initialization.config.mode, 'observe');
-  const installation = JSON.parse(command(process.execPath, [cli, '--root', project, 'adapters', 'install', 'codex', '--apply']));
+  // codebudget may not be on PATH here; the explicit launch still omits --root, so the handshake also shows that
+  // Codex starts the server inside the project and the server finds it from its working directory.
+  const installation = JSON.parse(command(process.execPath, [cli, '--root', project, 'adapters', 'install', 'codex', '--apply', '--command', process.execPath, '--arg', cli, '--arg', 'mcp', '--arg', 'serve']));
   assert.equal(installation.plan.conflicts.length, 0);
   record.checks.push({ name: 'built CLI installs owned project-local Codex registration', passed: true });
   record.schemaSource = 'Installed codex app-server generate-json-schema (ClientRequest, InitializeParams, ListMcpServerStatusParams/Response)';

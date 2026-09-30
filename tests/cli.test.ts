@@ -1,5 +1,7 @@
 import { afterEach, expect, it } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -36,12 +38,43 @@ it('CLI adapter dry-run does not mutate configs and benchmark plan runs no model
   expect(plan.status).toBe('not_run'); expect(plan.taskCount).toBe(30); expect(plan.modelCalls).toBe(0);
 });
 it('development CLI adapter registration remains executable from the target project', () => {
-  const root = setup(); const installed = run(root, ['adapters', 'install', 'claude', '--apply']); expect(installed.status).toBe(0);
+  const root = setup();
+  const tsx = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
+  const installed = run(root, ['adapters', 'install', 'claude', '--apply', '--command', process.execPath, '--arg', '--import', '--arg', tsx, '--arg', cli, '--arg', 'mcp', '--arg', 'serve']);
+  expect(installed.status).toBe(0);
   const config = JSON.parse(readFileSync(join(root, '.mcp.json'), 'utf8')) as { mcpServers: { codebudget: { command: string; args: string[] } } };
   const server = config.mcpServers.codebudget;
+  expect(server.args).not.toContain('--root');
   const help = spawnSync(server.command, [...server.args, '--help'], { cwd: root, encoding: 'utf8', shell: false, timeout: 15000 });
   expect(help.status).toBe(0); expect(help.stdout).toContain('serve');
 });
+it('adapter registration is portable by default and warns when codebudget is not on PATH', () => {
+  const root = setup();
+  const preview = spawnSync(process.execPath, ['--import', 'tsx', cli, '--root', root, 'adapters', 'install', 'claude', '--dry-run'], { encoding: 'utf8', shell: false, windowsHide: true, timeout: 15000, env: { ...process.env, PATH: '' } });
+  expect(preview.status).toBe(0);
+  const plan = JSON.parse(preview.stdout) as { server: unknown; notes: string[] };
+  expect(plan.server).toEqual({ type: 'stdio', command: 'codebudget', args: ['mcp', 'serve'] });
+  expect(plan.notes.join(' ')).toContain('codebudget is not on PATH');
+  expect(run(root, ['adapters', 'install', 'claude', '--arg', 'x']).stderr).toContain('--arg requires --command');
+});
+it('MCP server without --root serves the nearest initialized project and refuses an uninitialized directory', () => {
+  const root = setup(); expect(run(root, ['init']).status).toBe(0);
+  const nested = join(root, 'src', 'deep'); mkdirSync(nested, { recursive: true });
+  const bare = setup();
+  const initialize = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'test', version: '1' } } }) + '\n';
+  // A temporary working directory cannot resolve the bare tsx specifier; use its file URL.
+  const tsx = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
+  const serve = (cwd: string, projectDir: string) => spawnSync(process.execPath, ['--import', tsx, cli, 'mcp', 'serve'], { cwd, input: initialize, encoding: 'utf8', shell: false, windowsHide: true, timeout: 20000, env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir } });
+  const fromNested = serve(nested, '');
+  expect(fromNested.status).toBe(0); expect(fromNested.stdout).toContain('serverInfo');
+  expect(existsSync(join(nested, '.codebudget'))).toBe(false);
+  const fromProjectDir = serve(bare, root);
+  expect(fromProjectDir.status).toBe(0); expect(fromProjectDir.stdout).toContain('serverInfo');
+  expect(existsSync(join(bare, '.codebudget'))).toBe(false);
+  const refused = serve(bare, '');
+  expect(refused.status).toBe(1); expect(refused.stderr).toContain('No initialized CodeBudget project');
+  expect(existsSync(join(bare, '.codebudget'))).toBe(false);
+}, 60000);
 
 it('CLI context measures its actual stdout serialization including metadata and escaped source', () => {
   const root = setup();

@@ -2,9 +2,8 @@
 import { Command } from 'commander';
 import { z } from 'zod';
 import { readFileSync, statSync, existsSync } from 'node:fs';
-import { resolve, join, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createRequire } from 'node:module';
+import { resolve, join, dirname, delimiter } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { initialize, loadConfig, setMode, configWarnings, Store, runCommand, redact, sanitize, csvCell, SECURITY_VERSION } from '../../../packages/core/src/index.js';
 import type { LocalTokenizerConfig } from '../../../packages/indexer/src/index.js';
 import type { ClientId } from '../../../packages/adapters/src/index.js';
@@ -127,17 +126,40 @@ adapters.command('inspect').action(async () => {
   const { inspectAdapters } = await import('../../../packages/adapters/src/index.js'); const { detectVersion } = await hook();
   output(inspectAdapters({ versions: { claude: detectVersion('claude'), codex: detectVersion('codex') } }));
 });
+/** Whether a bare command resolves on PATH (with PATHEXT on Windows); a command containing a path is checked directly. */
+function onPath(command: string): boolean {
+  if (/[\\/]/.test(command)) return existsSync(command);
+  const extensions = process.platform === 'win32' ? ['', ...(process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)] : [''];
+  return (process.env.PATH ?? '').split(delimiter).filter(Boolean).some(directory => extensions.some(extension => existsSync(join(directory, command + extension))));
+}
 for (const action of ['install', 'uninstall'] as const) adapters.command(`${action} <client>`).option('--dry-run', 'preview changes (default)').option('--apply', 'apply only project-local changes')
-  .action(async (client: ClientId, options: { apply?: boolean; dryRun?: boolean }) => {
+  .option('--command <executable>', 'MCP server executable to register (default: codebudget on PATH)')
+  .option('--arg <value>', 'argument for --command; repeat for several (default: mcp serve)', (value: string, previous: string[] = []) => [...previous, value])
+  .action(async (client: ClientId, options: { apply?: boolean; dryRun?: boolean; command?: string; arg?: string[] }) => {
     if (options.apply && options.dryRun) throw new Error('Choose --dry-run or --apply');
+    if (options.arg && !options.command) throw new Error('--arg requires --command');
     const { planAdapterChange, applyAdapterPlan } = await import('../../../packages/adapters/src/index.js');
-    const ownEntry = fileURLToPath(import.meta.url);
-    const runtimeArgs = ownEntry.endsWith('.ts') ? ['--import', pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href] : [];
-    const plan = await planAdapterChange({ client, action, projectRoot: root(), command: process.execPath, args: [...runtimeArgs, ownEntry, '--root', root(), 'mcp', 'serve'] });
+    // Portable by default (codebudget mcp serve): no machine-specific paths enter a shared project file, and the
+    // server resolves the project from the client's CLAUDE_PROJECT_DIR or working directory.
+    const launch = options.command ? { command: options.command, args: options.arg ?? ['mcp', 'serve'] } : {};
+    const plan = await planAdapterChange({ client, action, projectRoot: root(), ...launch });
+    const command = typeof plan.server?.command === 'string' ? plan.server.command : null;
+    if (action === 'install' && command && !onPath(command)) plan.notes.push(`${command} is not on PATH here, so the client cannot start this registration yet. Install the CodeBudget release archive, or register an explicit launch with --command and repeated --arg (for example --command node --arg /absolute/path/dist/cli.js --arg mcp --arg serve).`);
     output(options.apply ? { plan, result: await applyAdapterPlan(plan) } : plan);
   });
 program.command('mcp').command('serve').option('--session <id>', 'bind evidence access to an existing session').option('--timeout <ms>', 'per-operation limit (default: config mcpTimeoutMs)', integer)
-  .action(async (options: { session?: string; timeout?: number }) => { const { serveMcp } = await import('../../../packages/mcp/src/index.js'); await serveMcp(root(), options.session, { timeoutMs: options.timeout }); });
+  .action(async (options: { session?: string; timeout?: number }) => {
+    let serverRoot = root();
+    // Clients choose the server's working directory (Claude Code also passes CLAUDE_PROJECT_DIR). Without an explicit
+    // --root, serve the nearest initialized project from there rather than adopting an arbitrary directory.
+    if (program.getOptionValueSource('root') !== 'cli') {
+      const { initializedProjectRoot } = await import('./project-root.js');
+      const found = initializedProjectRoot(process.cwd());
+      if (!found) throw new Error(`No initialized CodeBudget project found from ${process.cwd()}${process.env.CLAUDE_PROJECT_DIR?.trim() ? ' or CLAUDE_PROJECT_DIR' : ''}; run codebudget init in the project or pass --root`);
+      serverRoot = found;
+    }
+    const { serveMcp } = await import('../../../packages/mcp/src/index.js'); await serveMcp(serverRoot, options.session, { timeoutMs: options.timeout });
+  });
 program.command('hook').description('Native Claude plugin entry; reads one bounded hook event from stdin').action(async () => { const { runHook } = await hook(); const result = await runHook(await readStdin(), root()); if (result) process.stdout.write(JSON.stringify(result)); });
 program.command('dashboard').option('--port <port>', 'loopback port, 0 selects a free port', integer, 0).action(async (options: { port: number }) => {
   const { startDashboard } = await import('../../dashboard/src/server.js'); const store = openStore();

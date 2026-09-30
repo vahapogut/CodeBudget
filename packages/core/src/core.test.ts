@@ -65,21 +65,22 @@ describe('SQLite evidence and isolation', () => {
   it('keeps usage coverage scoped to the requested local session', () => {
     const { store } = fixture(); const first = store.startSession('first'); const second = store.startSession('second');
     for (const session of [first, second]) {
-      const imported = parseUsageImport('{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":5}}', { format: 'codex-jsonl', repositoryId: store.repositoryId, clientVersion: '0.139.0', observedAt: '2026-09-29T12:00:00Z', importId: session.id, sessionId: session.id });
+      const imported = parseUsageImport(`{"type":"thread.started","thread_id":"thread-${session.id}"}\n{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":5}}`, { format: 'codex-jsonl', repositoryId: store.repositoryId, clientVersion: '0.139.0', observedAt: '2026-09-29T12:00:00Z', importId: session.id, sessionId: session.id });
       store.addUsage(imported.events[0]!);
     }
     expect(store.report().observedUsage.coverage.analyzedRecords).toBe(2);
-    expect(store.report(first.id).observedUsage.coverage).toMatchObject({ analyzedRecords: 1, missing: { localSession: 0 }, groups: [{ recordedDeltaTokens: 15 }] });
+    expect(store.report(first.id).observedUsage.coverage).toMatchObject({ analyzedRecords: 1, missing: { localSession: 0 }, groups: [{ recordedDeltaTokens: null, runningTotals: { seriesCount: 1, recordedTokens: 15 } }] });
+    expect(store.report(first.id).observedUsage.total).toBe(15);
     expect(store.report(second.id).observedUsage.coverage.analyzedRecords).toBe(1);
   });
   it('excludes unknown usage sources and returns null when safe individual totals overflow together', () => {
     const { store } = fixture();
-    const event = parseUsageImport('{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":5}}', { format: 'codex-jsonl', repositoryId: store.repositoryId, clientVersion: '0.139.0', observedAt: '2026-09-29T12:00:00Z', importId: 'known' }).events[0]!;
+    const event = parseUsageImport('{"type":"thread.started","thread_id":"thread-known"}\n{"type":"turn.completed","usage":{"input_tokens":10,"output_tokens":5}}', { format: 'codex-jsonl', repositoryId: store.repositoryId, clientVersion: '0.139.0', observedAt: '2026-09-29T12:00:00Z', importId: 'known' }).events[0]!;
     store.addUsage(event);
     store.addUsage({ ...event, eventId: 'unknown', correlationId: 'unknown', source: 'future_source' as typeof event.source, total: 77 });
     expect(store.report().observedUsage.total).toBe(15);
     expect(store.report().observedUsage.coverage.counters.unknownSourceRecords).toBe(1);
-    store.addUsage({ ...event, eventId: 'large', correlationId: 'large', total: Number.MAX_SAFE_INTEGER });
+    store.addUsage({ ...event, eventId: 'large', correlationId: 'large', series: 'another-thread', total: Number.MAX_SAFE_INTEGER });
     expect(store.usage().every(item => Number.isSafeInteger(item.total))).toBe(true);
     expect(store.report().observedUsage.total).toBeNull();
   });

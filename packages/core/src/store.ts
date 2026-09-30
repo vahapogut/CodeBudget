@@ -4,7 +4,7 @@ import { chmodSync, realpathSync, existsSync, lstatSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Config } from './config.js';
 import { bytes, ensurePrivateDirectory, hash, redact, safePath, SECURITY_VERSION, sanitize, safeJson, splitUtf8 } from './security.js';
-import { summarizeUsageCoverage } from './usage.js';
+import { observedUsageTotal, OBSERVED_USAGE_TOTAL_SCOPE, summarizeUsageCoverage } from './usage.js';
 
 export interface Session {
   id: string; repositoryId: string; task: string; status: 'active' | 'closed'; epoch: number;
@@ -352,17 +352,12 @@ export class Store {
       .get(...[this.repositoryId, ...(sessionId ? [sessionId] : [])]);
     const local = { originalBytes: Number(totals?.original ?? 0), reducedBytes: Number(totals?.reduced ?? 0) };
     const usage = this.usage().filter(e => !sessionId || e.sessionId === sessionId);
-    const deltas = usage.filter(e => e.counter === 'delta' && (e.source === 'client_reported' || e.source === 'provider_reported') && e.scope !== 'claude-otel-token-metric');
-    const observedTotal = deltas.reduce<number | null>((sum, event) => {
-      if (sum === null || event.total === null || !Number.isSafeInteger(event.total) || event.total < 0) return null;
-      const next = sum + event.total;
-      return Number.isSafeInteger(next) ? next : null;
-    }, deltas.length ? 0 : null);
     const scopedEvents = (kind: string) => this.events(kind, { sessionId, limit: eventLimit });
     return { schemaVersion: 1, repositoryId: this.repositoryId, session, sessions: session ? [session] : this.sessions(),
       runCount: Number(totals?.n ?? 0), runLimit, runOffset: options.runOffset ?? 0, runs,
       localOutput: { ...local, savedBytes: local.originalBytes - local.reducedBytes, scope: 'CodeBudget observed calls only, after redaction', unit: 'utf8_bytes' },
-      observedUsage: { events: usage, total: observedTotal, scope: 'Imported delta events; no invisible IDE calls counted', cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
+      // The total and coverage use every record in scope; only the listed events are bounded like the other lists.
+      observedUsage: { events: eventLimit < 0 ? usage : usage.slice(Math.max(0, usage.length - eventLimit)), eventCount: usage.length, total: observedUsageTotal(usage), scope: OBSERVED_USAGE_TOTAL_SCOPE, cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
       retrievals: scopedEvents('retrieval'), hookMetrics: scopedEvents('hook'), pluginOverhead: scopedEvents('plugin-overhead'), contextPackages: scopedEvents('context').map(summarizeContext),
       benchmark: scopedEvents('benchmark'), netTaskSavings: null, storage: { physicalBytes: this.physicalBytes(), diskBudgetBytes: this.config.diskBudgetBytes },
       limitations: ['Local estimates are not billing or subscription quota.', 'Historical command evidence is not a fresh test.', 'Real task benchmark has not run.'] };
