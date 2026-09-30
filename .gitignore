@@ -13,3 +13,9 @@ coverage/
 !plugins/claude-codebudget/dist/**
 # Local agent instructions stay on the developer's machine.
 [Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+[Cc][Ll][Aa][Uu][Dd][Ee].[Mm][Dd]
+[Cc][Ll][Aa][Uu][Dd][Ee].[Ll][Oo][Cc][Aa][Ll].[Mm][Dd]
+[Gg][Ee][Mm][Ii][Nn][Ii].[Mm][Dd]
+.cursorrules
+.windsurfrules
+copilot-instructions.md

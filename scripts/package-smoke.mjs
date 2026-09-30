@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { URLSearchParams } from 'node:url';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { packRelease } from './package.mjs';
+import { packRelease, isAgentInstructionFile } from './package.mjs';
 
 const sourceManifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const archive = await packRelease();
@@ -22,7 +22,7 @@ try {
   const installed = path.join(project, 'node_modules/codebudget'); const cli = path.join(installed, 'dist/cli.js');
   const installedFiles = await readdir(installed, { recursive: true });
   check('release excludes local agent instruction files', () => {
-    assert.ok(!installedFiles.some(file => path.basename(file).toLowerCase() === 'agents.md'));
+    assert.deepEqual(installedFiles.filter(isAgentInstructionFile), []);
   });
   const run = args => {
     const value = spawnSync(process.execPath, [cli, ...args], { cwd: project, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30000 });

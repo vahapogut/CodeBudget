@@ -4,6 +4,9 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+/** Local agent instruction files (AGENTS.md, CLAUDE.md and similar) never ship in a release. */
+export const isAgentInstructionFile = file => /^(?:agents|claude|gemini)(?:\.local)?\.md$|^\.(?:cursor|windsurf)rules$|^copilot-instructions\.md$/i.test(path.basename(file));
+
 export async function packRelease() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const manifest = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
@@ -11,7 +14,7 @@ export async function packRelease() {
   try {
     for (const name of ['dist', 'plugins', 'docs', 'examples']) await cp(path.join(root, name), path.join(staging, name), {
       recursive: true,
-      filter: source => !source.endsWith('.tgz') && path.basename(source).toLowerCase() !== 'agents.md',
+      filter: source => !source.endsWith('.tgz') && !isAgentInstructionFile(source),
     });
     for (const name of ['README.md', 'LICENSE', 'LEGACY_LICENSE', 'LICENSING.md', 'NOTICE', 'THIRD_PARTY_NOTICES.md', 'SECURITY.md', 'PRIVACY.md', 'CONTRIBUTING.md', 'ROADMAP.md']) await copyFile(path.join(root, name), path.join(staging, name));
     await writeFile(path.join(staging, 'package.json'), JSON.stringify({
