@@ -260,7 +260,15 @@ describe('context package budget and evidence integrity', () => {
     const subject = await indexer(root, { maxFileBytes: 100, maxTotalBytes: 25 });
     const result = await subject.index();
     expect(result.files).toBe(1);
-    expect(result.skipped).toHaveLength(3);
+    // Every exclusion is visible with a stable reason, including the index's own data directory
+    // (previously skipped silently, so this list had three entries).
+    expect(result.skipped).toEqual(expect.arrayContaining([
+      { path: '.codebudget', reason: 'local_state' },
+      { path: 'binary.ts', reason: 'binary' },
+      { path: 'large.ts', reason: 'file_size_limit' },
+    ]));
+    expect(result.skipped.filter((entry) => entry.reason === 'total_source_bytes_limit')).toHaveLength(1);
+    expect(result.skipped).toHaveLength(4);
   });
 
   it('bounds metadata admission and preserves evidence referenced by retained packages', async () => {
@@ -294,12 +302,14 @@ describe('context package budget and evidence integrity', () => {
 
   it('enforces SQLite page quota with transaction rollback and denies linked data directories', async () => {
     const root = project();
-    const original = 'export const value = "' + 'large text '.repeat(80_000) + '";';
-    file(root, 'large.ts', original);
+    // Source text is no longer stored, so the quota must be exceeded by the search index itself:
+    // three files of 60,000 distinct terms (a repeated two-word text now fits easily in 1 MiB).
+    const originals = [0, 1, 2].map((part) => Array.from({ length: 60_000 }, (_, i) => `t${part}x${(i * 7919 + part).toString(36)}q${i.toString(36)}`).join(' '));
+    originals.forEach((text, part) => file(root, `large${part}.ts`, `export const value = "${text}";`));
     const subject = await indexer(root, { diskBudgetBytes: 1024 * 1024 });
-    await expect(subject.index()).rejects.toThrow(/full/i);
+    await expect(subject.index()).rejects.toThrow(/full.*diskBudgetBytes/s);
     expect(subject.doctor().files).toBe(0);
-    expect(readFileSync(join(root, 'large.ts'), 'utf8')).toBe(original);
+    originals.forEach((text, part) => expect(readFileSync(join(root, `large${part}.ts`), 'utf8')).toBe(`export const value = "${text}";`));
     const linkedRoot = project();
     const outside = project();
     symlinkSync(outside, join(linkedRoot, '.codebudget'), process.platform === 'win32' ? 'junction' : 'dir');

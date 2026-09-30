@@ -6,7 +6,8 @@
 | Node prints an experimental SQLite warning | The built launchers suppress only this notice. When running sources directly it is an acknowledged Node 22 runtime limitation, not a successful or failed database check by itself. Protocol diagnostics belong on stderr. |
 | Frozen-lockfile install fails | Confirm pnpm 10.33.2 and the committed lockfile. Do not silently regenerate it with an incompatible toolchain. |
 | Tree-sitter grammar load fails | Rebuild and inspect packaged WASM assets; run `doctor`. Preserve the source and report parser support honestly rather than claiming semantic indexing. |
-| Index omits a file | Check `.gitignore`, `.codebudgetignore`, sensitive-path rules, size limits, symlinks and parser support. Sensitive exclusions cannot be overridden by an ordinary include. |
+| Index omits a file | `codebudget index` lists every skipped path with its reason. Check `.gitignore`, `.codebudgetignore`, `.git/info/exclude`, `core.excludesFile`, sensitive-path rules, size limits, symlinks and parser support. Sensitive exclusions cannot be overridden by an ordinary include. |
+| Index database is full or exceeds `diskBudgetBytes` | Raise `diskBudgetBytes`, exclude large generated trees with `.codebudgetignore`, or run `codebudget index --rebuild` to recreate the derived index. Source bodies are not stored in the index, so a rebuild loses only derived data. |
 | Context reports `budget_exceeded` | Read the minimum-required estimate and missing sources. Increase the budget or narrow the task; do not assume required code was complete. |
 | Context reports stale/inconsistent sources | Save the editor buffer and rerun indexing/context preparation. Unsaved buffers are not visible. |
 | Output did not shrink | Check observe mode, known format, machine-consumer path, preservation diagnostics and schema overhead. No-gain output is intentionally retained. |

@@ -3,7 +3,7 @@
 - D001: TypeScript strict, pnpm workspace; one bundled distributable retains logical package boundaries.
 - D002: Use built-in node:sqlite (SQLite 3.49.1 verified on Node 22.16.0) to avoid a third-party native ABI download. Its Node 22 API remains experimental; beta status and runtime floor are explicit.
 - D003: Tree-sitter WASM plus packaged grammars supports offline parsing. Runtime/grammar ABI must pass a real probe.
-- D004: UTF-8 byte counts and conservative local token estimates are distinct from provider usage and quota. No savings claims without experiments.
+- D004: UTF-8 byte counts and local token estimates (not an upper bound) are distinct from provider usage and quota. No savings claims without experiments.
 - D005: Plugin integration precedes reporting UI. Use documented post-tool replacement only with validated shapes and version allowlist; never rewrite permission-sensitive commands.
 - D006: Unknown client versions fail to observe/no mutation. Real model acceptance testing needs separate spending authorization.
 - D007: Keep TypeScript 5.9.3 and ESLint 9.39.2 (registry verified), avoiding the new compiler major until ecosystem compatibility is proven.

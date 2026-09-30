@@ -1,19 +1,22 @@
 import { posix } from 'node:path';
 import type { DependencyIssue, DependencyPolicy, DependencyProvenance, DependencySummary, IndexedFile } from './types.js';
 
+type ImportGraphFile = Pick<IndexedFile, 'imports' | 'parseErrors'>;
 const extensions = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'];
 const compare = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0;
 const relativeSpecifier = (specifier: string): boolean => specifier.startsWith('./') || specifier.startsWith('../');
 
 /** Resolve only indexed local syntax imports. Do not impersonate Node/TypeScript resolution. */
-function resolveReference(importer: string, specifier: string, files: Map<string, IndexedFile>): { path: string } | DependencyIssue {
+function resolveReference(importer: string, specifier: string, files: ReadonlyMap<string, ImportGraphFile>): { path: string } | DependencyIssue {
   const issue = (reason: DependencyIssue['reason'], candidates?: string[]): DependencyIssue => ({ importer, specifier, reason, ...(candidates ? { candidates } : {}) });
   if (/[\\\0?#]/.test(specifier)) return issue('unsupported_specifier');
   const base = posix.normalize(posix.join(posix.dirname(importer), specifier));
   if (base === '..' || base.startsWith('../') || posix.isAbsolute(base)) return issue('outside_repository');
-  const ext = posix.extname(base);
+  // Only a known code extension is an extension: "./user.service" and "./config.dev" are extensionless.
+  const extension = posix.extname(base);
+  const ext = extensions.includes(extension) ? extension : '';
   // Explicit filenames win; .js/.mjs/.cjs may point at a sole corresponding TS source.
-  if (ext && extensions.includes(ext) && files.has(base)) return { path: base };
+  if (ext && files.has(base)) return { path: base };
   const alternatives = ext === '.js' ? ['.ts', '.tsx'] : ext === '.jsx' ? ['.tsx'] : ext === '.mjs' ? ['.mts'] : ext === '.cjs' ? ['.cts'] : [];
   const possible = ext ? alternatives.map(extension => base.slice(0, -ext.length) + extension)
     : extensions.flatMap(extension => [base + extension, base + '/index' + extension]);
@@ -22,7 +25,7 @@ function resolveReference(importer: string, specifier: string, files: Map<string
   return issue(candidates.length > 1 ? 'ambiguous' : 'unresolved', candidates.length > 1 ? candidates : undefined);
 }
 
-export function expandDependencies(files: Map<string, IndexedFile>, roots: string[], policy: DependencyPolicy): { provenance: Map<string, DependencyProvenance>; summary: DependencySummary } {
+export function expandDependencies(files: ReadonlyMap<string, ImportGraphFile>, roots: string[], policy: DependencyPolicy): { provenance: Map<string, DependencyProvenance>; summary: DependencySummary } {
   const seeds = [...new Set(roots)].sort(compare);
   const seen = new Set(seeds);
   const provenance = new Map<string, DependencyProvenance>();

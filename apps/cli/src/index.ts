@@ -52,10 +52,12 @@ program.command('doctor').description('Check runtime, SQLite, index freshness, n
       limits: { unsavedEditorBuffers: 'unavailable', providerQuota: 'unknown', actualClientReplacement: 'not tested in a model session' } });
   } finally { index.close(); }
 }));
-program.command('index').description('Index saved eligible files with Tree-sitter and SQLite FTS5').action(async () => withStore(async store => {
-  const { createIndexer } = await indexer();
-  const index = await createIndexer(root(), store.dataDir, indexOptions(store)); try { output(await index.index()); } finally { index.close(); }
-}));
+program.command('index').description('Index saved eligible files with Tree-sitter and SQLite FTS5')
+  .option('--rebuild', 'drop and recreate the derived index database first; earlier evidence IDs, snapshots and expansion chains become invalid')
+  .action(async (options: { rebuild?: boolean }) => withStore(async store => {
+    const { createIndexer } = await indexer();
+    const index = await createIndexer(root(), store.dataDir, indexOptions(store)); try { output(options.rebuild ? await index.rebuild() : await index.index()); } finally { index.close(); }
+  }));
 program.command('run').description('Run explicit executable + argv once; -- separates CodeBudget options. Default emits agent text; --json emits metadata.').argument('<executable>').argument('[args...]')
   .option('--session <id>').option('--timeout <ms>', 'wall time limit', integer).option('--parser <format>', `explicit known parser: ${PARSERS.join(', ')}`)
   .option('--raw', 'preserve stdout/stderr bytes for a machine pipeline; optimization disabled').option('--json', 'emit complete result metadata instead of agent text')

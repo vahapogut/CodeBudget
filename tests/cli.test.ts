@@ -76,6 +76,12 @@ it('MCP server without --root serves the nearest initialized project and refuses
   expect(existsSync(join(bare, '.codebudget'))).toBe(false);
 }, 60000);
 
+it('CLI index --rebuild recreates the derived index', () => {
+  const root = setup(); writeFileSync(join(root, 'a.ts'), 'export const a = 1;\n');
+  expect(run(root, ['index']).status).toBe(0);
+  const rebuilt = run(root, ['index', '--rebuild']);
+  expect(rebuilt.status).toBe(0); expect(JSON.parse(rebuilt.stdout)).toMatchObject({ files: 1, indexed: 1 });
+});
 it('CLI context measures its actual stdout serialization including metadata and escaped source', () => {
   const root = setup();
   writeFileSync(join(root, 'auth.ts'), 'export function rotateToken() {\n return "quoted source";\n}\n');
