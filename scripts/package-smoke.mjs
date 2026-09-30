@@ -20,6 +20,10 @@ try {
   const install = spawnSync(process.execPath, [pnpm, 'add', archive, '--ignore-scripts'], { cwd: project, encoding: 'utf8', shell: false, windowsHide: true, timeout: 120000 });
   check('clean tarball install without native build scripts', () => assert.equal(install.status, 0, install.stderr));
   const installed = path.join(project, 'node_modules/codebudget'); const cli = path.join(installed, 'dist/cli.js');
+  const installedFiles = await readdir(installed, { recursive: true });
+  check('release excludes local agent instruction files', () => {
+    assert.ok(!installedFiles.some(file => path.basename(file).toLowerCase() === 'agents.md'));
+  });
   const run = args => {
     const value = spawnSync(process.execPath, [cli, ...args], { cwd: project, encoding: 'utf8', shell: false, windowsHide: true, timeout: 30000 });
     if (value.status !== 0) throw new Error(`CLI ${args[0]} failed: ${value.stderr} ${value.stdout}`); return value.stdout;

@@ -1,6 +1,12 @@
 # Verification record
 
-Date: 2026-09-29. Current product: 0.1.0-beta.2. Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+Date: 2026-09-30. Current product: 0.1.0-beta.2. Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+
+## Local instruction file exclusion
+
+The 2026-09-30 owner correction keeps AGENTS.md files local. The root file and Codex example were removed from Git tracking without changing their contents; before/after SHA-256 comparisons passed. Case-insensitive ignore rules cover root/nested paths and take precedence over the standalone bundle inclusion rule. Release copying also excludes these files regardless of Git ignore behavior. Contributor documentation no longer requires a file absent from fresh clones. Previous commits were not rewritten.
+
+Executed on Windows Node22.16.0: `git ls-files` found no tracked AGENTS.md; `git check-ignore --no-index` covered uppercase/lowercase/mixed-case names and the plugin bundle path. `pnpm verify` passed lint, typecheck, 14 Vitest files / 244 tests, build and 2 Chromium tests. `pnpm smoke:package` passed all 25 checks while the ignored local instruction files remained present, including an installed archive scan for AGENTS.md at every depth. No model calls or global configuration changes occurred. The [package result](package-smoke-result.json) records this run; prior sections describe earlier verification.
 
 ## Free-use license follow-up: beta.2
 

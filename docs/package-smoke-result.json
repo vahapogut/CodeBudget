@@ -9,6 +9,10 @@
       "passed": true
     },
     {
+      "name": "release excludes local agent instruction files",
+      "passed": true
+    },
+    {
       "name": "installed release version and license metadata",
       "passed": true
     },

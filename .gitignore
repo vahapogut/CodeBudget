@@ -11,3 +11,5 @@ coverage/
 .cache/
 !plugins/claude-codebudget/dist/
 !plugins/claude-codebudget/dist/**
+# Local agent instructions stay on the developer's machine.
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]

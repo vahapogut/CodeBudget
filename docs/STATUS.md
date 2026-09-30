@@ -16,6 +16,8 @@ Checkpoint: 2026-09-29. Local beta 0.1.0-beta.2 is implemented, locally verified
 
 ## Executed verification
 
+Repository hygiene follow-up, 2026-09-30: local agent instruction files are excluded from Git and release archives. Both existing local copies were preserved with unchanged SHA-256 hashes. `git ls-files` returns no tracked AGENTS.md; case-insensitive ignore checks passed, including nested paths under the bundled plugin. `pnpm verify` passed (244 tests, 2 Chromium tests, lint/types/build); `pnpm smoke:package` passed all 25 checks, including archive exclusion. This changes the current tree and future packaging; previous Git commits remain intact.
+
 Beta.2 follow-up: `pnpm install --frozen-lockfile`, `pnpm verify` (244 tests in 14 files, 2 Chromium tests, lint/types/build) and `pnpm smoke:package` (24 installed checks) passed on Windows Node22.16.0. The package checks validate version metadata, exact root/plugin license document parity and the preserved Apache license. `git diff --check` passed. The new remote CI run is not yet recorded; the six-platform-job result below is historical beta.1 evidence.
 
 Earlier beta.1 records:
