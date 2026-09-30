@@ -22,6 +22,8 @@ export interface UsageEvent {
   scope: string; model: string | null; input: number | null; cachedInput: number | null;
   cacheWrite: number | null; output: number | null; reasoning: number | null;
   total: number | null; counter: 'delta' | 'cumulative'; agent: string | null;
+  /** Stable identity of a cumulative counter series (for example a hashed client thread), never raw content. */
+  series?: string | null;
 }
 
 export class Store {
