@@ -41,6 +41,23 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 - Dashboard links are single-use; the page exchanges them for a session token.
 - Dashboard reports are summaries with on-demand run and context details, exports allow up to 64 MiB, dashboard evidence views are not counted as agent retrievals, and unknown paths return a generic 404.
 
+### Client adapters and usage imports
+
+- Adapter installs splice only the CodeBudget entry into project files and keep every other byte, formatting, line endings and permissions; install followed by uninstall restores the original file, and files or directories CodeBudget created are removed again.
+- Plans show only the CodeBudget entry, file paths and content hashes; parse errors never quote file content.
+- Applies are locked, journaled and rolled back on failure, SIGINT or SIGTERM; an interrupted change is recovered by the next adapter command. Backups are private (0600), bounded to five per file and never edit the project `.gitignore`.
+- Registrations default to a portable `codebudget mcp serve`; `--command` and repeated `--arg` register an explicit launch. `mcp serve` without `--root` serves the nearest initialized project from `CLAUDE_PROJECT_DIR` or its working directory and refuses an uninitialized directory.
+- Codex 0.139.0 `turn.completed.usage` is imported as the thread's running total (cumulative per hashed thread) instead of a per-turn delta, so resumed threads, repeated lines and re-imports are no longer over-counted; all-zero usage is unknown. Report totals use `observedUsageTotal`.
+- Claude OTLP captures may be JSON Lines with one export batch per line.
+
+### Reducers and benchmarks
+
+- Preservation is validated in one linear, ordered pass over whole lines; reducers declare which lines they may remove or add. Sorted, relocated, merged or forged candidates are rejected.
+- Detection routes diff-shaped text only to the diff reducer, requires the full line grammar for tsc, ESLint and git status (porcelain v1/v2 and long format) and keeps timestamped logs out of search results.
+- Test-runner output keeps blank lines and annotated pass lines; CRLF and final newlines are preserved, and normalization alone is never counted as a reduction.
+- Replay headline figures use automatic detection, as the runner and the hook do; format-hinted figures are reported separately. The captured corpus now reduces 6,819 to 5,809 bytes (14.81%), down from the previously published 15.15%.
+- Task evaluators require a per-run completion token, check refactor constraints on the syntax tree, verify the workspace written to disk and report a missing TypeScript installation clearly.
+
 ### Build, packaging and CI
 
 - The CLI bundle is code-split (the entry chunk shrank from about 5.3 MB to 128 KB), and plugin bundles stay self-contained.

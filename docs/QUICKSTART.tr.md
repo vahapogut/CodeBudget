@@ -38,6 +38,15 @@ Eklenti kısa bir skill, üç sınırlı MCP aracı ve doğrulanan olay biçimle
 
 Çıktı değiştirme Claude Code 2.1.216 ve sonraki 2.x sürümlerinde etkindir. Hook sözleşme testleri 2.1.216 ve 2.1.285 ile çalışır; CI, kurulu eklentiyi yayımlanmış en yeni istemciyle ayrıca kontrol eder. Gerçek model oturumunda çıktının değiştiği henüz doğrulanmamıştır. Başka ana sürümlerde, tanınmayan çıktı biçimlerinde ve desteklenmeyen olaylarda anlamsal dönüşüm yapılmaz; nedeni yerelde kaydedilir ve `node dist/cli.js doctor` çıktısındaki `warnings` alanında görünür. Eklenti için `PATH` üzerinde Node.js 22.16 veya daha yenisi gerekir; eski sürümde hook araç sonucunu değiştirmeden çıkar. MCP kaydı, bütün yerleşik terminal ve dosya çağrılarını otomatik denetlemek anlamına gelmez.
 
+## Proje yerel MCP kaydı
+
+```sh
+node dist/cli.js adapters install codex --dry-run
+node dist/cli.js adapters install codex --apply --command node --arg /tam/yol/codebudget/dist/cli.js --arg mcp --arg serve
+```
+
+Önizleme yalnızca CodeBudget girdisini, dosya yollarını ve içerik özetlerini gösterir; dosyadaki diğer baytlar, biçim ve izinler korunur. Varsayılan kayıt taşınabilirdir (`codebudget mcp serve`, makineye özgü yol içermez) ve `codebudget` komutunun `PATH` üzerinde olmasını gerektirir; eksikse önizleme bunu belirtir. Kaynak klasörden çalışırken yukarıdaki gibi `--command` ve tekrarlanan `--arg` ile açık bir başlatma komutu kaydedin. `--root` verilmezse sunucu, `CLAUDE_PROJECT_DIR` ya da istemcinin başlattığı dizinden en yakın başlatılmış projeyi kullanır.
+
 ## Kaynak ve kanıtla çalışma
 
 ```sh

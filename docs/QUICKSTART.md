@@ -84,7 +84,13 @@ codebudget adapters install codex --apply
 codebudget adapters uninstall codex --dry-run
 ```
 
-Installation previews and changes project-local settings. Apply only after reviewing the preview. Existing configuration is backed up and structurally merged. Uninstall removes only owned entries; conflicting later user edits are preserved. Global IDE configuration is outside these commands' scope.
+Installation previews and changes project-local settings. Apply only after reviewing the preview; it shows only the CodeBudget entry, file paths and content hashes. Only that entry is inserted or removed, so every other byte of the file, its formatting and its permissions stay as they were. Previous versions are backed up privately under `.codebudget/adapters`. Uninstall removes only owned entries; conflicting later user edits are preserved. Global IDE configuration is outside these commands' scope.
+
+The registration is portable by default: `codebudget mcp serve`, with no machine-specific path, which needs the `codebudget` command on `PATH` (the preview says when it is missing). Without `--root`, the server serves the nearest initialized project from `CLAUDE_PROJECT_DIR` or the directory the client starts it in. To register an explicit launch instead, for example from a source checkout:
+
+```sh
+codebudget adapters install codex --apply --command node --arg /absolute/path/dist/cli.js --arg mcp --arg serve
+```
 
 Claude's native plugin can instead be loaded with `claude --plugin-dir /absolute/path/to/plugins/claude-codebudget` after building. Its supported client range (2.1.216 and later 2.x releases) and unverified live-session status are documented in the plugin guide. Do not register both plugin and project MCP copies.
 
