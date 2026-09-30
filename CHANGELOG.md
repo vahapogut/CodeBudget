@@ -22,7 +22,7 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 - Timeouts send SIGTERM and then SIGKILL after two seconds.
 - Piped stdin is forwarded to the command; `run --no-stdin` closes it.
 - Balanced previews keep the head, numbered diagnostic lines and the tail.
-- Repeat-failure detection normalizes timestamps, durations, addresses, process IDs and temporary paths, and computes the source fingerprint only after a failure; an incomplete fingerprint makes no repeat claim.
+- Repeat-failure detection normalizes timestamps, durations, addresses, process IDs and temporary paths, and computes the source fingerprint only after a failure; an incomplete fingerprint makes no repeat claim. The fingerprint uses size and nanosecond timestamps (with content hashes for whole-second timestamps) and no longer depends on the current time, so repeats are also recognized when runs start seconds apart.
 - Reports are bounded (newest 200 runs by default) while totals cover every retained run; `report --limit/--offset/--run/--context` read more.
 
 ### Security and configuration
@@ -65,6 +65,7 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 - The release package lists TypeScript as an optional peer dependency.
 - `pnpm smoke:package` records failures honestly, reports unavailable Claude checks with a reason and writes its result to `dist/` unless `--record` is given.
 - CI fails when a build changes committed files, uploads the smoke result and adds Dependabot updates for npm and GitHub Actions.
+- `pnpm test` runs the functional suite first (two workers on Windows) and then the `performance.test.ts` files one at a time, so growth measurements neither starve nor are disturbed by parallel tests.
 - The agent-instruction exclusion now matches case-insensitively and also covers `CLAUDE.local.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `copilot-instructions.md` and the local `.claude/` directory, both in Git and in release archives. Client examples use neutral `project-instruction.md` names.
 
 ## 0.1.0-beta.2
