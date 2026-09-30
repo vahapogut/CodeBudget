@@ -1,6 +1,6 @@
 # Contributing
 
-Read `docs/STATUS.md` and `docs/EXECUTION_PLAN.md` before continuing implementation. Local agent instruction files are private workspace configuration and must not be committed or included in release archives. Keep source, APIs and primary documentation in English; maintain the Turkish quickstart. Small changes should include a precise description of behavior, relevant validation and known limitations.
+Read `docs/STATUS.md` and `docs/EXECUTION_PLAN.md` before continuing implementation. Local agent instruction files are private workspace configuration and must not be committed or included in release archives. Keep source, APIs and primary documentation in English; maintain the Turkish quickstart. Small changes should include a precise description of behavior, relevant validation and known limitations. Record user-visible changes in [CHANGELOG.md](CHANGELOG.md).
 
 ```sh
 pnpm install --frozen-lockfile
