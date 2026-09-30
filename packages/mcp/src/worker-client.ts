@@ -6,9 +6,11 @@ export function indexOperation<T>(root: string, dataDir: string, method: 'prepar
   const source = import.meta.url.endsWith('.ts');
   const entry = new URL(source ? './worker.ts' : './evidence-worker.mjs', import.meta.url).href;
   const workerData = { root, dataDir, method, args, entry, parentUrl: import.meta.url };
+  // stdout: true keeps any worker console output (for example a grammar loader message) off the MCP protocol stream.
   const worker = source
-    ? new Worker('const {workerData}=require("node:worker_threads"); import("tsx/esm/api").then(({tsImport})=>tsImport(workerData.entry,workerData.parentUrl));', { eval: true, workerData })
-    : new Worker(new URL(entry), { workerData });
+    ? new Worker('const {workerData}=require("node:worker_threads"); import("tsx/esm/api").then(({tsImport})=>tsImport(workerData.entry,workerData.parentUrl));', { eval: true, workerData, stdout: true })
+    : new Worker(new URL(entry), { workerData, stdout: true });
+  worker.stdout.pipe(process.stderr, { end: false });
   return new Promise<T>((resolve, reject) => {
     let done = false;
     const finish = (error: unknown, value?: T) => {

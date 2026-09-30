@@ -105,3 +105,27 @@ it('MCP worker applies offline tokenizer and dependency config to its complete m
   expect(context.dependencyExpansion).toMatchObject({ maxDepth: 3, maxFiles: 4, expandedFiles: 2 });
   expect(runtime.store.contextPackage(context.id)).toMatchObject(context);
 }, 15000);
+
+it('queues overlapping read-only calls instead of rejecting them', async () => {
+  const { client } = await connected();
+  const [context, changes] = await Promise.all([
+    client.callTool({ name: 'prepare_context', arguments: { task: 'rotateToken auth', budget: 8000 } }),
+    client.callTool({ name: 'get_changes', arguments: {} }),
+  ]);
+  expect(context.isError).not.toBe(true); expect(changes.isError).not.toBe(true);
+});
+
+it('declares its result-size needs to clients that honor the annotation', async () => {
+  const { client } = await connected();
+  const tools = (await client.listTools()).tools;
+  expect(tools.find(tool => tool.name === 'prepare_context')?._meta).toMatchObject({ 'anthropic/maxResultSizeChars': 500000 });
+  expect(tools.find(tool => tool.name === 'read_evidence')?._meta).toBeUndefined();
+});
+
+it('returns evidence pages well below default client result limits', async () => {
+  const { client, runtime } = await connected();
+  const artifact = runtime.store.putText(Array.from({ length: 20000 }, (_, i) => `line ${i}\n`).join(''));
+  const page = await client.callTool({ name: 'read_evidence', arguments: { id: artifact.id, limit: 1000 } });
+  expect(page.isError).not.toBe(true);
+  expect(JSON.stringify(page).length).toBeLessThan(100_000);
+});

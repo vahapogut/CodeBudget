@@ -16,6 +16,7 @@ export const configSchema = z.object({
   diskBudgetBytes: z.number().int().min(4 * 1024 * 1024).max(1024 ** 3).default(128 * 1024 * 1024),
   artifactRetentionDays: z.number().int().min(1).max(3650).default(14),
   commandTimeoutMs: z.number().int().min(1).max(86400000).default(120000),
+  mcpTimeoutMs: z.number().int().min(1000).max(600000).default(30000),
   rawArchive: z.boolean().default(false),
   experimental: z.object({ localSummary: z.boolean().default(false), apiRouting: z.boolean().default(false), localEndpoint: z.string().url().optional() }).strict().default({ localSummary: false, apiRouting: false }),
 }).strict();

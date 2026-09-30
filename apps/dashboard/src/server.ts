@@ -15,27 +15,34 @@ export interface DashboardOptions {
   clientVersions?: Partial<Record<ClientId, string | null>>;
 }
 
-export interface DashboardHandle { url: string; origin: string; close(): Promise<void>; }
+export interface DashboardHandle {
+  url: string; origin: string; close(): Promise<void>;
+  /** Issue a new single-use link (for example after the first one was used); never reachable over HTTP. */
+  newLink(): string;
+}
 const CSP = "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'";
 const mime: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 
 export async function startDashboard(options: DashboardOptions): Promise<DashboardHandle> {
   if (options.host && options.host !== '127.0.0.1') throw new Error('Dashboard binds only to 127.0.0.1');
   const { store } = options;
+  // The printed URL carries a single-use bootstrap secret; the API token is only returned by exchanging it,
+  // so a URL kept in browser history or terminal scrollback cannot read data later.
+  let bootstrap: string | null = randomBytes(32).toString('hex');
   const token = randomBytes(32).toString('hex');
   const assetsDir = options.assetsDir ?? fileURLToPath(new URL('./dashboard/', import.meta.url));
   let origin = '';
   let expectedHost = '';
-  const send = (response: ServerResponse, status: number, body: unknown, contentType = 'application/json; charset=utf-8'): void => {
+  const send = (response: ServerResponse, status: number, body: unknown, contentType = 'application/json; charset=utf-8', maxBytes = 8 * 1024 * 1024): void => {
     const serialized = typeof body === 'string' ? body : safeJson(body);
-    if (Buffer.byteLength(serialized) > 8 * 1024 * 1024) {
-      response.writeHead(413, { 'Content-Type': 'application/json' }); response.end('{"error":"Response exceeds 8 MiB; use the CLI for scoped retrieval"}'); return;
+    if (Buffer.byteLength(serialized) > maxBytes) {
+      response.writeHead(413, { 'Content-Type': 'application/json' }); response.end('{"error":"Response exceeds the dashboard limit; use the CLI for scoped retrieval"}'); return;
     }
     response.writeHead(status, { 'Content-Type': contentType }); response.end(serialized);
   };
-  const authenticated = (request: IncomingMessage): boolean => {
+  const presents = (request: IncomingMessage, secret: string): boolean => {
     const authorization = request.headers.authorization ?? '';
-    const expected = `Bearer ${token}`;
+    const expected = `Bearer ${secret}`;
     return Buffer.byteLength(authorization) === Buffer.byteLength(expected) && timingSafeEqual(Buffer.from(authorization), Buffer.from(expected));
   };
   const server = createServer((request, response) => {
@@ -52,33 +59,50 @@ export async function startDashboard(options: DashboardOptions): Promise<Dashboa
       if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'none') { send(response, 403, { error: 'Cross-site request rejected' }); return; }
       if (request.method !== 'GET') { response.setHeader('Allow', 'GET'); send(response, 405, { error: 'Read-only dashboard; only GET is allowed' }); return; }
       const url = new URL(request.url ?? '/', origin);
+      if (url.pathname === '/api/session') {
+        if (!bootstrap || !presents(request, bootstrap)) { send(response, 401, { error: 'This dashboard link was already used or is invalid; run codebudget dashboard again for a new link' }); return; }
+        // Sent as prepared JSON: the credential sanitizer would (correctly) mask a field named token.
+        bootstrap = null; send(response, 200, JSON.stringify({ token })); return;
+      }
       if (url.pathname.startsWith('/api/')) {
-        if (!authenticated(request)) { send(response, 401, { error: 'Dashboard authorization required; reopen the URL printed by codebudget dashboard' }); return; }
+        if (!presents(request, token)) { send(response, 401, { error: 'Dashboard authorization required; open the URL printed by codebudget dashboard' }); return; }
         const sessionId = url.searchParams.get('session') ?? undefined;
         if (sessionId) store.assertSession(sessionId);
         if (url.pathname === '/api/report') {
           const report = store.report(sessionId);
-          send(response, 200, { ...report, mode: store.config.mode, generatedAt: new Date().toISOString(), adapters: inspectAdapters({ versions: options.clientVersions }), limits: { retainedRuns: report.runs.length, visibleRuns: Math.min(report.runs.length, 200), visibleEvents: 100 }, runs: report.runs.slice(0, 200), contextPackages: report.contextPackages.slice(0, 100), benchmark: report.benchmark.slice(0, 100), retrievals: report.retrievals.slice(0, 100), hookMetrics: report.hookMetrics.slice(0, 100) }); return;
+          send(response, 200, { ...report, mode: store.config.mode, generatedAt: new Date().toISOString(), adapters: inspectAdapters({ versions: options.clientVersions }), limits: { retainedRuns: report.runCount, visibleRuns: report.runs.length, visibleEvents: 100 } }); return;
         }
+        const identifier = (prefix: string): string => {
+          const id = decodeURIComponent(url.pathname.slice(prefix.length));
+          if (!/^[a-zA-Z0-9:_=+-]{1,200}$/.test(id)) throw new Error('Invalid identifier');
+          return id;
+        };
+        if (url.pathname.startsWith('/api/run/')) {
+          const run = store.run(identifier('/api/run/'));
+          if (sessionId && run.sessionId !== sessionId) throw new Error('Run belongs to another session');
+          send(response, 200, run); return;
+        }
+        if (url.pathname.startsWith('/api/context/')) { send(response, 200, store.contextPackage(identifier('/api/context/'))); return; }
         if (url.pathname.startsWith('/api/evidence/')) {
           const id = decodeURIComponent(url.pathname.slice('/api/evidence/'.length));
           if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id)) { send(response, 400, { error: 'Invalid evidence identifier' }); return; }
           const offset = Number(url.searchParams.get('offset') ?? 0);
           const limit = Number(url.searchParams.get('limit') ?? 200);
-          send(response, 200, store.readEvidence(id, offset, limit, sessionId)); return;
+          // Human inspection is not an agent retrieval and is not recorded as one.
+          send(response, 200, store.readEvidence(id, offset, limit, sessionId, { record: false, source: 'dashboard' })); return;
         }
         if (url.pathname === '/api/export') {
-          const report = store.report(sessionId);
+          const report = store.report(sessionId, { runLimit: -1, eventLimit: 1000 });
           const format = url.searchParams.get('format') ?? 'json';
           if (format === 'json') {
             response.setHeader('Content-Disposition', 'attachment; filename="codebudget-report.json"');
-            send(response, 200, report); return;
+            send(response, 200, report, 'application/json; charset=utf-8', 64 * 1024 * 1024); return;
           }
           if (format === 'csv') {
             const columns = ['id', 'sessionId', 'executable', 'status', 'exitCode', 'originalSize', 'reducedSize', 'durationMs', 'reducerId'];
             const csv = [columns.map(csvCell).join(','), ...report.runs.map((run) => columns.map((column) => csvCell(run[column])).join(','))].join('\r\n');
             response.setHeader('Content-Disposition', 'attachment; filename="codebudget-runs.csv"');
-            send(response, 200, csv, 'text/csv; charset=utf-8'); return;
+            send(response, 200, csv, 'text/csv; charset=utf-8', 64 * 1024 * 1024); return;
           }
           send(response, 400, { error: 'Export format must be json or csv' }); return;
         }
@@ -91,8 +115,9 @@ export async function startDashboard(options: DashboardOptions): Promise<Dashboa
       response.writeHead(200, { 'Content-Type': mime[extname(asset)]! }); response.end(readFileSync(asset));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Request failed';
-      const notFound = /ENOENT|Unknown evidence/.test(message);
-      send(response, notFound ? 404 : 400, { error: redact(message) });
+      // File-system errors name local paths; only a generic message leaves the server.
+      if (/ENOENT|ENOTDIR|EISDIR/.test(message)) { send(response, 404, { error: 'Not found' }); return; }
+      send(response, /^Unknown /.test(message) ? 404 : 400, { error: redact(message) });
     }
   });
   server.requestTimeout = 15_000;
@@ -106,5 +131,6 @@ export async function startDashboard(options: DashboardOptions): Promise<Dashboa
   if (!address || typeof address === 'string') throw new Error('Dashboard did not acquire a TCP port');
   expectedHost = `127.0.0.1:${address.port}`;
   origin = `http://${expectedHost}`;
-  return { url: `${origin}/#token=${token}`, origin, close: () => new Promise<void>((resolve, reject) => { server.closeAllConnections(); server.close((error) => error ? reject(error) : resolve()); }) };
+  const newLink = (): string => { bootstrap = randomBytes(32).toString('hex'); return `${origin}/#token=${bootstrap}`; };
+  return { url: `${origin}/#token=${bootstrap}`, origin, newLink, close: () => new Promise<void>((resolve, reject) => { server.closeAllConnections(); server.close((error) => error ? reject(error) : resolve()); }) };
 }

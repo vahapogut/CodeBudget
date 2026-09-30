@@ -86,7 +86,10 @@ try {
     dashboard.stderr.on('data', chunk => { text += chunk.toString(); const match = text.match(/http:\/\/127\.0\.0\.1:\d+\/[^\s]*/); if (match) { clearTimeout(timer); resolve(match[0]); } });
     dashboard.once('error', reject); dashboard.once('exit', code => { clearTimeout(timer); reject(new Error(`Dashboard exited ${code}: ${text}`)); });
   });
-  const parsed = new URL(url); const token = new URLSearchParams(parsed.hash.slice(1)).get('token'); parsed.hash = '';
+  const parsed = new URL(url); const bootstrap = new URLSearchParams(parsed.hash.slice(1)).get('token'); parsed.hash = '';
+  const exchange = await fetch(new URL('/api/session', parsed), { headers: { Authorization: `Bearer ${bootstrap}`, Origin: parsed.origin } });
+  const { token } = await exchange.json();
+  check('installed dashboard link is single-use', () => assert.equal(exchange.status, 200));
   const page = await fetch(parsed);
   check('installed dashboard static assets', () => assert.equal(page.status, 200));
   const unauthorized = await fetch(new URL('/api/report', parsed));

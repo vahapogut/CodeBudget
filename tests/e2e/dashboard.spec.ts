@@ -106,7 +106,7 @@ test('unauthorized browser cannot read data; responsive navigation stays availab
   await isolated.close();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.goto(server.url);
+  await page.goto(server.newLink());
   const navigation = page.getByRole('navigation', { name: 'Main navigation' });
   await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

@@ -62,11 +62,9 @@ function App() {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem('codebudget-dashboard-theme', theme); } catch { /* The selected theme still works for this page. */ }
   }, [theme]);
-  const [token] = useState(() => {
-    const supplied = new URLSearchParams(location.hash.slice(1)).get('token');
-    if (supplied) { sessionStorage.setItem('codebudget-dashboard-token', supplied); history.replaceState(null, '', location.pathname); }
-    return supplied ?? sessionStorage.getItem('codebudget-dashboard-token') ?? '';
-  });
+  // The printed link carries a single-use secret that is exchanged once for the session's API token.
+  const [bootstrap] = useState(() => { const supplied = new URLSearchParams(location.hash.slice(1)).get('token'); if (supplied) history.replaceState(null, '', location.pathname); return supplied; });
+  const [token, setToken] = useState(() => { try { return sessionStorage.getItem('codebudget-dashboard-token') ?? ''; } catch { return ''; } });
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -84,12 +82,25 @@ function App() {
     if (!response.ok) { const body = await response.json() as { error?: string }; throw new Error(body.error ?? `Request failed (${response.status})`); }
     return response;
   }, [token]);
+  useEffect(() => {
+    if (!bootstrap) return;
+    void (async () => {
+      try {
+        const response = await fetch('/api/session', { headers: { Authorization: `Bearer ${bootstrap}` }, credentials: 'omit' });
+        const body = await response.json() as { token?: string; error?: string };
+        if (!response.ok || !body.token) throw new Error(body.error ?? 'This dashboard link could not be used');
+        try { sessionStorage.setItem('codebudget-dashboard-token', body.token); } catch { /* the token stays in memory for this page */ }
+        setToken(body.token);
+      } catch (cause) { setError(text((cause as Error).message)); }
+    })();
+  }, [bootstrap]);
   const refresh = useCallback(async () => {
+    if (!token) { if (!bootstrap) setError('Dashboard authorization required; open the URL printed by codebudget dashboard'); return; }
     setBusy(true); setError('');
     try { setReport(await (await request('/api/report')).json() as Report); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not load local records'); }
     finally { setBusy(false); }
-  }, [request]);
+  }, [request, token, bootstrap]);
   useEffect(() => { void refresh(); }, [refresh]);
   const exportReport = async (format: 'json' | 'csv'): Promise<void> => {
     try {
@@ -103,10 +114,20 @@ function App() {
     setSelectedRun(run); setEvidence(null); setEvidenceBusy(true); setError('');
     try {
       const suffix = typeof run.sessionId === 'string' ? `&session=${encodeURIComponent(run.sessionId)}` : '';
-      const result = await (await request(`/api/evidence/${encodeURIComponent(String(run.artifactId))}?offset=${offset}&limit=100${suffix}`)).json() as Record<string, unknown>;
-      if (requestId === evidenceRequest.current) setEvidence(result);
+      // Report rows are summaries; the stored agent output is loaded with the evidence page.
+      const [result, detail] = await Promise.all([
+        request(`/api/evidence/${encodeURIComponent(String(run.artifactId))}?offset=${offset}&limit=100${suffix}`).then(async response => await response.json() as Record<string, unknown>),
+        offset === 0 ? request(`/api/run/${encodeURIComponent(String(run.id))}${suffix.replace('&', '?')}`).then(async response => await response.json() as Record<string, unknown>) : Promise.resolve(null),
+      ]);
+      if (requestId === evidenceRequest.current) { setEvidence(result); if (detail) setSelectedRun({ ...run, ...detail }); }
     } catch (cause) { if (requestId === evidenceRequest.current) setError(text((cause as Error).message)); }
     finally { if (requestId === evidenceRequest.current) setEvidenceBusy(false); }
+  };
+  const selectContext = async (entry: unknown): Promise<void> => {
+    const id = text(object(entry).id);
+    setSelectedContext(entry);
+    try { setSelectedContext(await (await request(`/api/context/${encodeURIComponent(id)}`)).json() as unknown); }
+    catch (cause) { setError(text((cause as Error).message)); }
   };
   const navigate = (next: View): void => {
     evidenceRequest.current++;
@@ -135,7 +156,7 @@ function App() {
   </tr>)}</tbody></table></div>;
 
   const nativeFilters = report && <section className="panel"><SectionTitle title="Native output filters" description="Claude hook results · separate from CLI totals"><span className="section-tag">{Math.min(report.hookMetrics.length, 10)} shown</span></SectionTitle>
-    {report.hookMetrics.length ? <div className="table-wrap"><table><thead><tr><th scope="col">Action</th><th scope="col" className="numeric">Original</th><th scope="col" className="numeric">Returned</th><th scope="col" className="numeric">Candidate saving</th></tr></thead><tbody>{report.hookMetrics.slice(0, 10).map((item, index) => { const metric = object(item); return <tr key={index}><td><Pill tone={metric.applied === true ? 'good' : ''}>{metric.applied === true ? 'Reduced' : 'Unchanged'}</Pill></td><td className="numeric">{bytes(Number(metric.originalBytes ?? 0))}</td><td className="numeric">{bytes(Number(metric.reducedBytes ?? 0))}</td><td className="numeric">{typeof metric.candidateSavingsBytes === 'number' ? `${bytes(metric.candidateSavingsBytes)} est.` : 'Not measured'}</td></tr>; })}</tbody></table></div> : <div className="integration-empty"><Icon name="Adapters" /><div><strong>Waiting for a supported hook result</strong><p>Native plugin activity will appear here when observed.</p></div><button className="text-button" onClick={() => navigate('Adapters')}>View adapters<Icon name="arrow" /></button></div>}
+    {report.hookMetrics.length ? <div className="table-wrap"><table><thead><tr><th scope="col">Action</th><th scope="col" className="numeric">Original</th><th scope="col" className="numeric">Returned</th><th scope="col" className="numeric">Candidate saving</th></tr></thead><tbody>{report.hookMetrics.slice(0, 10).map((item, index) => { const metric = object(item); const inactive = metric.kind === 'hook-noop'; return <tr key={index} title={inactive ? text(metric.reason) : undefined}><td><Pill tone={metric.applied === true ? 'good' : ''}>{inactive ? 'Inactive' : metric.applied === true ? 'Reduced' : 'Unchanged'}</Pill></td><td className="numeric">{typeof metric.originalBytes === 'number' ? bytes(metric.originalBytes) : '—'}</td><td className="numeric">{typeof metric.reducedBytes === 'number' ? bytes(metric.reducedBytes) : '—'}</td><td className="numeric">{typeof metric.candidateSavingsBytes === 'number' ? `${bytes(metric.candidateSavingsBytes)} est.` : 'Not measured'}</td></tr>; })}</tbody></table></div> : <div className="integration-empty"><Icon name="Adapters" /><div><strong>Waiting for a supported hook result</strong><p>Native plugin activity will appear here when observed.</p></div><button className="text-button" onClick={() => navigate('Adapters')}>View adapters<Icon name="arrow" /></button></div>}
     {report.pluginOverhead.length > 0 && <details className="inline-details"><summary>Plugin context overhead <span>Local estimates</span></summary><Json value={report.pluginOverhead} /></details>}
   </section>;
 
@@ -189,7 +210,7 @@ function App() {
           {filteredRuns.length ? runTable(filteredRuns) : <Empty title={report.runs.length ? 'No matching commands' : 'No commands recorded'} command={report.runs.length ? undefined : 'codebudget run -- pnpm test'}>{report.runs.length ? 'Change your search or result filter to see more commands.' : 'Capture a command to compare the returned output with its retained archive.'}</Empty>}
         </section>{selectedRun && <section className="panel"><SectionTitle title="Output comparison" description={`${text(selectedRun.executable)} · exit ${text(selectedRun.exitCode)} · ${text(selectedRun.reducerId)}`}><Pill tone={selectedRun.truncated ? 'bad' : ''}>{selectedRun.truncated ? 'Truncated archive' : 'Retained archive'}</Pill></SectionTitle><div className="output-grid"><div><div className="code-heading"><h3>Original evidence</h3><span>Redacted · historical</span></div><pre className="code" aria-busy={evidenceBusy}>{evidenceBusy ? 'Loading evidence…' : evidence ? (Array.isArray(evidence.chunks) ? evidence.chunks.map(chunk => text(object(chunk).text)).join('') : 'No retained chunks') : 'Evidence unavailable'}</pre>{typeof evidence?.nextOffset === 'number' && <button className="button secondary next-page" onClick={() => void readEvidence(selectedRun, Number(evidence.nextOffset))}>Next page<Icon name="arrow" /></button>}</div><div><div className="code-heading"><h3>Agent output</h3><span>Reduced or passthrough</span></div><pre className="code">{text(selectedRun.output)}</pre><p className="muted">{text(selectedRun.reason)}</p></div></div></section>}</>}
 
-        {report && view === 'Context' && <section className="panel"><SectionTitle title="Context packages"><span className="section-tag">{report.contextPackages.length} shown</span></SectionTitle>{report.contextPackages.length ? <><div className="context-list">{report.contextPackages.map((entry, index) => { const value = object(entry); const tokens = object(value.tokenMeasurement); return <button className="context-row" key={text(value.id) + index} onClick={() => setSelectedContext(entry)}><Icon name="Context" /><span><strong>{text(value.purpose ?? value.task ?? value.id)}</strong><small>{number(tokens.tokens)} tokens · {text(tokens.accuracy)}</small></span><Pill>{text(value.status)}</Pill><Icon name="arrow" /></button>; })}</div>{selectedContext !== null && <div className="context-detail"><h3>Serialized context package</h3><Json value={selectedContext} /></div>}</> : <Empty title="No context packages" icon="Context" command={'codebudget context --task "Your task" --budget 8000'}>Prepare a package to inspect source ranges, inclusion reasons and token estimates.</Empty>}</section>}
+        {report && view === 'Context' && <section className="panel"><SectionTitle title="Context packages"><span className="section-tag">{report.contextPackages.length} shown</span></SectionTitle>{report.contextPackages.length ? <><div className="context-list">{report.contextPackages.map((entry, index) => { const value = object(entry); const tokens = object(value.tokenMeasurement); return <button className="context-row" key={text(value.id) + index} onClick={() => void selectContext(entry)}><Icon name="Context" /><span><strong>{text(value.purpose ?? value.task ?? value.id)}</strong><small>{number(tokens.tokens)} tokens · {text(tokens.accuracy)}</small></span><Pill>{text(value.status)}</Pill><Icon name="arrow" /></button>; })}</div>{selectedContext !== null && <div className="context-detail"><h3>Serialized context package</h3><Json value={selectedContext} /></div>}</> : <Empty title="No context packages" icon="Context" command={'codebudget context --task "Your task" --budget 8000'}>Prepare a package to inspect source ranges, inclusion reasons and token estimates.</Empty>}</section>}
 
         {report && view === 'Benchmarks' && <><div className="benchmark-types"><div><span className="section-tag">01 / REPLAY</span><h2>Output preservation</h2><p>Compare recorded bytes and verify required evidence survives.</p></div><div><span className="section-tag">02 / TASK EXPERIMENT</span><h2>Consumption per success</h2><p>Requires authorized model runs and a separate spending budget.</p></div></div><section className="panel"><SectionTitle title="Benchmark records"><span className="section-tag">{report.benchmark.length} shown</span></SectionTitle>{report.benchmark.length ? report.benchmark.map((entry, index) => <details className="benchmark-record" key={index}><summary>Record {index + 1}<span>{text(object(entry).kind ?? 'benchmark')}</span></summary><Json value={entry} /></details>) : <Empty title="No benchmark records" icon="Benchmarks" command="codebudget benchmark replay">Run a local replay to record output measurements. Real task savings remain unmeasured.</Empty>}</section></>}
 

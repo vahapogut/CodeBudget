@@ -15,8 +15,10 @@ async function fixture() {
   const store = new Store(directory, defaults());
   const server = await startDashboard({ store, assetsDir });
   fixtures.push({ directory, store, server });
-  const token = new URLSearchParams(new URL(server.url).hash.slice(1)).get('token')!;
-  return { directory, store, server, headers: { Authorization: `Bearer ${token}`, Origin: server.origin } };
+  const bootstrap = new URLSearchParams(new URL(server.url).hash.slice(1)).get('token')!;
+  const exchange = await fetch(`${server.origin}/api/session`, { headers: { Authorization: `Bearer ${bootstrap}`, Origin: server.origin } });
+  const { token } = await exchange.json() as { token: string };
+  return { directory, store, server, bootstrap, headers: { Authorization: `Bearer ${token}`, Origin: server.origin } };
 }
 afterEach(async () => {
   for (const { directory, store, server } of fixtures.splice(0)) { await server.close(); store.close(); rmSync(directory, { recursive: true, force: true }); }
@@ -85,5 +87,34 @@ describe('secure local dashboard API', () => {
     expect(response.headers.get('content-security-policy')).not.toContain('unsafe-inline');
     expect(response.headers.get('access-control-allow-origin')).toBeNull();
     expect((await fetch(`${server.origin}/%2e%2e%5cstate.sqlite`)).status).toBe(400);
+  });
+
+  it('treats the printed link as a single-use secret that cannot read data itself', async () => {
+    const { server, bootstrap } = await fixture();
+    const auth = { Authorization: `Bearer ${bootstrap}`, Origin: server.origin };
+    expect((await fetch(`${server.origin}/api/session`, { headers: auth })).status).toBe(401);
+    expect((await fetch(`${server.origin}/api/report`, { headers: auth })).status).toBe(401);
+  });
+
+  it('keeps reports small, serves run and context details on demand and hides local paths', async () => {
+    const { store, server, headers } = await fixture();
+    for (let index = 0; index < 150; index++) store.recordRun({ id: `run-${index}`, status: 'success', originalSize: 60000, reducedSize: 60000, output: 'x'.repeat(60000) });
+    store.recordEvent('context', { id: 'pkg-1', purpose: 'Fix auth', status: 'ready', sources: [{ path: 'a.ts', code: 'y'.repeat(200000) }] });
+    const report = await fetch(`${server.origin}/api/report`, { headers });
+    expect(report.status).toBe(200);
+    const body = await report.json() as { runs: unknown[]; runCount: number; limits: { retainedRuns: number } };
+    expect(body.runCount).toBe(150); expect(body.limits.retainedRuns).toBe(150); expect(JSON.stringify(body)).not.toContain('xxxxxxxxxx');
+    expect(((await (await fetch(`${server.origin}/api/run/run-3`, { headers })).json()) as { output: string }).output).toContain('xxxx');
+    expect(JSON.stringify(await (await fetch(`${server.origin}/api/context/pkg-1`, { headers })).json())).toContain('yyyy');
+    expect((await fetch(`${server.origin}/api/export?format=json`, { headers })).status).toBe(200);
+    const missing = await fetch(`${server.origin}/nope.js`);
+    expect(missing.status).toBe(404); expect(await missing.text()).toBe('{"error":"Not found"}');
+  });
+
+  it('does not count dashboard evidence views as agent retrievals', async () => {
+    const { store, server, headers } = await fixture();
+    const artifact = store.putText('line\n');
+    expect((await fetch(`${server.origin}/api/evidence/${artifact.id}`, { headers })).status).toBe(200);
+    expect(store.events('retrieval')).toHaveLength(0);
   });
 });
