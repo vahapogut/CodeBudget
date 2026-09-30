@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { reduceOutput, validateEvidence } from './index.js';
 
 // Robust on a loaded machine: warm up, interleave the n and 4n runs so both see the same load, keep the fastest
-// of each, floor the denominator at 10 ms and compare growth (linear is about 4x, quadratic about 16x).
+// of five, floor the denominator at 25 ms and compare growth (linear is about 4x, quadratic about 16x). On a fast
+// machine the n run can fall near a 10 ms floor while garbage collection lengthens the 4n run; a quadratic
+// implementation already takes seconds for the n run, so the higher floor keeps the check discriminating.
 // Absolute caps stay far above the tens of milliseconds these inputs take.
 const elapsed = (run: () => unknown): number => { const start = performance.now(); run(); return performance.now() - start; };
 const fastest = (run: () => unknown, repeats = 3): number => Math.min(...Array.from({ length: repeats }, () => elapsed(run)));
@@ -10,8 +12,8 @@ function growth(run: (text: string) => unknown, make: (size: number) => string, 
   const [smallText, largeText] = [make(small), make(small * 4)];
   run(smallText); run(largeText);
   let [smallMs, largeMs] = [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
-  for (let round = 0; round < 3; round += 1) { smallMs = Math.min(smallMs, elapsed(() => run(smallText))); largeMs = Math.min(largeMs, elapsed(() => run(largeText))); }
-  return { largeMs, ratio: largeMs / Math.max(smallMs, 10) };
+  for (let round = 0; round < 5; round += 1) { smallMs = Math.min(smallMs, elapsed(() => run(smallText))); largeMs = Math.min(largeMs, elapsed(() => run(largeText))); }
+  return { largeMs, ratio: largeMs / Math.max(smallMs, 25) };
 }
 const reduce = (text: string) => reduceOutput({ text, exitCode: 1, mode: 'balanced', artifactId: 'performance:fixture' });
 const lines = (count: number, line: (index: number) => string): string => Array.from({ length: count }, (_, index) => line(index)).join('\n') + '\n';
