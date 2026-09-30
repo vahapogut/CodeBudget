@@ -13,7 +13,7 @@ Environment: Linux container, Node v22.22.2, pnpm 10.33.2, Claude Code 2.1.285 o
 | `pnpm install --frozen-lockfile` | Passed. |
 | `pnpm lint` | Exit 0. |
 | `pnpm typecheck` | Exit 0. |
-| `pnpm test` | 28 Vitest files, 521 tests passed: 26 functional files (493 tests) in parallel, then the 2 `performance.test.ts` files (28 tests) one at a time. |
+| `pnpm test` | 28 Vitest files, 522 tests passed: 26 functional files (494 tests) in parallel, then the 2 `performance.test.ts` files (28 tests) one at a time. |
 | `pnpm build` | Passed; a rebuild leaves the committed plugin bundles unchanged. |
 | `pnpm test:e2e` | 2 Chromium tests passed, using a temporary Playwright configuration that points at the container's preinstalled Chromium because Playwright's own browser build is not installed here. CI runs the repository configuration. |
 | `pnpm smoke:package --record` | 26 installed-package checks passed with Claude Code 2.1.285; [package-smoke-result.json](package-smoke-result.json). |
@@ -35,6 +35,9 @@ Remote CI on `proje-kontrolu-eksiklikler` (each run: `pnpm verify`, the clean-tr
 | [36774062777](https://github.com/vahapogut/CodeBudget/actions/runs/36774062777) | a19f4be, portable test names and time limits | Windows passed; macOS with Node 24 measured a 10.35x growth ratio for linear search reduction (the small run fell near the 10 ms floor while garbage collection lengthened the large run). |
 | [36775099943](https://github.com/vahapogut/CodeBudget/actions/runs/36775099943) | ceb5150, fastest of five runs and a 25 ms floor | macOS passed; Windows with Node 24 was starved: one storage regression test took 102 s in the parallel suite and unrelated process-spawning tests timed out. |
 | [36776235535](https://github.com/vahapogut/CodeBudget/actions/runs/36776235535) | 5722501, performance suites run separately and sequentially | All seven jobs passed. |
+| [36776296924](https://github.com/vahapogut/CodeBudget/actions/runs/36776296924) | e3c420d, documentation only | Both Windows jobs failed on a real defect: the source fingerprint hashed file contents only within two seconds of a change, so two runs of the same failing command that started on either side of that window compared different fingerprints and missed the repeat. |
+| [36777610061](https://github.com/vahapogut/CodeBudget/actions/runs/36777610061) | 140cc15, time-independent fingerprint with a regression test that fails on the previous code | All seven jobs passed. |
+| [36777761681](https://github.com/vahapogut/CodeBudget/actions/runs/36777761681) | bd2c946, changelog | All seven jobs passed. |
 
 A Windows run earlier in this work also failed because a test emitted 3,000 lines from a zero-delay interval, which runs at the OS timer resolution there, and every evidence batch paid a full sync; both causes were fixed before the runs above. Beta.2 commits b4f7833 ([run 36623125432](https://github.com/vahapogut/CodeBudget/actions/runs/36623125432)) and 8a9c7df ([run 36656398283](https://github.com/vahapogut/CodeBudget/actions/runs/36656398283)) also passed CI.
 
