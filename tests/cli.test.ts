@@ -99,6 +99,8 @@ it('MCP server exits instead of hanging after an oversized request line', async 
   const { spawn } = await import('node:child_process');
   const child = spawn(process.execPath, ['--import', 'tsx', cli, '--root', root, 'mcp', 'serve'], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
   const exited = new Promise<number | null>(resolve => child.once('exit', code => resolve(code)));
+  // The server closes its input on purpose; a write still in flight then fails with EPIPE.
+  child.stdin.on('error', () => undefined);
   child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'prepare_context', arguments: { task: 'x'.repeat(300 * 1024), budget: 8000 } } }) + '\n');
   const code = await Promise.race([exited, new Promise<string>(resolve => setTimeout(() => resolve('timeout'), 10000))]);
   if (code === 'timeout') child.kill();
