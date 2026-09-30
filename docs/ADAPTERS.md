@@ -4,8 +4,8 @@ Matrix schema `1`, revision `2026-09-30.2`. Support, implementation, and verific
 
 | Client | Observed local version | MCP project registration | Native output replacement | Lifecycle integration | Validation |
 | --- | --- | --- | --- | --- | --- |
-| Claude Code | 2.1.216, 2.1.285 | `.mcp.json`, or native plugin `.mcp.json` | Implemented for recognized `PostToolUse` Bash objects on 2.1.216 and later 2.x releases | SessionStart, PreCompact, PostCompact, SessionEnd (any version) | 109 local adapter, hook and installer tests; strict manifest validation passed with 2.1.285 and 2.1.286; model run not performed |
-| Codex CLI | 0.139.0 | `.codex/config.toml` in trusted projects | Unknown; disabled | Not implemented | Actual isolated app-server MCP discovery passed; no model session |
+| Claude Code | 2.1.216, 2.1.285 | `.mcp.json`, or native plugin `.mcp.json` | Implemented for recognized `PostToolUse` Bash objects on 2.1.216 and later 2.x releases | SessionStart, PreCompact, PostCompact, SessionEnd (any version) | 109 local adapter, hook and installer tests; strict manifest validation passed with 2.1.285 and 2.1.286; isolated `claude mcp` health check connected with 2.1.286; model run not performed |
+| Codex CLI | 0.139.0 | `.codex/config.toml` in trusted projects | Unknown; disabled | Not implemented | Actual isolated app-server MCP discovery passed on Windows and Linux (the latter with a launch without `--root`); no model session |
 | Cursor | Not measured | `.cursor/mcp.json` | Unknown; disabled | Documented hooks; not implemented | Configuration contracts only |
 | Antigravity | Not measured | `.agents/mcp_config.json` | Unknown; disabled | Unknown | Configuration contracts only |
 

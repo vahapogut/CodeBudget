@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-09-29T19:29:00.074Z",
-  "platform": "win32",
-  "nodeVersion": "v22.16.0",
+  "capturedAt": "2026-09-30T22:14:36.389Z",
+  "platform": "linux",
+  "nodeVersion": "v22.22.2",
   "client": "codex",
   "clientVersion": "codex-cli 0.139.0",
   "status": "passed",
@@ -44,7 +44,7 @@
     "serverInfo": {
       "name": "codebudget",
       "title": null,
-      "version": "0.1.0-beta.1",
+      "version": "0.1.0-beta.3",
       "description": null,
       "icons": null,
       "websiteUrl": null
@@ -55,6 +55,6 @@
       "read_evidence"
     ]
   },
-  "clientStderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"<system-temp>\\\\\" (codex_home: AbsolutePathBuf(\"<temporary>\\\\codex-home\"))\n",
+  "clientStderr": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"<system-temp>\" (codex_home: AbsolutePathBuf(\"<temporary>/codex-home\"))\n\u001b[2m2026-09-30T22:14:38.333835Z\u001b[0m \u001b[31mERROR\u001b[0m \u001b[2mcodex_app_server\u001b[0m\u001b[2m:\u001b[0m Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.\n",
   "temporaryFilesRemoved": true
 }

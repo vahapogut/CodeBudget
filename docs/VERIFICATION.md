@@ -2,6 +2,17 @@
 
 Date: 2026-09-30. Current product: 0.1.0-beta.3 (unreleased). Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
 
+## Roadmap follow-up: real client connections
+
+On 2026-09-30 (Linux, Node v22.22.2) both no-model client checks ran against the built CLI:
+
+| Executed command | Actual result |
+|---|---|
+| `pnpm smoke:clients` with Codex CLI 0.139.0 installed from the npm registry into a temporary directory | Passed: the Codex app-server initialized CodeBudget `0.1.0-beta.3` and discovered all three tool schemas. The registration was an explicit launch without `--root`, so the server found the project from the working directory Codex chose. Outbound methods were only `initialize`, `initialized` and `mcpServerStatus/list`; [client-smoke-result.json](client-smoke-result.json). |
+| `pnpm smoke:claude-mcp --record` with Claude Code 2.1.286 | Passed: in an empty temporary configuration and home, the client listed only the temporary CodeBudget registration and reported it as connected; [claude-client-smoke-result.json](claude-client-smoke-result.json). A manual run of the same procedure showed the MCP log entry for the stdio connection with server identity `codebudget 0.1.0-beta.3` and tool capability. |
+
+Neither check submitted a prompt, login, approval choice or model request, and both removed their temporary files. The Claude check covers the client health handshake, not tool calls inside a model session. Cursor and Antigravity are desktop applications that are not installed in this environment and remain unverified. `npm view codebudget` returned 404: no package of that name existed in the registry at that time.
+
 ## Review follow-up: 0.1.0-beta.3
 
 A full review found defects in storage bounds, the command runner, redaction, the native hook's version gate, MCP and dashboard limits, reducers and their validator, the indexer, adapter installs and Codex usage imports. The fixes and their user-visible effects are listed in the [changelog](../CHANGELOG.md); each area gained regression tests that fail on the previous code where the defect was observable.

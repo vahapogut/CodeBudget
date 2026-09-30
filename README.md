@@ -125,6 +125,7 @@ The dashboard has no analytics, remote fonts or hosted backend. It uses loopback
 pnpm verify          # lint, strict types, local tests, build, browser E2E
 pnpm smoke:package   # install the release archive into a clean temporary project
 pnpm smoke:clients   # optional: actual installed Codex MCP handshake; no model
+pnpm smoke:claude-mcp  # optional: isolated Claude Code MCP health check; no model
 ```
 
 The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do not invoke a model or publish a package. Results and qualifications are recorded in [verification](docs/VERIFICATION.md).
@@ -134,7 +135,7 @@ The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do no
 | [Architecture](docs/ARCHITECTURE.md) | Packages, data flow and boundaries |
 | [Indexer and context](docs/INDEXER.md) | Source selection, budgets and tokenizer behavior |
 | [Usage coverage](docs/USAGE_COVERAGE.md) | Missing counters, cumulative samples and attribution limits |
-| [Client smoke](docs/CLIENT_SMOKE.md) | Actual Codex MCP discovery without a model session |
+| [Client smoke](docs/CLIENT_SMOKE.md) | Actual Codex MCP discovery and Claude Code health check without a model session |
 | [Benchmark methodology](docs/BENCHMARKS.md) | Replays, task evaluations and valid claims |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common setup and runtime issues |
 | [Contributing](CONTRIBUTING.md) | Local development and review expectations |

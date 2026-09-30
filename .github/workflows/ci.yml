@@ -55,8 +55,13 @@ jobs:
       - run: pnpm build
       - run: pnpm smoke:package
       - run: node -e "const r = require('./dist/package-smoke-result.json'); if (!r.passed || r.results.some(item => item.unavailable)) { console.error(JSON.stringify(r.results.filter(item => !item.passed), null, 2)); process.exit(1); }"
+      # Isolated client health check: temporary configuration and home, no prompt, login or model request.
+      - run: pnpm smoke:claude-mcp
+      - run: node -e "if (require('./dist/claude-client-smoke-result.json').status !== 'passed') process.exit(1)"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: evidence-plugin-latest
-          path: dist/package-smoke-result.json
+          path: |
+            dist/package-smoke-result.json
+            dist/claude-client-smoke-result.json

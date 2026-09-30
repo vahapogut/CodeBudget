@@ -1,45 +1,48 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-09-29T19:23:48.624Z",
-  "platform": "win32",
-  "nodeVersion": "v22.16.0",
+  "capturedAt": "2026-09-30T22:16:39.089Z",
+  "platform": "linux",
+  "nodeVersion": "v22.22.2",
   "client": "claude",
-  "clientVersion": "2.1.216 (Claude Code)",
-  "status": "failed",
+  "clientVersion": "2.1.286 (Claude Code)",
+  "status": "passed",
   "modelCalls": 0,
   "promptsSubmitted": 0,
-  "accountAccess": null,
-  "globalConfigurationChanges": null,
-  "isolatedClientHome": null,
+  "accountAccess": false,
+  "globalConfigurationChanges": false,
+  "isolatedClientHome": true,
   "approvalBypassFlags": false,
-  "checks": [],
+  "checks": [
+    {
+      "name": "isolated client lists only the temporary CodeBudget registration",
+      "passed": true
+    },
+    {
+      "name": "Claude Code health check connects to the CodeBudget MCP server",
+      "passed": true
+    }
+  ],
+  "clientCommands": [
+    "claude --version",
+    "claude mcp add --scope local codebudget -- <node> <repository>/dist/cli.js mcp serve",
+    "claude mcp list",
+    "claude mcp get codebudget"
+  ],
+  "registration": {
+    "scope": "local (temporary configuration directory)",
+    "command": "node",
+    "args": [
+      "<repository>/dist/cli.js",
+      "mcp",
+      "serve"
+    ]
+  },
+  "listedServers": [
+    "codebudget: <node> <repository>/dist/cli.js mcp serve - ✔ Connected"
+  ],
   "limitations": [
-    "Explicit MCP health check only; no model session, plugin hook execution, usage export, replacement or quality claim.",
-    "Read-only failure; stopped after the first health probe, with no approval changes or retry.",
-    "Top-level isolation flags were requested but were not verified to isolate the mcp list subcommand."
+    "Client health check only: the client starts the server, completes the MCP initialize handshake and reads its capabilities. Tool calls inside a model session, plugin hooks, usage exports and quality are not exercised.",
+    "The registration omits --root, so the server resolves the project from CLAUDE_PROJECT_DIR or the working directory the client chose."
   ],
-  "clientArgv": [
-    "claude",
-    "--bare",
-    "--strict-mcp-config",
-    "--mcp-config",
-    "<temporary>\\mcp.json",
-    "--setting-sources",
-    "project",
-    "mcp",
-    "list"
-  ],
-  "configSource": "One explicit <temporary>/mcp.json; child CLAUDE_CONFIG_DIR points to empty <temporary>/claude-home; only temporary project settings enabled",
-  "stdout": "Checking MCP server health…\n\n<unrelated-server>: <command omitted> - ⏸ Pending approval (run `claude` to approve)\n",
-  "stderr": "",
-  "error": "Client did not report a connected CodeBudget server; approval choices are left untouched",
-  "temporaryFilesRemoved": true,
-  "requestedIsolatedClientHome": true,
-  "accountRequestsSubmitted": 0,
-  "isolationVerified": false,
-  "isolationFailure": "The MCP list subcommand displayed an unrelated pending-approval entry instead of the sole explicit CodeBudget configuration; do not rely on these flags for subcommand isolation.",
-  "redaction": "Temporary and repository paths normalized; unrelated server identity and command omitted. No credential values were captured.",
-  "codebudgetLaunchMarkerChecked": false,
-  "globalConfigurationChangesRequested": false,
-  "clientHelpSource": "Installed claude --help and claude mcp list --help"
+  "temporaryFilesRemoved": true
 }

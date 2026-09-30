@@ -60,6 +60,8 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 
 ### Build, packaging and CI
 
+- `pnpm smoke:claude-mcp` health-checks the MCP server through the installed Claude Code client in an isolated temporary configuration, without a prompt, login or model request; the `plugin-contract` CI job runs it against the newest client. The Codex handshake was repeated on Linux with a launch without `--root`.
+
 - The CLI bundle is code-split (the entry chunk shrank from about 5.3 MB to 128 KB), and plugin bundles stay self-contained.
 - Packaged WASM assets and notices are written with a fixed 0644 mode.
 - The release package lists TypeScript as an optional peer dependency.

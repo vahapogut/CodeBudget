@@ -36,6 +36,7 @@
     "benchmark": "tsx apps/cli/src/index.ts benchmark replay",
     "smoke:package": "node scripts/package-smoke.mjs",
     "smoke:clients": "node scripts/smoke-clients.mjs",
+    "smoke:claude-mcp": "node scripts/smoke-claude-mcp.mjs",
     "pack:release": "node scripts/package.mjs"
   },
   "dependencies": {

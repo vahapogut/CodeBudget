@@ -58,8 +58,7 @@ No model request, global IDE change, account connection, npm publication or depl
 
 1. Execute an explicitly authorized real Claude model session for R22: actual model-facing replacement, retained diagnostics and evidence retrieval. Local protocol fixtures do not satisfy it.
 2. Supply a faithful runner and explicit budget before real task/model-quality experiments. The 270-run plan is not executed evidence.
-3. Verify other real clients/versions independently. Claude's attempted no-model health probe remains inconclusive; Cursor/Antigravity clients were not run.
-4. Confirm that Codex, Cursor and Antigravity start project MCP servers inside the project for the portable default registration (Claude Code documents `CLAUDE_PROJECT_DIR`); otherwise register an explicit launch with `--root`.
-5. Resolve npm package identity before npm publication. Team/cloud/accounts/marketplace features remain separate future decisions outside local v1, subject to the free-product policy. Paid tiers, billing and license-key paywalls are excluded from the roadmap.
+3. Verify Cursor and Antigravity on a machine where these desktop clients are installed. Codex 0.139.0 (MCP discovery, including a launch without `--root`) and Claude Code 2.1.286 (isolated no-model health check) are verified.
+4. Resolve npm package identity before npm publication; on 2026-09-30 the registry had no package named `codebudget`. Team/cloud/accounts/marketplace features remain separate future decisions outside local v1, subject to the free-product policy. Paid tiers, billing and license-key paywalls are excluded from the roadmap.
 
 The local roadmap improvements and the cross-platform distribution gate are complete. [Execution plan](EXECUTION_PLAN.md) maps every requirement; [roadmap](../ROADMAP.md) separates completed work from external evidence and future products.
