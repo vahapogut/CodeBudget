@@ -37,6 +37,7 @@
     "smoke:package": "node scripts/package-smoke.mjs",
     "smoke:clients": "node scripts/smoke-clients.mjs",
     "smoke:claude-mcp": "node scripts/smoke-claude-mcp.mjs",
+    "accept:claude-model": "node scripts/accept-claude-model.mjs",
     "pack:release": "node scripts/package.mjs"
   },
   "dependencies": {

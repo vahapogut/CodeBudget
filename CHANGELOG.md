@@ -61,6 +61,7 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 ### Build, packaging and CI
 
 - `pnpm smoke:claude-mcp` health-checks the MCP server through the installed Claude Code client in an isolated temporary configuration, without a prompt, login or model request; the `plugin-contract` CI job runs it against the newest client. The Codex handshake was repeated on Linux with a launch without `--root`.
+- `pnpm accept:claude-model` runs the real model acceptance check (R22): one headless session with the plugin loaded from the repository in an isolated client configuration, limited to `npm test` and `read_evidence`. It requires `--confirm-model-calls`; `--preflight-only` checks everything else without a model. Three sessions verified model-visible replacement, preserved diagnostics and retrieval for a successful command with Claude Code 2.1.286, and showed that 2.1.216 and 2.1.286 report a command that exits non-zero as a failed tool call without running PostToolUse, as the client documentation describes, so such output reaches the model unchanged. The plugin skill, manifest and documentation now state that native replacement covers successful commands.
 
 - The CLI bundle is code-split (the entry chunk shrank from about 5.3 MB to 128 KB), and plugin bundles stay self-contained.
 - Packaged WASM assets and notices are written with a fixed 0644 mode.

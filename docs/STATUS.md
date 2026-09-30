@@ -1,6 +1,6 @@
 # Status
 
-Checkpoint: 2026-09-30. Local beta 0.1.0-beta.3 (unreleased) is implemented and locally verified on Linux; it follows a full project review whose fixes are listed in the [changelog](../CHANGELOG.md). Beta.2 introduced the free-use/commercial-permission license policy; the previously pushed beta.1 is the Apache-2.0 legacy boundary. Primary delivery is the native Claude plugin, offline CLI/core and three MCP tools; the dashboard is a local companion. Real Claude model-visible acceptance remains **unverified**.
+Checkpoint: 2026-09-30. Local beta 0.1.0-beta.3 (unreleased) is implemented and locally verified on Linux; it follows a full project review whose fixes are listed in the [changelog](../CHANGELOG.md). Beta.2 introduced the free-use/commercial-permission license policy; the previously pushed beta.1 is the Apache-2.0 legacy boundary. Primary delivery is the native Claude plugin, offline CLI/core and three MCP tools; the dashboard is a local companion. Real model sessions (R22) verified model-visible replacement for Bash commands that succeed; commands that exit non-zero bypass the plugin's hook in Claude Code 2.1.216 and 2.1.286 and reach the model unchanged ([model acceptance](MODEL_ACCEPTANCE.md)).
 
 ## Delivered
 
@@ -31,6 +31,8 @@ Review follow-up, 2026-09-30 (0.1.0-beta.3, Linux container, Node v22.22.2, pnpm
 
 Remote CI [run 36777761681](https://github.com/vahapogut/CodeBudget/actions/runs/36777761681) passed all seven jobs (Linux, macOS and Windows on Node 22 and 24, plus the newest-client plugin contract); the failed intermediate runs and their fixes are listed in [verification](VERIFICATION.md). No model call, account link, global IDE change, npm publication or deployment took place.
 
+Real model acceptance follow-up, 2026-09-30: `pnpm accept:claude-model` ran three headless sessions with the plugin loaded from this repository in an isolated client configuration. A successful noisy Vitest run passed all seven checks with Claude Code 2.1.286. The same suite with a failing assertion bypassed the hook with 2.1.216 and 2.1.286 because the client reports a non-zero exit as a failed tool call. Details and records: [model acceptance](MODEL_ACCEPTANCE.md).
+
 
 Repository hygiene follow-up, 2026-09-30: local agent instruction files are excluded from Git and release archives. Both existing local copies were preserved with unchanged SHA-256 hashes. `git ls-files` returns no tracked AGENTS.md; case-insensitive ignore checks passed, including nested paths under the bundled plugin. `pnpm verify` passed (244 tests, 2 Chromium tests, lint/types/build); `pnpm smoke:package` passed all 25 checks, including archive exclusion. This changes the current tree and future packaging; previous Git commits remain intact.
 
@@ -46,17 +48,17 @@ Earlier beta.1 records:
 - pnpm audit --json: zero known advisories at the recorded audit time.
 - Synthetic replay (beta.1 reducers, format hints): 22,881→3,695 content bytes (83.85%); captured corpus: 6,819→5,786 (15.1488%). All 19 preservation checks passed. Captured envelopes total 10,369 bytes; task/provider/quota savings remain unknown. The captured corpus does not meet the 50% hypothesis. Current figures are in the review follow-up above.
 
-Evidence: [verification](VERIFICATION.md), [package smoke](package-smoke-result.json), [client smoke](client-smoke-result.json), [replay](replay-final.json), [audit](dependency-audit.json). The initial CI path-alias failures are preserved alongside the corrected successful run. A separate [Claude health probe](CLAUDE_CLIENT_PROBE.md) failed to establish isolation and was stopped; it is not counted as a successful connection.
+Evidence: [verification](VERIFICATION.md), [package smoke](package-smoke-result.json), [client smoke](client-smoke-result.json), [replay](replay-final.json), [audit](dependency-audit.json). The initial CI path-alias failures are preserved alongside the corrected successful run. The [Claude health probe](CLAUDE_CLIENT_PROBE.md) records an earlier attempt that failed to establish isolation and the later isolated check that passed.
 
 ## Git and authority
 
 Source is pushed to https://github.com/vahapogut/CodeBudget.git on main. Code commit 1948b6d passed the complete CI matrix; beta.2 commits b4f7833 and 8a9c7df also passed CI. The review follow-up is on the branch `proje-kontrolu-eksiklikler`; no pull request was opened. All commits use vahapogut <110431024+vahapogut@users.noreply.github.com> as author and committer, with no co-author trailers. The user explicitly authorized GitHub push on 2026-09-29 and for this branch. Local data and temporary outputs are ignored; agent instruction files are ignored and excluded from archives; plugin bundles are distributable files.
 
-No model request, global IDE change, account connection, npm publication or deployment was submitted.
+Three model sessions were run for R22 on 2026-09-30 with the user's explicit authorization for one to three short sessions: seven model requests in total, $0.22 as reported by the client. No other model request, global IDE change, account connection, npm publication or deployment was submitted.
 
 ## Remaining external gates and separate scope
 
-1. Execute an explicitly authorized real Claude model session for R22: actual model-facing replacement, retained diagnostics and evidence retrieval. Local protocol fixtures do not satisfy it.
+1. R22 was executed: model-visible replacement, retained diagnostics and evidence retrieval passed for a successful command in Claude Code 2.1.286. Failing commands (non-zero exit) cannot be replaced through PostToolUse in 2.1.216 or 2.1.286; how to handle them is an open product decision (see [model acceptance](MODEL_ACCEPTANCE.md#consequences)).
 2. Supply a faithful runner and explicit budget before real task/model-quality experiments. The 270-run plan is not executed evidence.
 3. Verify Cursor and Antigravity on a machine where these desktop clients are installed. Codex 0.139.0 (MCP discovery, including a launch without `--root`) and Claude Code 2.1.286 (isolated no-model health check) are verified.
 4. Resolve npm package identity before npm publication; on 2026-09-30 the registry had no package named `codebudget`. Team/cloud/accounts/marketplace features remain separate future decisions outside local v1, subject to the free-product policy. Paid tiers, billing and license-key paywalls are excluded from the roadmap.

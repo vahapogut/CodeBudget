@@ -1,6 +1,18 @@
 # Verification record
 
-Date: 2026-09-30. Current product: 0.1.0-beta.3 (unreleased). Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+Date: 2026-09-30. Current product: 0.1.0-beta.3 (unreleased). Only executed checks are reported as passed. Real model sessions verified model-visible replacement for a Bash command that succeeds; commands that exit non-zero bypass the hook in Claude Code 2.1.216 and 2.1.286.
+
+## Real model acceptance (R22)
+
+On 2026-09-30 (Linux, Node v22.22.2), with the user's explicit authorization for one to three short headless sessions, `scripts/accept-claude-model.mjs` (now also `pnpm accept:claude-model`) loaded the plugin from this repository into an isolated client configuration (temporary configuration directory and home, `--plugin-dir`, only `Bash(npm test)` and `read_evidence` allowed in the `dontAsk` mode). Each run first passed its free preflight: the suite behaved as designed, the reducer kept the diagnostics and omitted the marker, and the client reported a login.
+
+| Executed command | Actual result |
+|---|---|
+| `node scripts/accept-claude-model.mjs --confirm-model-calls --record` (first runner version, failing suite) with Claude Code 2.1.286 | Failed. `npm test` exited 1 and the client reported a failed tool call; no PostToolUse event ran and the model received the full 10,066-byte output. 2 model requests, $0.0449 reported by the client; [record](claude-model-acceptance-failing-2.1.286.json). |
+| `node scripts/accept-claude-model.mjs --confirm-model-calls --record --scenario passing` with Claude Code 2.1.286 | Passed all seven checks. The model received 633 bytes with the evidence reference, the deprecation warning and `Tests  121 passed (121)`, then retrieved the omitted marker line through `read_evidence`. The hook measured 9,687 → 736 bytes; the local report shows the applied replacement and one MCP retrieval. 3 model requests, $0.0369; [record](claude-model-acceptance-passing-2.1.286.json). |
+| The same with `--scenario failing` and Claude Code 2.1.216 (installed from the npm registry into a temporary directory) first on `PATH` | Failed like the first run: no PostToolUse event, full 10,066-byte output. 2 model requests, $0.1408; [record](claude-model-acceptance-failing-2.1.216.json). |
+
+The client documentation checked the same day states that PostToolUse runs after a tool call succeeds, while a failed call runs PostToolUseFailure, whose input carries only the error message and whose output cannot replace the result. Native replacement therefore covers successful Bash calls only. Analysis and consequences: [model acceptance](MODEL_ACCEPTANCE.md).
 
 ## Roadmap follow-up: real client connections
 
@@ -51,6 +63,7 @@ Remote CI on `proje-kontrolu-eksiklikler` (each run: `pnpm verify`, the clean-tr
 | [36777761681](https://github.com/vahapogut/CodeBudget/actions/runs/36777761681) | bd2c946, changelog | All seven jobs passed. |
 | [36778688776](https://github.com/vahapogut/CodeBudget/actions/runs/36778688776) | 9405025, CI history and test counts | All seven jobs passed. |
 | [36784798018](https://github.com/vahapogut/CodeBudget/actions/runs/36784798018) | cbe2be3, client health checks | Six jobs passed, including the new Claude Code health check in `plugin-contract`. Windows with Node 24 failed the index maintenance measurement: 5.71x for 8x the files against a limit of 4. The ratio compared whole index calls, and each call also stats every file and snapshots the state, which grows linearly with repository size by design; file metadata calls are comparatively slow on Windows. In five local runs the same 200 changes cost 0.64x to 1.10x as much in the large repository as in the small one, while the unchanged walk grew 5.4x to 6.7x; the test now subtracts the unchanged walk before comparing. |
+| [36786339142](https://github.com/vahapogut/CodeBudget/actions/runs/36786339142) | 21566ac, walk subtracted from the index maintenance measurement | All seven jobs passed. |
 
 A Windows run earlier in this work also failed because a test emitted 3,000 lines from a zero-delay interval, which runs at the OS timer resolution there, and every evidence batch paid a full sync; both causes were fixed before the runs above. Beta.2 commits b4f7833 ([run 36623125432](https://github.com/vahapogut/CodeBudget/actions/runs/36623125432)) and 8a9c7df ([run 36656398283](https://github.com/vahapogut/CodeBudget/actions/runs/36656398283)) also passed CI.
 
@@ -168,7 +181,7 @@ Bytes are local measurements; replay tokens are local estimates; context may use
 
 | Client | Observed version | Executed checks | Not executed |
 |---|---|---|---|
-| Claude Code | 2.1.216, 2.1.285, 2.1.286 | 109 adapter, hook and installer tests, strict manifest, installed standalone hook/MCP/archive smoke with 2.1.285 and 2.1.286 | Real model-facing replacement/consumption acceptance |
+| Claude Code | 2.1.216, 2.1.285, 2.1.286 | 109 adapter, hook and installer tests, strict manifest, installed standalone hook/MCP/archive smoke with 2.1.285 and 2.1.286; real model sessions with 2.1.286 (successful and failing command) and 2.1.216 (failing command) | Replacement for failing commands, which the client does not pass to PostToolUse; repeated or task-level model measurements |
 | Codex CLI | 0.139.0 | Actual app-server MCP handshake/discovery, config contracts and usage importer tests | Tool use through a model session, real usage capture and quality |
 | Cursor | Unknown | Project-config contracts | Version/client launch/live MCP |
 | Antigravity | Unknown | Project-config contracts | Version/client launch/live MCP |
@@ -177,9 +190,9 @@ Output replacement accepts 2.1.216 and later 2.x releases; other versions and un
 
 ## Remaining limits
 
-- R22 blocked_external: model invocation needs separate explicit authorization in the user's request. Manifest/process tests do not satisfy that gate.
+- R22 partial: three authorized sessions verified replacement, retained diagnostics and retrieval for a successful command; a command that exits non-zero reached the model unchanged because Claude Code 2.1.216 and 2.1.286 did not run PostToolUse for it.
 - No paid task benchmark, billing/quota experiment or real experimental summarizer/BYOK quality test.
-- The six-job OS/Node matrix passed on commit 1948b6d. Hosted runners lack Claude CLI; native-client process checks remain limited to the separate local Windows run.
+- The OS/Node matrix jobs run without Claude CLI. The `plugin-contract` job installs the newest published client and runs the strict manifest check, the package smoke and the MCP health check; no CI job sends a model request.
 - SQLite API is experimental on this runtime. Quotas limit main pages; active WAL transactions may transiently use additional disk. Prune excludes source files.
 - Redaction is imperfect defense in depth. Explicit run --raw forwards original unmasked machine bytes while archives stay masked. Unsupported native responses are not a universal secret filter.
 - Context ranking is syntactic/heuristic, not complete type/call resolution. Explicit local BPE counts cover only the controlled text; default estimates and hidden provider overhead are not exact provider counts. Unsaved editor buffers are invisible.

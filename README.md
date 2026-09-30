@@ -54,7 +54,7 @@ cd /absolute/path/to/your-project
 claude --plugin-dir /absolute/path/to/CodeBudget/plugins/claude-codebudget
 ```
 
-Use quoted absolute paths when they contain spaces. Plugin loading is session-scoped: omit `--plugin-dir` to stop loading it. Avoid registering a second copy of its MCP server. Output replacement is enabled for Claude Code **2.1.216 and later 2.x releases**; hook-contract fixtures run on 2.1.216 and 2.1.285, and CI checks the installed plugin against the newest published client. Unrecognized output shapes keep the original result, and `codebudget doctor` reports why the hook stayed inactive. Real model-visible replacement is still an [acceptance gate](docs/VERIFICATION.md#adapter-boundary).
+Use quoted absolute paths when they contain spaces. Plugin loading is session-scoped: omit `--plugin-dir` to stop loading it. Avoid registering a second copy of its MCP server. Output replacement is enabled for Claude Code **2.1.216 and later 2.x releases**; hook-contract fixtures run on 2.1.216 and 2.1.285, and CI checks the installed plugin against the newest published client. Unrecognized output shapes keep the original result, and `codebudget doctor` reports why the hook stayed inactive. Set the project `mode` to `balanced` to enable replacement. Real model sessions verified it for Bash commands that succeed. A command that exits non-zero, such as a failing test run, is a failed tool call for Claude Code: the hook never sees it and its full output reaches the model. Run such commands through `codebudget run` when you want them reduced ([model acceptance](docs/MODEL_ACCEPTANCE.md)).
 
 To use the CLI from this checkout:
 
@@ -126,9 +126,10 @@ pnpm verify          # lint, strict types, local tests, build, browser E2E
 pnpm smoke:package   # install the release archive into a clean temporary project
 pnpm smoke:clients   # optional: actual installed Codex MCP handshake; no model
 pnpm smoke:claude-mcp  # optional: isolated Claude Code MCP health check; no model
+pnpm accept:claude-model --preflight-only  # model acceptance setup checks; no model
 ```
 
-The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do not invoke a model or publish a package. Results and qualifications are recorded in [verification](docs/VERIFICATION.md).
+The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do not invoke a model or publish a package. `pnpm accept:claude-model --confirm-model-calls` starts one real model session under your Claude Code login; run it only when you intend to spend that usage. Results and qualifications are recorded in [verification](docs/VERIFICATION.md).
 
 | Documentation | Purpose |
 | --- | --- |
@@ -136,6 +137,7 @@ The CI matrix runs Node 22 and 24 on Linux, macOS and Windows. Local gates do no
 | [Indexer and context](docs/INDEXER.md) | Source selection, budgets and tokenizer behavior |
 | [Usage coverage](docs/USAGE_COVERAGE.md) | Missing counters, cumulative samples and attribution limits |
 | [Client smoke](docs/CLIENT_SMOKE.md) | Actual Codex MCP discovery and Claude Code health check without a model session |
+| [Model acceptance](docs/MODEL_ACCEPTANCE.md) | Real Claude Code sessions: what the model received, and why failing commands are not replaced |
 | [Benchmark methodology](docs/BENCHMARKS.md) | Replays, task evaluations and valid claims |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common setup and runtime issues |
 | [Contributing](CONTRIBUTING.md) | Local development and review expectations |

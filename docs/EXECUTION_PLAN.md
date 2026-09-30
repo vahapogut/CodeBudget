@@ -13,7 +13,7 @@ The 2026-09-29 user license decision supersedes the original Apache-only require
 | 2 Reducers | verified | Nine families, preservation fault injection, synthetic and actual captured replays |
 | 3 Index/context | verified | Actual bodies, FTS5, freshness, serialized budgets, isolation and retention |
 | 4 MCP/native plugin | verified | SDK, installed worker/WASM, strict manifest, standalone hook process and retrieval |
-| 4 Real Claude model acceptance | blocked_external | R22 needs separately authorized model session; fixtures do not satisfy it |
+| 4 Real Claude model acceptance | partial | Verified for a successful command with Claude Code 2.1.286; commands that exit non-zero bypass PostToolUse in 2.1.216 and 2.1.286 |
 | 5 Other adapters/continuity | verified | Config/rollback contracts, epochs, identity and repeat-failure warnings; live boundaries below |
 | 6 Reporting/benchmark harness | verified | SQLite dashboard, imports/exports, browser checks and 30-task evaluator |
 | 6 Real task experiments | blocked_external | No model calls or spending authorization |
@@ -49,7 +49,7 @@ Paths are repository-relative. Test evidence comes from actual runs in VERIFICAT
 | R19 | verified | Official SDK MCP tests and installed smoke: three tools, schemas/limits, queued and cancellable operations with a configurable timeout, result-size annotations, scoped evidence and full context persistence. |
 | R20 | verified | ADAPTERS separates documentation, implementation and verification for four clients. Actual Codex 0.139.0 app-server MCP discovery passed without a model on Windows and Linux; Claude Code 2.1.286 connected in an isolated no-model health check that CI repeats; Cursor and Antigravity remain unverified. |
 | R21 | verified | Native bundles/hooks/skill/MCP; 109 adapter, hook and installer tests and installed process smoke with Claude Code 2.1.285 and 2.1.286; replacement for 2.1.216 and later 2.x releases with strict shape checks and recorded no-op reasons, preserved permissions, measured overhead. R22 is separate. |
-| R22 | blocked_external | Actual Claude model session not invoked. Need captured model-facing replacement, retained diagnostics and retrieval. |
+| R22 | partial | Three authorized sessions ([model acceptance](MODEL_ACCEPTANCE.md)). A successful noisy Vitest run reached the model as 633 bytes instead of about 9.4 KB, with the warning and test count kept, and the model retrieved the omitted line through read_evidence (2.1.286). A failing run (exit 1) was reported as a failed tool call: PostToolUse did not run and the full output reached the model (2.1.216 and 2.1.286). |
 | R23 | verified | Observe/balanced/experimental separation; candidate gains distinct from actual delivered bytes; unknown/no-gain fallback. |
 | R24 | verified | usage.test.ts: explicit official file formats, versions/correlation, inclusive fields, missing-field coverage, cumulative-series diagnostics, Codex thread running totals (checked against pinned 0.139.0 source), OTLP JSON Lines, unknown subagent identity, overflow and dedup conflicts. |
 | R25 | verified | Reports/benchmarks distinguish bytes, estimates, client usage and unknown prices/quota; no fictional counterfactual. |
@@ -66,4 +66,4 @@ Paths are repository-relative. Test evidence comes from actual runs in VERIFICAT
 | R33 | verified | Beta.2 passed pnpm verify and 24 clean archive checks; beta.3 passed lint, types, 522 tests, build, 2 browser tests and 26 clean archive checks locally, and the Linux/macOS/Windows CI matrix; English docs, changelog, Turkish quickstart, free-use/commercial-permission license, preserved legacy Apache grants and exact standalone notice parity. |
 | R34 | verified | ROADMAP preserves free use and excludes paid tiers/billing; team/cloud/accounts/marketplace features remain separate. npm identity unresolved; author vahapogut; prior GitHub source push completed; npm publication remains separate. |
 
-After separate authorization, execute R22 against a supported Claude Code release (2.1.216 or a later 2.x release; 2.1.285 and 2.1.286 were checked locally without a model) before claiming user-facing acceptance. Paid benchmarks, additional clients, experimental model quality and npm publication remain separate gates. GitHub source push and its CI matrix are authorized.
+R22 was executed on 2026-09-30 with the user's authorization for one to three short sessions. How to handle failing commands, which the client never passes to PostToolUse, is an open product decision. Paid benchmarks, additional clients, experimental model quality and npm publication remain separate gates. GitHub source push and its CI matrix are authorized.

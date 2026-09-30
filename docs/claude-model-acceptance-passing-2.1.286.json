@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-30T22:47:05.552Z",
+  "platform": "linux",
+  "nodeVersion": "v22.22.2",
+  "client": "claude",
+  "clientVersion": "2.1.286 (Claude Code)",
+  "status": "passed",
+  "scenario": "passing",
+  "isolatedClientConfiguration": true,
+  "globalConfigurationChanges": false,
+  "approvalBypassFlags": false,
+  "permissionMode": "dontAsk",
+  "allowedTools": [
+    "Bash(npm test)",
+    "mcp__plugin_codebudget_codebudget__read_evidence"
+  ],
+  "model": "claude-sonnet-5-5",
+  "modelRequests": 3,
+  "turns": 3,
+  "clientReportedCostUsd": 0.0368768,
+  "clientReportedUsage": {
+    "input_tokens": 6,
+    "cache_creation_input_tokens": 7915,
+    "cache_read_input_tokens": 13024,
+    "output_tokens": 260,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 7915,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "checks": [
+    {
+      "name": "the session loaded the plugin from this repository and connected its MCP server",
+      "passed": true,
+      "detail": "{\"plugins\":[\"codebudget\",\"cc-plugin-agents-md\",\"cc-plugin-plugin-authoring\"],\"mcpServers\":[{\"name\":\"plugin:codebudget:codebudget\",\"status\":\"connected\",\"source\":\"plugin\"}],\"readEvidenceTool\":\"mcp__plugin_codebudget_codebudget__read_evidence\"}"
+    },
+    {
+      "name": "the model ran npm test through Bash",
+      "passed": true
+    },
+    {
+      "name": "the model-visible Bash result is the reduced output with an evidence reference",
+      "passed": true
+    },
+    {
+      "name": "the model-visible Bash result keeps the diagnostics",
+      "passed": true
+    },
+    {
+      "name": "the model retrieved the omitted line through read_evidence",
+      "passed": true
+    },
+    {
+      "name": "the final answer quotes the diagnostics and the retrieved marker",
+      "passed": true
+    },
+    {
+      "name": "local records show the applied replacement and an MCP retrieval of the same evidence",
+      "passed": true
+    }
+  ],
+  "command": "npm test",
+  "raw": {
+    "exitCode": 0,
+    "stdoutBytes": 9196,
+    "stderrBytes": 167,
+    "diagnostics": [
+      "DeprecationWarning: legacyTotal() is deprecated and will be removed in 3.0; use total() instead",
+      "121"
+    ],
+    "markerInStdout": true
+  },
+  "modelVisible": {
+    "bytes": 633,
+    "rawBytes": 9363,
+    "evidenceId": "50dbabf5-dc07-49e4-a065-bb4f74c0cee3",
+    "markerPresent": false,
+    "text": "121 successful test/suite lines grouped.\n> test\n> node \"<repository>/node_modules/vitest/vitest.mjs\" run --globals --reporter=verbose\n\n\n RUN  v5.0.2 <temporary>/project\n\nstderr | invoice.test.mjs > invoice totals > legacy helper still sums\nDeprecationWarning: legacyTotal() is deprecated and will be removed in 3.0; use total() instead\n\n\n Test Files  1 passed (1)\n      Tests  121 passed (121)\n   Start at  22:47:09\n   Duration  231ms (transform 59%, tests 16%, import 15%, worker 10%)\n[CodeBudget evidence: 50dbabf5-dc07-49e4-a065-bb4f74c0cee3; retrieve with read_evidence; reducer vitest@2.0.0]"
+  },
+  "retrieval": {
+    "input": {
+      "id": "50dbabf5-dc07-49e4-a065-bb4f74c0cee3",
+      "limit": 1000
+    },
+    "bytes": 10543,
+    "isError": false,
+    "markerPresent": true
+  },
+  "finalAnswer": "WARNING: DeprecationWarning: legacyTotal() is deprecated and will be removed in 3.0; use total() instead\nPASSED: 121\nMARKER: RET-bf96bc0f",
+  "localRecords": {
+    "hook": {
+      "applied": true,
+      "originalBytes": 9687,
+      "reducedBytes": 736,
+      "clientVersion": "2.1.286",
+      "reason": null
+    },
+    "retrievals": [
+      {
+        "source": "mcp",
+        "returnedBytes": 9901
+      }
+    ]
+  },
+  "permissionDenials": [],
+  "session": {
+    "exitCode": 0,
+    "resultSubtype": "success",
+    "isError": false,
+    "stderrTail": ""
+  },
+  "hookEvents": [
+    {
+      "subtype": "hook_started",
+      "event": "SessionStart",
+      "exitCode": null,
+      "outcome": null
+    },
+    {
+      "subtype": "hook_response",
+      "event": "SessionStart",
+      "exitCode": 0,
+      "outcome": "success"
+    },
+    {
+      "subtype": "hook_started",
+      "event": "PostToolUse",
+      "exitCode": null,
+      "outcome": null
+    },
+    {
+      "subtype": "hook_response",
+      "event": "PostToolUse",
+      "exitCode": 0,
+      "outcome": "success"
+    }
+  ],
+  "limitations": [
+    "One session, one synthetic project and one command shape (verbose Vitest output). It shows whether the mechanism works end to end, not how often or how much it helps.",
+    "Cost and usage figures are the values the client reported for this session; they are not provider invoices."
+  ],
+  "temporaryFilesRemoved": true
+}

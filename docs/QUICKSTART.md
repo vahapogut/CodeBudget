@@ -92,7 +92,7 @@ The registration is portable by default: `codebudget mcp serve`, with no machine
 codebudget adapters install codex --apply --command node --arg /absolute/path/dist/cli.js --arg mcp --arg serve
 ```
 
-Claude's native plugin can instead be loaded with `claude --plugin-dir /absolute/path/to/plugins/claude-codebudget` after building. Its supported client range (2.1.216 and later 2.x releases) and unverified live-session status are documented in the plugin guide. Do not register both plugin and project MCP copies.
+Claude's native plugin can instead be loaded with `claude --plugin-dir /absolute/path/to/plugins/claude-codebudget` after building. Its supported client range is 2.1.216 and later 2.x releases. Real sessions showed replacement for commands that succeed and none for commands that exit non-zero, which Claude Code reports as failed tool calls; see the plugin guide and [model acceptance](MODEL_ACCEPTANCE.md). Use `codebudget run -- <command>` for noisy commands that may fail. Do not register both plugin and project MCP copies.
 
 ## Review and retain data
 
