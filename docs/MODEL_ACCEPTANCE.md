@@ -26,7 +26,7 @@ On 2026-09-30 (Linux, Node v22.22.2), the three sessions below were run with the
 | failing, exit 1 | 2.1.286 | claude-sonnet-5-5 | 2 | $0.0449 | The hook did not run; the model received the full output. [Record](claude-model-acceptance-failing-2.1.286.json) |
 | failing, exit 1 | 2.1.216 | claude-sonnet-5 | 2 | $0.1408 | Same as 2.1.286. [Record](claude-model-acceptance-failing-2.1.216.json) |
 
-The first failing record was written before the runner had its `--scenario` option, so it has no `scenario` field; its fixture is the one `--scenario failing` still produces.
+The first failing record was written before the runner had its `--scenario` option, so it has no `scenario` field; its fixture is the one `--scenario failing` still produces. Besides CodeBudget, the 2.1.286 sessions listed two plugins that came neither from this repository nor from a user configuration (`cc-plugin-agents-md` and `cc-plugin-plugin-authoring`, recorded in the check details); the stream shows a single PostToolUse hook run, and the local records show that it was CodeBudget's.
 
 ### Successful command
 
@@ -46,7 +46,7 @@ In both client versions, `npm test` exiting with status 1 was reported as a fail
 
 - The stream contained no PostToolUse hook event, only SessionStart.
 - The model received 10,066 bytes: the complete output.
-- Both models answered correctly from that output. The 2.1.216 session also noted that the output carried no evidence reference, so it did not call `read_evidence`.
+- Both models answered correctly from that output. Each noted that the output carried no evidence reference, did not call `read_evidence` and read the marker from the full output.
 
 This matches the client documentation (checked on 2026-09-30): PostToolUse runs after a tool call succeeds. A failed call runs PostToolUseFailure instead. That event receives only the error message, can add context and cannot replace the tool result.
 
