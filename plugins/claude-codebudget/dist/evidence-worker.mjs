@@ -1280,23 +1280,51 @@ import { parentPort, workerData } from "node:worker_threads";
 // packages/indexer/src/index.ts
 var import_ignore = __toESM(require_ignore(), 1);
 import { mkdirSync as mkdirSync2, readdirSync, realpathSync as realpathSync3, existsSync as existsSync3, chmodSync, lstatSync as lstatSync3 } from "node:fs";
-import { basename, extname as extname2, join as join2, relative as relative3, resolve as resolve3 } from "node:path";
+import { basename, extname as extname2, join as join3, relative as relative3, resolve as resolve3 } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { randomUUID } from "node:crypto";
 
 // packages/core/src/security.ts
-import { lstatSync, existsSync, realpathSync, writeFileSync, renameSync, unlinkSync, mkdirSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
-var SECURITY_VERSION = "redaction-2";
+import { closeSync, existsSync, fchmodSync, fsyncSync, lstatSync, mkdirSync, openSync, realpathSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+var SECURITY_VERSION = "redaction-3";
+var SENSITIVE_KEY = String.raw`[A-Za-z0-9_.-]*?(?:(?:api|access|secret|private|signing|encryption|master|deploy|license|client|account|ssh|app|shared[_-]?access)[_-]?key(?:[_-]?id)?|apikey|secret|passw(?:or)?d|passwd|pwd|passphrase|token|credentials?|cookie|set-cookie|session[_-]?(?:key|token|secret)|connection[_-]?string)`;
+var SENSITIVE_KEY_NAME = new RegExp(`^${SENSITIVE_KEY}$`, "i");
+var EXEMPT_KEYS = /* @__PURE__ */ new Set(["PWD", "OLDPWD"]);
+var isSensitiveKeyName = (key) => !EXEMPT_KEYS.has(key) && (SENSITIVE_KEY_NAME.test(key) || /^(?:proxy-)?authorization$/i.test(key));
 function sanitize(value) {
   if (typeof value === "string") return redact(value);
   if (Array.isArray(value)) return value.map(sanitize);
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [redact(key), /(?:secret|password|api[_-]?key|(?:access|refresh)[_-]?token|authorization|cookie)/i.test(key) && typeof item === "string" ? "[REDACTED]" : sanitize(item)]));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [redact(key), isSensitiveKeyName(key) && typeof item === "string" ? "[REDACTED]" : sanitize(item)]));
   return value;
 }
+var SENSITIVE_FLAG = new RegExp(`^--?(${SENSITIVE_KEY})(?:=|$)`, "i");
+var PRIVATE_KEY_BLOCK = /-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----[\s\S]*?(?:-----END [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----|$)/g;
+var TOKEN_PATTERN = new RegExp([
+  String.raw`sk-[A-Za-z0-9_-]{12,}`,
+  String.raw`(?:sk|rk|pk)_(?:live|test)_[A-Za-z0-9]{10,}`,
+  String.raw`xox[abposr]-[A-Za-z0-9-]{10,}`,
+  String.raw`AIza[0-9A-Za-z_-]{35}`,
+  String.raw`ya29\.[0-9A-Za-z_-]{20,}`,
+  String.raw`gh[pousr]_[A-Za-z0-9]{16,}`,
+  String.raw`github_pat_[A-Za-z0-9_]{16,}`,
+  String.raw`glpat-[A-Za-z0-9_-]{20,}`,
+  String.raw`npm_[A-Za-z0-9]{36}`,
+  String.raw`(?:AKIA|ASIA)[A-Z0-9]{16}`,
+  String.raw`SG\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}`,
+  String.raw`hf_[A-Za-z0-9]{30,}`,
+  String.raw`dop_v1_[a-f0-9]{64}`,
+  String.raw`shpat_[a-fA-F0-9]{32}`,
+  String.raw`pypi-[A-Za-z0-9_-]{50,}`
+].map((item) => `(?<![A-Za-z0-9_-])${item}(?![A-Za-z0-9_-])`).join("|"), "g");
+var JWT_PATTERN = /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g;
+var URL_CREDENTIALS = /\b([a-z][a-z0-9+.-]{1,30}:\/\/)[^\s/:@]*:[^\s/@]+@/gi;
+var AUTHORIZATION_HEADER = /((?:authorization|proxy-authorization)\s*[:=]\s*["']?(?:Bearer|Basic|Token|Digest)\s+)(?!\[REDACTED)[^\s"',;}]+/gi;
+var QUOTED_ASSIGNMENT = new RegExp(String.raw`(?<![A-Za-z0-9_.-])(${SENSITIVE_KEY})(\s*["']?\s*[:=]\s*)(["'\x60])(?:\\.|(?!\3)[^\\\r\n])*\3`, "gi");
+var UNQUOTED_ASSIGNMENT = new RegExp(String.raw`(?<![A-Za-z0-9_.-])(${SENSITIVE_KEY})(\s*["']?\s*[:=]\s*)(?!["'\x60]|\[REDACTED|(?:null|true|false)\b)([^\s"'\x60,;}]+)`, "gi");
 function redact(text) {
   if (typeof text !== "string") throw new Error("Redaction requires text");
-  return text.replace(/\u001b\][\s\S]*?(?:\u0007|\u001b\\)/g, "").replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").replace(/-----BEGIN (?:[A-Z ]*PRIVATE KEY|OPENSSH PRIVATE KEY)-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)/g, "[REDACTED PRIVATE KEY]").replace(/\b(?:sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]{16,}|AKIA[A-Z0-9]{16})\b/g, "[REDACTED TOKEN]").replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g, "[REDACTED JWT]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(["'])(?:\\.|(?!\2)[\s\S])*?\2/gi, "$1$2[REDACTED]$2").replace(/((?:authorization|proxy-authorization)\s*[:=]\s*["']?(?:Bearer|Basic)\s+)[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(\b(?:[A-Za-z0-9_]*(?:api[_-]?key|secret|password|access[_-]?token|refresh[_-]?token)|cookie|set-cookie)\s*["']?\s*[:=]\s*)(?!["'])[^\s"',;}]+/gi, "$1[REDACTED]").replace(/(https?:\/\/)[^/\s:@]+:[^/\s@]+@/g, "$1[REDACTED]@");
+  return text.replace(/\u001b\][\s\S]*?(?:\u0007|\u001b\\)/g, "").replace(/\u001b\[[0-?]*[ -/]*[@-~]/g, "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "").replace(PRIVATE_KEY_BLOCK, "[REDACTED PRIVATE KEY]").replace(TOKEN_PATTERN, "[REDACTED TOKEN]").replace(JWT_PATTERN, "[REDACTED JWT]").replace(URL_CREDENTIALS, "$1[REDACTED]@").replace(AUTHORIZATION_HEADER, "$1[REDACTED]").replace(QUOTED_ASSIGNMENT, (match, key, separator, quote) => EXEMPT_KEYS.has(key) ? match : `${key}${separator}${quote}[REDACTED]${quote}`).replace(UNQUOTED_ASSIGNMENT, (match, key, separator) => EXEMPT_KEYS.has(key) ? match : `${key}${separator}${separator.includes('"') ? '"[REDACTED]"' : "[REDACTED]"}`);
 }
 function safePath(root2, target) {
   const base = realpathSync(root2);
@@ -1336,7 +1364,7 @@ function safePath(root2, target) {
 // packages/indexer/src/parser.ts
 import { createRequire } from "node:module";
 import { existsSync as existsSync2 } from "node:fs";
-import { dirname as dirname2, extname, join } from "node:path";
+import { dirname as dirname2, extname, join as join2 } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // node_modules/.pnpm/web-tree-sitter@0.27.0/node_modules/web-tree-sitter/web-tree-sitter.js
@@ -5388,13 +5416,13 @@ var ready;
 var PARSER_VERSION = "web-tree-sitter@0.27.0/javascript@0.25.0/typescript@0.23.2/schema1";
 async function loadLanguages() {
   ready ??= (async () => {
-    const assets = join(dirname2(fileURLToPath(import.meta.url)), "assets");
-    const bundledRuntime = join(assets, "web-tree-sitter.wasm");
+    const assets = join2(dirname2(fileURLToPath(import.meta.url)), "assets");
+    const bundledRuntime = join2(assets, "web-tree-sitter.wasm");
     await Parser.init(existsSync2(bundledRuntime) ? { locateFile: () => bundledRuntime } : void 0);
     const languages = /* @__PURE__ */ new Map();
     for (const language of ["javascript", "typescript", "tsx"]) {
       const packageName = language === "javascript" ? "tree-sitter-javascript" : "tree-sitter-typescript";
-      const bundledGrammar = join(assets, `tree-sitter-${language}.wasm`);
+      const bundledGrammar = join2(assets, `tree-sitter-${language}.wasm`);
       languages.set(language, await Language.load(existsSync2(bundledGrammar) ? bundledGrammar : require2.resolve(`${packageName}/tree-sitter-${language}.wasm`)));
     }
     return languages;
@@ -5456,7 +5484,7 @@ function parseSource(path, source, languages) {
 
 // packages/indexer/src/security.ts
 import { createHash } from "node:crypto";
-import { closeSync, constants, fstatSync, lstatSync as lstatSync2, openSync, readFileSync, realpathSync as realpathSync2 } from "node:fs";
+import { closeSync as closeSync2, constants, fstatSync, lstatSync as lstatSync2, openSync as openSync2, readFileSync, realpathSync as realpathSync2 } from "node:fs";
 import { isAbsolute as isAbsolute2, relative as relative2, resolve as resolve2, sep as sep2, win32 } from "node:path";
 function hash(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -5493,7 +5521,7 @@ function readSource(root2, relativePath, maxBytes) {
   if (!within(root2, realpathSync2(absolute))) throw new Error("Resolved source escapes repository root");
   const before = lstatSync2(absolute, { bigint: true });
   if (!before.isFile() || before.size > BigInt(maxBytes)) throw new Error("Source is not a supported regular file or exceeds size limit");
-  const descriptor = openSync(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  const descriptor = openSync2(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
   try {
     const opened = fstatSync(descriptor, { bigint: true });
     const deviceChanged = before.dev !== 0n && opened.dev !== before.dev;
@@ -5504,7 +5532,7 @@ function readSource(root2, relativePath, maxBytes) {
     if (bytes.includes(0)) throw new Error("Binary source is excluded");
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } finally {
-    closeSync(descriptor);
+    closeSync2(descriptor);
   }
 }
 function redactSource(value) {
@@ -5665,7 +5693,7 @@ var RepositoryIndexer = class {
     if (!within(this.root, this.dataDir) || this.dataDir === this.root) throw new Error("Index data directory must be a dedicated directory inside the repository");
     let dataComponent = this.root;
     for (const component of relative3(this.root, this.dataDir).split(/[\\/]/)) {
-      dataComponent = join2(dataComponent, component);
+      dataComponent = join3(dataComponent, component);
       if (existsSync3(dataComponent) && lstatSync3(dataComponent).isSymbolicLink()) throw new Error("Symlink index data directory denied");
     }
     this.repositoryId = hash(process.platform === "win32" ? this.root.toLowerCase() : this.root);
@@ -5681,7 +5709,7 @@ var RepositoryIndexer = class {
     this.dependencies = { maxDepth: 2, maxFiles: 64, ...options.dependencies };
     if (!Number.isSafeInteger(this.dependencies.maxDepth) || this.dependencies.maxDepth < 0 || this.dependencies.maxDepth > 8 || !Number.isSafeInteger(this.dependencies.maxFiles) || this.dependencies.maxFiles < 0 || this.dependencies.maxFiles > 512) throw new Error("Dependency limits require maxDepth 0..8 and maxFiles 0..512");
     mkdirSync2(this.dataDir, { recursive: true, mode: 448 });
-    const databasePath = join2(this.dataDir, `index-${legacyCacheId}.sqlite`);
+    const databasePath = join3(this.dataDir, `index-${legacyCacheId}.sqlite`);
     for (const suffix of ["", "-wal", "-shm"]) if (existsSync3(databasePath + suffix) && lstatSync3(databasePath + suffix).isSymbolicLink()) throw new Error("Symlink index database denied");
     this.db = new DatabaseSync(databasePath);
     try {
@@ -5736,7 +5764,7 @@ var RepositoryIndexer = class {
     const walk = (directory, matchers) => {
       const currentMatchers = [...matchers];
       for (const filename of [".gitignore", ".codebudgetignore"]) {
-        const ignorePath = join2(directory, filename);
+        const ignorePath = join3(directory, filename);
         if (existsSync3(ignorePath)) {
           const local = relative3(this.root, ignorePath).replaceAll("\\", "/");
           try {
@@ -5747,7 +5775,7 @@ var RepositoryIndexer = class {
         }
       }
       for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => stableCompare(a.name, b.name))) {
-        const absolute = join2(directory, entry.name);
+        const absolute = join3(directory, entry.name);
         const path = relative3(this.root, absolute).replaceAll("\\", "/");
         if (sensitivePath(path) || within(this.dataDir, absolute)) continue;
         if (entry.isSymbolicLink()) {
@@ -6125,6 +6153,7 @@ async function createIndexer(root2, dataDir2 = ".codebudget", options = {}) {
 
 // packages/core/src/config.ts
 import { existsSync as existsSync4, mkdirSync as mkdirSync3, readFileSync as readFileSync2, realpathSync as realpathSync4 } from "node:fs";
+import { join as join4 } from "node:path";
 
 // node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/classic/external.js
 var external_exports = {};
@@ -25808,20 +25837,60 @@ var configSchema = external_exports.object({
   diskBudgetBytes: external_exports.number().int().min(4 * 1024 * 1024).max(1024 ** 3).default(128 * 1024 * 1024),
   artifactRetentionDays: external_exports.number().int().min(1).max(3650).default(14),
   commandTimeoutMs: external_exports.number().int().min(1).max(864e5).default(12e4),
+  mcpTimeoutMs: external_exports.number().int().min(1e3).max(6e5).default(3e4),
   rawArchive: external_exports.boolean().default(false),
   experimental: external_exports.object({ localSummary: external_exports.boolean().default(false), apiRouting: external_exports.boolean().default(false), localEndpoint: external_exports.string().url().optional() }).strict().default({ localSummary: false, apiRouting: false })
 }).strict();
-function loadConfig(root2, overrides = {}, env = process.env) {
+var LOCAL_ONLY_KEYS = ["rawArchive", "experimental"];
+var LOCAL_CONFIG_FILE = "local.json";
+var localSchema = configSchema.pick({ rawArchive: true, experimental: true }).partial().strict();
+function parseWith(schema, value, source) {
+  const result = schema.safeParse(value);
+  if (result.success) return result.data;
+  throw new Error(`Invalid ${source}: ${result.error.issues.map((issue2) => `${issue2.path.join(".") || "value"}: ${issue2.message}`).join("; ")}`);
+}
+function readJsonObject(file2, source) {
+  let value;
+  try {
+    value = JSON.parse(readFileSync2(file2, "utf8").replace(/^\uFEFF/, ""));
+  } catch {
+    throw new Error(`Invalid ${source}: not valid JSON`);
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`Invalid ${source}: expected a JSON object`);
+  return value;
+}
+function environmentSettings(env) {
+  const settings = {};
+  const mode = env.CODEBUDGET_MODE?.trim();
+  if (mode) {
+    if (!["observe", "balanced", "experimental"].includes(mode)) throw new Error("CODEBUDGET_MODE must be observe, balanced or experimental");
+    settings.mode = mode;
+  }
+  const budget = env.CODEBUDGET_CONTEXT_BUDGET?.trim();
+  if (budget) {
+    if (!/^\d{1,7}$/.test(budget) || Number(budget) < 128 || Number(budget) > 1e6) throw new Error("CODEBUDGET_CONTEXT_BUDGET must be a whole number of tokens from 128 to 1000000");
+    settings.contextBudget = Number(budget);
+  }
+  const raw = env.CODEBUDGET_RAW_ARCHIVE?.trim();
+  if (raw) {
+    if (!/^(?:0|1|true|false)$/i.test(raw)) throw new Error("CODEBUDGET_RAW_ARCHIVE must be 1, 0, true or false");
+    settings.rawArchive = /^(?:1|true)$/i.test(raw);
+  }
+  return settings;
+}
+function projectSettings(root2) {
   const file2 = safePath(root2, ".codebudget.json");
-  const supplied = existsSync4(file2) ? JSON.parse(readFileSync2(file2, "utf8")) : {};
-  const project = configSchema.parse(supplied);
-  const environment = {};
-  if (env.CODEBUDGET_MODE !== void 0) environment.mode = env.CODEBUDGET_MODE;
-  if (env.CODEBUDGET_CONTEXT_BUDGET !== void 0) environment.contextBudget = Number(env.CODEBUDGET_CONTEXT_BUDGET);
-  const config2 = configSchema.parse({ ...project, ...environment, ...overrides });
-  const dir = safePath(root2, config2.dataDir);
-  if (dir === realpathSync4(root2) || !/^\.codebudget(?:[-_.][A-Za-z0-9_-]+)*$/.test(config2.dataDir)) throw new Error("dataDir must be a dedicated top-level .codebudget-prefixed directory, with no path separators");
-  return config2;
+  return existsSync4(file2) ? readJsonObject(file2, ".codebudget.json") : {};
+}
+function loadConfig(root2, overrides = {}, env = process.env) {
+  const project = parseWith(configSchema, projectSettings(root2), ".codebudget.json");
+  const dir = safePath(root2, project.dataDir);
+  if (dir === realpathSync4(root2) || !/^\.codebudget(?:[-_.][A-Za-z0-9_-]+)*$/.test(project.dataDir)) throw new Error("dataDir must be a dedicated top-level .codebudget-prefixed directory, with no path separators");
+  const localFile = join4(dir, LOCAL_CONFIG_FILE);
+  const local = existsSync4(localFile) ? parseWith(localSchema, readJsonObject(localFile, `${project.dataDir}/${LOCAL_CONFIG_FILE}`), `${project.dataDir}/${LOCAL_CONFIG_FILE}`) : {};
+  const shared = { ...project };
+  for (const key of LOCAL_ONLY_KEYS) delete shared[key];
+  return parseWith(configSchema, { ...shared, ...local, ...environmentSettings(env), ...overrides }, "CodeBudget configuration");
 }
 
 // packages/mcp/src/worker.ts
