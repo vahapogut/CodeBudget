@@ -1,0 +1,21 @@
+
+ RUN  v5.0.2 <fixture>
+
+ ✓ a-success-0.test.ts > successful case 0 2ms
+ ✓ a-success-1.test.ts > successful case 1 2ms
+ ✓ a-success-2.test.ts > successful case 2 2ms
+ ✓ a-success-3.test.ts > successful case 3 3ms
+ ✓ a-success-4.test.ts > successful case 4 2ms
+ ✓ b-skipped.test.ts > runs 2ms
+ ↓ b-skipped.test.ts > is skipped
+ × z-render.test.ts > renders the invoice with paragraph breaks 13ms
+   → expected 'Invoice 2026-0042\n\nLine item: consu…' to be 'Invoice 2026-0042\n\nLine item: consu…' // Object.is equality
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 6 passed | 1 skipped (8)
+   Start at  19:40:39
+   Duration  1.65s (import 41%, transform 27%, tests 16%, worker 15%, environment 1%)
+
+    Isolate  7 workers spawned · ~189ms startup each (spawn + environment, per file)
+             at least ~1.14s faster with isolate: false — reuses workers across files instead of one per file
+

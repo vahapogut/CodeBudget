@@ -1,0 +1,29 @@
+FAIL ./jest-z-render.test.cjs
+  ● renders the invoice with paragraph breaks
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 1
+    + Received  + 0
+
+      Invoice 2026-0042
+
+      Line item: consulting, 12 hours
+
+    -
+      Line item: travel at cost
+
+      Total due in thirty days
+
+      1 | const render = (rows) => rows.join('\n\n');
+    > 2 | test('renders the invoice with paragraph breaks', () => expect(render(['Invoice 2026-0042', 'Line item: consulting, 12 hours', 'Line item: travel at cost', 'Total due in thirty days'])).toBe('Invoice 2026-0042\n\nLine item: consulting, 12 hours\n\n\nLine item: travel at cost\n\nTotal due in thirty days'));
+        |                                                                                                                                                                                           ^
+      3 |
+
+      at Object.<anonymous> (jest-z-render.test.cjs:2:187)
+
+Test Suites: 1 failed, 4 passed, 5 total
+Tests:       1 failed, 4 passed, 5 total
+Snapshots:   0 total
+Time:        0.524 s
+Ran all test suites.

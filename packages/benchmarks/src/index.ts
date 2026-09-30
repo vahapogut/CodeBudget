@@ -1,12 +1,13 @@
-import { createHash } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createHash, randomBytes } from 'node:crypto';
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
+import type * as TypeScriptApi from 'typescript';
 import { reduceOutput, type ReducerFormat } from '../../reducers/src/index.js';
-import { hiddenEvaluators } from './evaluators.js';
+import { analyzeSource, hiddenEvaluators } from './evaluators.js';
 import { getTaskContext, pilotTasks, type PilotTask } from './tasks.js';
 
 export { getTaskContext, pilotTasks, type PilotTask, type TaskCategory } from './tasks.js';
@@ -25,32 +26,40 @@ export const replayCases: readonly ReplayCase[] = [
   { id: 'unknown-future-format', format: 'unknown', text: 'Unknown future format\nThis must be passed through exactly.\n', exitCode: null, expectedEvidence: ['Unknown future format', 'This must be passed through exactly.'] },
 ];
 
-export function replayBenchmark(cases: readonly ReplayCase[] = replayCases) {
-  const rows = cases.map(item => {
-    const memoryBefore = process.memoryUsage().heapUsed;
-    const start = performance.now();
-    const result = reduceOutput({ text: item.text, exitCode: item.exitCode, format: item.format, mode: 'balanced', artifactId: `replay:${item.id}` });
-    const durationMs = performance.now() - start;
-    const heapDeltaBytes = process.memoryUsage().heapUsed - memoryBefore;
-    const missingEvidence = item.expectedEvidence.filter(text => !result.output.includes(text));
-    return { id: item.id, corpus: item.corpus ?? 'synthetic', toolVersion: item.toolVersion ?? null, capturedAt: item.capturedAt ?? null, reducerId: result.reducerId, originalBytes: result.originalSize, reducedBytes: result.reducedSize, reducedEnvelopeBytes: Buffer.byteLength(JSON.stringify(result)), durationMs, observedHeapDeltaBytes: heapDeltaBytes, preservationPassed: result.preservation.valid && missingEvidence.length === 0 && result.exitCode === item.exitCode, missingEvidence, applied: result.applied };
-  });
+function replayRow(item: ReplayCase, hinted: boolean) {
+  const memoryBefore = process.memoryUsage().heapUsed;
+  const start = performance.now();
+  // The runner and the Claude hook never pass a format, so only the separately reported hinted pass supplies one.
+  const result = reduceOutput({ text: item.text, exitCode: item.exitCode, mode: 'balanced', artifactId: `replay:${item.id}`, ...(hinted ? { format: item.format } : {}) });
+  const durationMs = performance.now() - start;
+  const heapDeltaBytes = process.memoryUsage().heapUsed - memoryBefore;
+  const missingEvidence = item.expectedEvidence.filter(text => !result.output.includes(text));
+  return { id: item.id, corpus: item.corpus ?? 'synthetic', toolVersion: item.toolVersion ?? null, capturedAt: item.capturedAt ?? null, labeledFormat: item.format, reducerId: result.reducerId, detectedAsLabeled: result.reducerId === (item.format === 'unknown' ? 'identity' : item.format), reason: result.reason, originalBytes: result.originalSize, reducedBytes: result.reducedSize, reducedEnvelopeBytes: Buffer.byteLength(JSON.stringify(result)), durationMs, observedHeapDeltaBytes: heapDeltaBytes, preservationPassed: result.preservation.valid && missingEvidence.length === 0 && result.exitCode === item.exitCode, missingEvidence, applied: result.applied };
+}
+function replayTotals(rows: readonly ReturnType<typeof replayRow>[]) {
   const originalBytes = rows.reduce((sum, row) => sum + row.originalBytes, 0);
   const reducedBytes = rows.reduce((sum, row) => sum + row.reducedBytes, 0);
   const corpora = [...new Set(rows.map(row => row.corpus))].map(corpus => {
     const selected = rows.filter(row => row.corpus === corpus);
     const input = selected.reduce((total, row) => total + row.originalBytes, 0);
     const output = selected.reduce((total, row) => total + row.reducedBytes, 0);
-    return { corpus, cases: selected.length, originalBytes: input, reducedBytes: output, byteReductionFraction: input ? (input - output) / input : null, preservationPassed: selected.every(row => row.preservationPassed) };
+    return { corpus, cases: selected.length, originalBytes: input, reducedBytes: output, byteReductionFraction: input ? (input - output) / input : null, preservationPassed: selected.every(row => row.preservationPassed), notDetectedAsLabeled: selected.filter(row => !row.detectedAsLabeled).map(row => row.id) };
   });
+  return { rows: [...rows], corpora, originalBytes, reducedBytes, byteReductionFraction: corpora.length === 1 && originalBytes ? (originalBytes - reducedBytes) / originalBytes : null, preservationPassed: rows.every(row => row.preservationPassed) };
+}
+
+/** Primary figures use automatic detection, exactly as product callers invoke the reducers; hinted figures are separate. */
+export function replayBenchmark(cases: readonly ReplayCase[] = replayCases) {
+  const detected = replayTotals(cases.map(item => replayRow(item, false)));
+  const hinted = replayTotals(cases.map(item => replayRow(item, true)));
   return {
-    schemaVersion: 1 as const, kind: 'replay' as const, rows, corpora, originalBytes, reducedBytes,
-    byteReductionFraction: corpora.length === 1 && originalBytes ? (originalBytes - reducedBytes) / originalBytes : null,
-    preservationPassed: rows.every(row => row.preservationPassed),
+    schemaVersion: 1 as const, kind: 'replay' as const, detection: 'automatic' as const, ...detected,
+    preservationPassed: detected.preservationPassed && hinted.preservationPassed,
+    hinted: { detection: 'labeled-format-hint' as const, note: 'Each case replayed with its labeled format as a hint. The runner and Claude hook never supply such hints; these figures are for comparison only.', ...hinted },
     measurement: 'UTF-8 output bytes at one already-redacted boundary; schema envelope shown separately.',
     memoryMeasurement: 'Heap samples before/after each reducer; not peak RSS, allocation profiling, or a bounded-memory guarantee.',
     taskSavingsConclusion: 'not_measured' as const,
-    limitations: [corpora.length > 1 ? 'Synthetic and actually captured corpora are reported separately; no blended reduction percentage.' : corpora[0]?.corpus === 'captured' ? 'Actually executed local tool captures; streams replayed as documented concatenation.' : 'Synthetic versioned fixtures, not executed tool captures.', 'No model calls, task completion, billing or subscription quota measured.', 'Replay percentages are not end-to-end task savings.'],
+    limitations: [detected.corpora.length > 1 ? 'Synthetic and actually captured corpora are reported separately; no blended reduction percentage.' : detected.corpora[0]?.corpus === 'captured' ? 'Actually executed local tool captures; streams replayed as documented concatenation.' : 'Synthetic versioned fixtures, not executed tool captures.', 'Primary figures use automatic format detection as the runner and Claude hook do; format-hinted figures are reported separately under `hinted`.', 'No model calls, task completion, billing or subscription quota measured.', 'Replay percentages are not end-to-end task savings.'],
   };
 }
 
@@ -63,6 +72,16 @@ function random(seed: number): () => number {
 function hashFiles(files: Readonly<Record<string, string>>): string {
   const hash = createHash('sha256');
   for (const key of Object.keys(files).sort()) hash.update(key).update('\0').update(files[key]!).update('\0');
+  return hash.digest('hex');
+}
+/** Hashes the workspace exactly as written on disk, with the same framing as the planned in-memory hash. */
+export async function hashWorkspaceFiles(directory: string): Promise<string> {
+  const hash = createHash('sha256');
+  const entries = (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  for (const entry of entries) {
+    if (!entry.isFile()) throw new Error(`Unexpected non-file workspace entry: ${entry.name}`);
+    hash.update(entry.name).update('\0').update(await readFile(path.join(directory, entry.name))).update('\0');
+  }
   return hash.digest('hex');
 }
 export interface TaskBenchmarkPlanOptions { seed?: number; repeats?: number; taskIds?: readonly string[]; }
@@ -109,6 +128,8 @@ export interface TaskRunResult {
   cacheState: string;
   runKind: 'model' | 'local-contract';
   error: string | null;
+  /** SHA-256 of the workspace files read back from disk before the runner started. */
+  initialFilesHash?: string;
 }
 const sum = (values: readonly number[]): number => values.reduce((a, b) => a + b, 0);
 const mean = (values: readonly number[]): number => sum(values) / values.length;
@@ -157,18 +178,32 @@ export function aggregateTaskResults(results: readonly TaskRunResult[]) {
   return { schemaVersion: 1 as const, kind: 'task-results' as const, conditions, paired, conclusion: 'inconclusive' as const, realModelRuns: results.filter(result => result.runKind === 'model').length, localContractRuns: results.filter(result => result.runKind === 'local-contract').length, notes: ['Failed attempts remain in all consumption totals.', 'Unknown consumption is null, never zero.', 'Paired differences are CodeBudget minus baseline; all matched outcomes are included, not only successes.', 'Intervals describe this pilot only; no universal quality or non-inferiority claim.', 'Hidden tests do not establish general behavioral equivalence; flagged tasks still require human review.', 'Do not mix local-contract and model runs in a performance claim.'] };
 }
 
-function command(executable: string, args: readonly string[], cwd: string, timeoutMs: number): Promise<{ ok: boolean; output: string }> {
+function command(executable: string, args: readonly string[], cwd: string, timeoutMs: number, input = ''): Promise<{ ok: boolean; output: string; stdoutTail: string }> {
   return new Promise(resolve => {
-    const child = spawn(executable, [...args], { cwd, shell: false, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(executable, [...args], { cwd, shell: false, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     let output = '';
+    let stdoutTail = '';
     let settled = false;
     const collect = (data: Buffer): void => { if (output.length < 32_000) output += data.toString('utf8').slice(0, 32_000 - output.length); };
-    child.stdout.on('data', collect); child.stderr.on('data', collect);
+    child.stdout.on('data', (data: Buffer) => { collect(data); stdoutTail = (stdoutTail + data.toString('utf8')).slice(-65_536); });
+    child.stderr.on('data', collect);
+    // A child that exits without reading stdin must not turn EPIPE into an unhandled error.
+    child.stdin.on('error', () => undefined);
+    child.stdin.end(input);
     const timer = setTimeout(() => { child.kill(); finish(false, 'Evaluator timeout'); }, timeoutMs);
-    function finish(ok: boolean, error = ''): void { if (!settled) { settled = true; clearTimeout(timer); resolve({ ok, output: error || output }); } }
+    function finish(ok: boolean, error = ''): void { if (!settled) { settled = true; clearTimeout(timer); resolve({ ok, output: error || output, stdoutTail }); } }
     child.on('error', error => finish(false, error.message));
     child.on('close', code => finish(code === 0));
   });
+}
+
+/**
+ * TypeScript is needed only to evaluate candidates, so it is resolved lazily: installations without it still load,
+ * replay and plan benchmarks, and evaluation fails with an explicit message instead of a module-resolution error.
+ */
+export function resolveTypeScript(resolver: NodeJS.Require = createRequire(import.meta.url)): { ts: typeof TypeScriptApi; compiler: string } {
+  try { return { ts: resolver('typescript') as typeof TypeScriptApi, compiler: resolver.resolve('typescript/bin/tsc') }; }
+  catch (error) { throw new Error('Task evaluation requires the "typescript" package, a development dependency that CodeBudget does not bundle. Install typescript where the evaluator runs; replay benchmarks and task plans do not need it.', { cause: error }); }
 }
 
 async function removeTemporary(directory: string): Promise<void> {
@@ -185,21 +220,26 @@ export async function evaluateTaskCandidate(taskId: string, files: Readonly<Reco
   if (!evaluator) throw new Error(`No evaluator for task: ${taskId}`);
   const source = files['solution.ts'];
   if (typeof source !== 'string') return { success: false, typecheckPassed: false, evaluatorPassed: false, error: 'Missing solution.ts' };
+  const { ts, compiler } = resolveTypeScript();
   const temporary = await mkdtemp(path.join(tmpdir(), 'codebudget-evaluator-'));
   try {
     await writeFile(path.join(temporary, 'solution.ts'), source);
     await writeFile(path.join(temporary, 'package.json'), '{"type":"module"}');
-    const require = createRequire(import.meta.url);
-    const compiler = require.resolve('typescript/bin/tsc');
     const typecheck = await command(process.execPath, [compiler, 'solution.ts', '--strict', '--skipLibCheck', '--target', 'ES2022', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--outDir', 'out', '--noEmitOnError'], temporary, Math.max(1, timeoutMs - (performance.now() - started)));
     if (!typecheck.ok) return { success: false, typecheckPassed: false, evaluatorPassed: false, error: typecheck.output };
-    if ((evaluator.sourceRequired && !evaluator.sourceRequired.test(source)) || (evaluator.sourceForbidden && evaluator.sourceForbidden.test(source))) return { success: false, typecheckPassed: true, evaluatorPassed: false, error: 'Task-specific refactor constraint failed' };
-    const script = `import assert from 'node:assert/strict';\nimport * as m from './out/solution.js';\n${evaluator.assertions}\n`;
+    // Constraints inspect the syntax tree, so comments and string literals cannot satisfy or violate them.
+    const constraint = evaluator.constraint?.(analyzeSource(ts, source)) ?? null;
+    if (constraint) return { success: false, typecheckPassed: true, evaluatorPassed: false, error: `Task-specific refactor constraint failed: ${constraint}` };
+    // Exit status alone is not success: a candidate can exit(0) while being imported. The per-run completion token
+    // reaches the evaluator through stdin before the candidate loads and is printed only after the last assertion.
+    const completion = `CODEBUDGET_EVALUATION_COMPLETE ${randomBytes(16).toString('hex')}`;
+    const script = `import assert from 'node:assert/strict';\nconst chunks = [];\nfor await (const chunk of process.stdin) chunks.push(chunk);\nconst completion = Buffer.concat(chunks).toString('utf8');\nconst m = await import('./out/solution.js');\n${evaluator.assertions}\nprocess.stdout.write('\\n' + completion + '\\n');\n`;
     await writeFile(path.join(temporary, 'evaluate.mjs'), script);
     const remaining = timeoutMs - (performance.now() - started);
     if (remaining <= 0) return { success: false, typecheckPassed: true, evaluatorPassed: false, error: 'Evaluator timeout' };
-    const behavior = await command(process.execPath, [path.join(temporary, 'evaluate.mjs')], temporary, remaining);
-    return { success: behavior.ok, typecheckPassed: true, evaluatorPassed: behavior.ok, error: behavior.ok ? null : behavior.output };
+    const behavior = await command(process.execPath, [path.join(temporary, 'evaluate.mjs')], temporary, remaining, completion);
+    const completed = behavior.ok && behavior.stdoutTail.includes(`\n${completion}\n`);
+    return { success: completed, typecheckPassed: true, evaluatorPassed: completed, error: completed ? null : behavior.ok ? 'Evaluator exited with status 0 before completing all assertions' : behavior.output };
   } finally { await removeTemporary(temporary); }
 }
 
@@ -239,6 +279,8 @@ export async function runTaskBenchmark(options: TaskBenchmarkRunnerOptions) {
   if (!Number.isInteger(options.maxRuns) || options.maxRuns < 1 || !Number.isFinite(options.maxSpend) || options.maxSpend < 0 || !Number.isFinite(options.timeoutMs) || options.timeoutMs < 1 || !Number.isInteger(maxAttempts) || maxAttempts < 1) throw new Error('Explicit valid run, spend, timeout and attempt budgets required');
   const plan = createTaskBenchmarkPlan(options);
   if (plan.runCount > options.maxRuns) throw new Error(`Plan needs ${plan.runCount} runs; budget allows ${options.maxRuns}`);
+  // Fail before any runner (and any possibly paid model call) starts when candidates could not be evaluated.
+  resolveTypeScript();
   const results: TaskRunResult[] = [];
   let spent = 0;
   let stoppedReason: string | null = null;
@@ -252,6 +294,9 @@ export async function runTaskBenchmark(options: TaskBenchmarkRunnerOptions) {
     const base: TaskRunResult = { taskId: task.id, repeat: run.repeat, condition: run.condition, success: false, typecheckPassed: false, evaluatorPassed: false, humanReviewRequired: task.humanReviewRequired, durationMs: 0, attempts: 1, retrievalCalls: 0, totalTokens: null, consumptionSource: 'unknown', cost: null, currency: null, cacheState: options.cacheState, runKind: options.runKind, error: null };
     try {
       for (const [filename, content] of Object.entries(task.files)) await writeFile(path.join(workspace, filename), content);
+      const writtenHash = await hashWorkspaceFiles(workspace);
+      base.initialFilesHash = writtenHash;
+      if (writtenHash !== run.initialFilesHash) throw new Error('Workspace files on disk differ from the planned initial files; runner not started');
       const reply = await Promise.race([
         options.runner({ task, condition: run.condition, workspace, signal: controller.signal, runBudget: { remainingSpend: Math.max(0, options.maxSpend - spent), currency: options.currency, timeoutMs: options.timeoutMs, maxAttempts }, settings: options.settings }),
         new Promise<never>((_resolve, reject) => { timer = setTimeout(() => { controller.abort(); reject(new Error('Runner timeout; provider may still charge in-flight requests')); }, options.timeoutMs); }),

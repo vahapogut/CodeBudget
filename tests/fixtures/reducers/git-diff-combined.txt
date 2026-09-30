@@ -1,0 +1,14 @@
+diff --cc config.ts
+index 36f84c4,72ea4c9..0000000
+--- a/config.ts
++++ b/config.ts
+@@@ -1,5 -1,5 +1,9 @@@
+  export const config = {
+++<<<<<<< HEAD
+ +  retries: 4,
+++=======
++   retries: 5,
+++>>>>>>> feature
+  
+    timeoutMs: 1000,
+  

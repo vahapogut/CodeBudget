@@ -1,0 +1,18 @@
+On branch feature/auth
+Your branch is ahead of 'origin/feature/auth' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   src/session.ts
+	renamed:    src/old-name.ts -> src/new-name.ts
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   src/auth.ts
+	deleted:    src/legacy.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	tests/auth.test.ts

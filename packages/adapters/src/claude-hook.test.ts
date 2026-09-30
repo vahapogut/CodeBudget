@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { DIFF_EVIDENCE_LABEL } from '../../reducers/src/index.js';
 import { processClaudeHook, type ClaudeHookOptions } from './claude-hook.js';
 import { inspectAdapters, isSupportedClaudeVersion } from './capabilities.js';
 
@@ -36,11 +37,13 @@ describe('Claude hook version range and current response shapes', () => {
     const diff = ['diff --git a/src/a.ts b/src/a.ts', 'index 1111111..2222222 100644', '--- a/src/a.ts', '+++ b/src/a.ts', '@@ -1,40 +1,40 @@', ...Array.from({ length: 40 }, (_, i) => ` context line ${i}`), '-old', '+new'].join('\n') + '\n';
     const archive = vi.fn(async () => 'evidence-diff-1');
     const result = await processClaudeHook(event({ stdout: diff.repeat(20), stderr: '', interrupted: false, isImage: false }), options({ archive }));
-    if (result.output) {
-      const stdout = String(replacement(result).stdout);
-      expect(stdout).toContain('evidence-diff-1'); expect(stdout).not.toContain('00000000-0000-4000-8000-000000000000');
-      expect(archive).toHaveBeenCalledOnce();
-    } else expect(result.reason).toMatch(/gain|unknown|preservation/i);
+    expect(result.output).not.toBeNull();
+    const stdout = String(replacement(result).stdout);
+    expect(stdout).toContain(DIFF_EVIDENCE_LABEL); expect(stdout).not.toContain('index 1111111..2222222');
+    expect(stdout).toContain('+new'); expect(stdout.match(/^diff --git /gm)).toHaveLength(20);
+    expect(stdout).toContain('evidence-diff-1'); expect(stdout).not.toContain('00000000-0000-4000-8000-000000000000');
+    expect(archive).toHaveBeenCalledOnce();
+    expect(result.metrics?.reducedBytes).toBe(Buffer.byteLength(JSON.stringify(replacement(result))));
   });
 
   it('records a metric with its reason when nothing is replaced', async () => {

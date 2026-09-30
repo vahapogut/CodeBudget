@@ -1,0 +1,78 @@
+diff --git a/docs/errors.md b/docs/errors.md
+index 88736b4..40404a2 100644
+--- a/docs/errors.md
++++ b/docs/errors.md
+@@ -4,10 +4,10 @@ When the build fails you will see:
+ 
+     src/index.ts(7,9): error TS2322: Type 'string' is not assignable to type 'number'.
+ 
+-Fix it by converting the value.
++Fix it by converting the value with Number().
+ 
+ ## Retry policy
+ 
+-The client retries three times.
++The client retries five times.
+ 
+-Then it gives up.
++Then it logs and gives up.
+diff --git a/src/retry.ts b/src/retry.ts
+index d612e4a..bfee316 100644
+--- a/src/retry.ts
++++ b/src/retry.ts
+@@ -4,10 +4,10 @@ export function retry(times: number): number {
+   while (attempts < times) {
+     attempts += 1;
+ 
+-    if (attempts > 2) {
++    if (attempts > 4) {
+       break;
+     }
+   }
+ 
+-  return attempts;
++  return attempts * 1;
+ }
+diff --git a/tests/fixtures/vitest-output.txt b/tests/fixtures/vitest-output.txt
+index bfec590..40db1f3 100644
+--- a/tests/fixtures/vitest-output.txt
++++ b/tests/fixtures/vitest-output.txt
+@@ -1,4 +1,4 @@
+- RUN  v3.2.4 /project
++ RUN  v3.2.5 /project
+ 
+  ✓ tests/addition.test.ts (12 tests) 12ms
+  ✓ tests/subtraction.test.ts (14 tests) 14ms
+@@ -16,4 +16,4 @@ Received: 200
+ 
+  Test Files  1 failed | 5 passed (6)
+       Tests  1 failed | 80 passed | 2 skipped | 1 cancelled (84)
+-   Duration  481ms
++   Duration  512ms
+diff --git a/config/limits.json b/config/limits.json
+index 1f2e3d4..5a6b7c8 100644
+--- a/config/limits.json
++++ b/config/limits.json
+@@ -1,3 +1,3 @@
+ {
+-  "retries": 3
++  "retries": 5
+ }
+diff --git a/config/timeouts.json b/config/timeouts.json
+index 2a3b4c5..6d7e8f9 100644
+--- a/config/timeouts.json
++++ b/config/timeouts.json
+@@ -1,3 +1,3 @@
+ {
+-  "timeoutMs": 1000
++  "timeoutMs": 2000
+ }
+diff --git a/src/logger.ts b/src/logger.ts
+index 3b4c5d6..7e8f9a0 100644
+--- a/src/logger.ts
++++ b/src/logger.ts
+@@ -1,3 +1,4 @@
+ export function log(message: string): void {
++
+   process.stderr.write(message + '\n');
+ }

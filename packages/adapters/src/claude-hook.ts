@@ -1,4 +1,4 @@
-import { reduceOutput } from '../../reducers/src/index.js';
+import { EVIDENCE_MARKER, reduceOutput } from '../../reducers/src/index.js';
 import { CLAUDE_MAX_CONTRACT_MAJOR, CLAUDE_MIN_CONTRACT_VERSION, isSupportedClaudeVersion } from './capabilities.js';
 
 type ObjectValue = Record<string, unknown>;
@@ -33,7 +33,7 @@ export interface ClaudeHookOptions {
   maxInputBytes?: number;
 }
 export interface HookResult { output: ObjectValue | null; reason: string; metrics?: HookMetrics }
-const MARKER = '[CodeBudget evidence:';
+const MARKER = EVIDENCE_MARKER;
 function object(value: unknown): value is ObjectValue { return !!value && typeof value === 'object' && !Array.isArray(value); }
 function responseEnvelope(response: ObjectValue): ObjectValue { return { hookSpecificOutput: { hookEventName: 'PostToolUse', updatedToolOutput: response } }; }
 const byteSize = (value: unknown) => Buffer.byteLength(JSON.stringify(value), 'utf8');

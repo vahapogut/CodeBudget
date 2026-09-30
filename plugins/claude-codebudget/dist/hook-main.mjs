@@ -12932,18 +12932,18 @@ var ZodCompileUnsupportedError = class extends Error {
     this.islandable = islandable;
   }
 };
-function compileValidator(schema, parser2) {
+function compileValidator(schema, parser) {
   try {
     return compileFn(schema, { assertOnly: true });
   } catch {
-    return parser2;
+    return parser;
   }
 }
 function compile(schema, options) {
   try {
-    const parser2 = compileFn(schema);
-    const clone2 = withParser(schema, parser2);
-    clone2._zod.bag.validator = compileValidator(schema, parser2);
+    const parser = compileFn(schema);
+    const clone2 = withParser(schema, parser);
+    clone2._zod.bag.validator = compileValidator(schema, parser);
     return clone2;
   } catch (err) {
     if (options?.strict)
@@ -12951,7 +12951,7 @@ function compile(schema, options) {
     return schema;
   }
 }
-function withParser(schema, parser2) {
+function withParser(schema, parser) {
   if (isRecursiveSchema(schema)) {
     throw new ZodCompileUnsupportedError("a schema whose subtree contains a reference cycle");
   }
@@ -12965,7 +12965,7 @@ function withParser(schema, parser2) {
     if (ctx && isBackEdge(ctx, payload.value)) {
       return originalRun(payload, ctx);
     }
-    const out = parser2(payload.value);
+    const out = parser(payload.value);
     if (out !== INVALID) {
       payload.value = out;
       return payload;
@@ -12976,19 +12976,19 @@ function withParser(schema, parser2) {
   };
   wrapped.__originalRun = originalRun;
   clone2._zod.bag.fallbackRun = originalRun;
-  clone2._zod.bag.validator = parser2;
+  clone2._zod.bag.validator = parser;
   clone2._zod.run = wrapped;
   if (!liveRun.__originalRun)
-    installCompiledUserMethods(clone2, schema, parser2);
+    installCompiledUserMethods(clone2, schema, parser);
   return clone2;
 }
-function installCompiledUserMethods(target, source, parser2) {
+function installCompiledUserMethods(target, source, parser) {
   const targetAny = target;
   const sourceAny = source;
   if (typeof sourceAny.safeParse === "function") {
     const originalSafeParse = sourceAny.safeParse;
     targetAny.safeParse = (data, params) => {
-      const out = parser2(data);
+      const out = parser(data);
       if (out !== INVALID) {
         return { success: true, data: out };
       }
@@ -12998,7 +12998,7 @@ function installCompiledUserMethods(target, source, parser2) {
   if (typeof sourceAny.parse === "function") {
     const originalParse = sourceAny.parse;
     targetAny.parse = (data, params) => {
-      const out = parser2(data);
+      const out = parser(data);
       if (out !== INVALID) {
         return out;
       }
@@ -20676,171 +20676,471 @@ var Store = class {
 
 // packages/reducers/src/index.ts
 import { Buffer as Buffer2 } from "node:buffer";
-var VERSION = "1.0.0";
-var MARKER = "[CodeBudget reduced";
-var linesOf = (text) => text.split(/\r?\n/);
+var VERSION = "2.0.0";
+var EVIDENCE_MARKER = "[CodeBudget evidence:";
+var REPORT_LIMIT = 20;
+var SAMPLE_EDGE_LINES = 200;
+var SAMPLE_LINE_CHARS = 1024;
+var PASS_LINE_CHARS = 600;
 var size = (text) => Buffer2.byteLength(text, "utf8");
-var jsonParse = (text) => {
+var isRecord = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+var some = (lines, pattern) => lines.some((line) => pattern.test(line));
+var bounded = (items, total) => total > items.length ? [...items, `[+${total - items.length} more]`] : items;
+function lineModel(text) {
+  const lines = text.split("\n");
+  const trailingNewline = lines.length > 1 && lines[lines.length - 1] === "";
+  if (trailingNewline) lines.pop();
+  const terminated = trailingNewline ? lines.length : lines.length - 1;
+  let crlf = terminated > 0;
+  for (let index = 0; crlf && index < terminated; index += 1) crlf = lines[index].endsWith("\r");
+  if (crlf) for (let index = 0; index < terminated; index += 1) lines[index] = lines[index].slice(0, -1);
+  return { lines, eol: crlf ? "\r\n" : "\n", trailingNewline };
+}
+var render = (lines, model) => {
+  const eol = model.eol ?? "\n";
+  return lines.join(eol) + (model.trailingNewline && lines.length > 0 ? eol : "");
+};
+var isUniformCrlf = (text) => text.includes("\r\n") && !/(?:^|[^\r])\n/.test(text);
+function splitOutput(output2, eol, trailingNewline) {
+  if (output2 === "") return trailingNewline === false ? [""] : [];
+  let body = output2;
+  if (trailingNewline === true) {
+    if (!body.endsWith(eol)) return null;
+    body = body.slice(0, -eol.length);
+  } else if (trailingNewline === void 0 && body.endsWith(eol)) body = body.slice(0, -eol.length);
+  return body.split(eol);
+}
+function trimLineBreaks(text) {
+  let end = text.length;
+  while (end > 0 && (text.charCodeAt(end - 1) === 10 || text.charCodeAt(end - 1) === 13)) end -= 1;
+  return end === text.length ? text : text.slice(0, end);
+}
+var normalizationOnly = (original, candidate) => trimLineBreaks(original.replaceAll("\r\n", "\n")) === trimLineBreaks(candidate.replaceAll("\r\n", "\n"));
+var carriesReductionMarker = (text) => text.startsWith(EVIDENCE_MARKER) || text.includes("\n" + EVIDENCE_MARKER);
+function validateEvidence(evidence, output2, options = {}) {
+  const lines = splitOutput(output2, options.eol ?? (isUniformCrlf(output2) ? "\r\n" : "\n"), options.trailingNewline);
+  if (!lines) return { valid: false, missing: ["[line terminator or trailing newline changed]"] };
+  const additions = options.allowedAdditions ? /* @__PURE__ */ new Map() : void 0;
+  for (const line of options.allowedAdditions ?? []) additions.set(line, (additions.get(line) ?? 0) + 1);
+  const unexpected = [];
+  let unexpectedCount = 0;
+  let next = 0;
+  for (const line of lines) {
+    if (next < evidence.length && line === evidence[next]) {
+      next += 1;
+      continue;
+    }
+    if (!additions) continue;
+    const remaining = additions.get(line) ?? 0;
+    if (remaining > 0) {
+      additions.set(line, remaining - 1);
+      continue;
+    }
+    unexpectedCount += 1;
+    if (unexpected.length < REPORT_LIMIT) unexpected.push(line);
+  }
+  const missing = bounded(evidence.slice(next, next + REPORT_LIMIT), evidence.length - next);
+  return { valid: next === evidence.length && unexpectedCount === 0, missing, ...unexpectedCount ? { unexpected: bounded(unexpected, unexpectedCount) } : {} };
+}
+function compactJson(text) {
+  const parts = [];
+  let start = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const code = text.charCodeAt(index);
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (code === 92) escaped = true;
+      else if (code === 34) quoted = false;
+    } else if (code === 34) quoted = true;
+    else if (code === 32 || code === 9 || code === 10 || code === 13) {
+      if (index > start) parts.push(text.slice(start, index));
+      start = index + 1;
+    }
+  }
+  if (start < text.length) parts.push(text.slice(start));
+  return parts.join("");
+}
+function jsonDocument(text) {
+  let index = 0;
+  while (index < text.length && /\s/.test(text[index])) index += 1;
+  if (text[index] !== "{" && text[index] !== "[") return void 0;
   try {
     return JSON.parse(text);
   } catch {
     return void 0;
   }
-};
-var isRecord = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
-var looksJson = (text) => (text.trimStart().startsWith("[") || text.trimStart().startsWith("{")) && jsonParse(text) !== void 0;
-var unchangedEvidence = (lines) => [...new Set(lines.filter((line) => line.trim().length > 0))];
-function compactJson(text) {
-  let quoted = false;
-  let escaped = false;
-  let output2 = "";
-  for (const char of text) {
-    if (quoted) {
-      output2 += char;
-      if (escaped) escaped = false;
-      else if (char === "\\") escaped = true;
-      else if (char === '"') quoted = false;
-    } else if (char === '"') {
-      quoted = true;
-      output2 += char;
-    } else if (!/\s/.test(char)) output2 += char;
+}
+function validateJson(original, output2) {
+  const valid = jsonDocument(output2) !== void 0 && compactJson(original) === compactJson(output2);
+  return { valid, missing: valid ? [] : ["JSON value changed or became invalid"] };
+}
+var DIFF_START = /^diff --(?:git|cc|combined) /;
+var UNIFIED_HUNK = /^@@ -\d{1,10}(?:,\d{1,10})? \+\d{1,10}(?:,\d{1,10})? @@/;
+function diffShaped(lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line.startsWith("diff --") && DIFF_START.test(line)) return true;
+    if (line.startsWith("--- ") && lines[index + 1]?.startsWith("+++ ") && UNIFIED_HUNK.test(lines[index + 2] ?? "")) return true;
   }
-  return output2;
+  return false;
 }
-function validateEvidence(evidence, output2) {
-  const missing = evidence.filter((item) => !output2.includes(item));
-  return { valid: missing.length === 0, missing };
+var cachedProbe;
+function probe(text) {
+  if (cachedProbe?.text === text) return cachedProbe;
+  const model = lineModel(text);
+  const edge = model.lines.length <= SAMPLE_EDGE_LINES * 2 ? model.lines : [...model.lines.slice(0, SAMPLE_EDGE_LINES), ...model.lines.slice(-SAMPLE_EDGE_LINES)];
+  const sample = edge.map((line) => line.length > SAMPLE_LINE_CHARS ? line.slice(0, SAMPLE_LINE_CHARS) : line);
+  cachedProbe = { text, model, sample, json: jsonDocument(text), diff: diffShaped(model.lines) };
+  return cachedProbe;
 }
-function parser(id, detect, transform2, evidence) {
+var plans = /* @__PURE__ */ new WeakMap();
+function dropDeclared(parsed, plan) {
+  if (!plan.removable?.size) return parsed.text;
+  const kept = parsed.lines.filter((_line, index) => !plan.removable.has(index));
+  return render([...plan.additions ?? [], ...kept], parsed);
+}
+function orderedPreservation(parsed, output2) {
+  if (output2 === parsed.text) return { valid: true, missing: [] };
+  return validateEvidence(parsed.protectedEvidence, output2, { eol: parsed.eol ?? "\n", trailingNewline: parsed.trailingNewline ?? false, allowedAdditions: parsed.allowedAdditions ?? [] });
+}
+function makeReducer(id, spec) {
+  const admissible = (candidate) => (id === "git-diff" || !candidate.diff) && (spec.json === true || candidate.json === void 0);
   return {
     id,
     version: VERSION,
-    supports: (input2) => input2.format === id || input2.format === void 0 && detect(input2),
+    ...spec.requiresArtifact ? { requiresArtifact: true } : {},
+    supports: (input2) => input2.format === id || input2.format === void 0 && admissible(probe(input2.text)) && spec.detect(probe(input2.text)),
     parse(input2) {
-      if (!detect(input2)) return null;
-      return { format: id, text: input2.text, lines: linesOf(input2.text), protectedEvidence: evidence?.(input2) ?? unchangedEvidence(linesOf(input2.text)), ...looksJson(input2.text) ? { structured: jsonParse(input2.text) } : {} };
+      const candidate = probe(input2.text);
+      if (!admissible(candidate) || !spec.detect(candidate)) return null;
+      const plan = spec.plan(candidate, input2);
+      if (!plan) return null;
+      const { lines, eol, trailingNewline } = candidate.model;
+      const removable = plan.removable;
+      const protectedEvidence = plan.structured !== void 0 ? [] : removable?.size ? lines.filter((_line, index) => !removable.has(index)) : lines.slice();
+      const parsed = { format: id, text: input2.text, lines, protectedEvidence, eol, trailingNewline, allowedAdditions: plan.additions ?? [], ...plan.structured !== void 0 ? { structured: plan.structured } : {} };
+      plans.set(parsed, plan);
+      return parsed;
     },
-    reduce: transform2,
-    validatePreservation: (parsed, output2) => validateEvidence(parsed.protectedEvidence, output2)
+    reduce(parsed) {
+      const plan = plans.get(parsed);
+      if (!plan) return parsed.text;
+      if (plan.structured !== void 0) return compactJson(parsed.text) + (parsed.trailingNewline ? parsed.eol ?? "\n" : "");
+      return (spec.reduce ?? dropDeclared)(parsed, plan);
+    },
+    validatePreservation(parsed, output2) {
+      const plan = plans.get(parsed);
+      if (parsed.structured !== void 0) return validateJson(parsed.text, output2);
+      return spec.validate ? spec.validate(parsed, output2, plan) : orderedPreservation(parsed, output2);
+    }
   };
 }
-function compactBlankLines(parsed) {
-  return parsed.lines.filter((line) => line.trim()).join("\n");
-}
-function testPassLines(input2) {
+var removableWhere = (lines, predicate) => {
+  const result = /* @__PURE__ */ new Set();
+  for (let index = 0; index < lines.length; index += 1) if (predicate(lines[index])) result.add(index);
+  return result;
+};
+var WRAPPER_LINE = /^(?:> \S| ?ELIFECYCLE\b| ?ERR_PNPM_|npm (?:ERR!|error|warn) )/;
+var DIFF_EXTENDED_HEADER = /^(?:old mode|new mode|deleted file mode|new file mode|copy from|copy to|rename from|rename to|similarity index|dissimilarity index|index) /;
+var INDEX_LINE = /^index [0-9a-f]{4,64}(?:,[0-9a-f]{4,64}){0,8}\.\.[0-9a-f]{4,64}(?: [0-7]{6})?$/;
+var DIFF_EVIDENCE_LABEL = "Diff evidence; NOT AN APPLYABLE PATCH: index lines omitted, full patch archived.";
+var gitDiff = makeReducer("git-diff", {
+  requiresArtifact: true,
+  detect: (candidate) => candidate.diff,
+  plan(candidate, input2) {
+    const { lines } = candidate.model;
+    const removable = /* @__PURE__ */ new Set();
+    if (input2.artifactId) {
+      for (let index = 0; index < lines.length; index += 1) {
+        if (!lines[index].startsWith("diff --") || !DIFF_START.test(lines[index])) continue;
+        for (let next = index + 1; next < lines.length && DIFF_EXTENDED_HEADER.test(lines[next]); next += 1) if (INDEX_LINE.test(lines[next])) removable.add(next);
+      }
+    }
+    return { removable, additions: removable.size ? [DIFF_EVIDENCE_LABEL] : [] };
+  }
+});
+var FAILURE_START = /^[ \t]*(?:FAIL\b|FAILED\b|[×✕✗][ \t]|AssertionError\b|Error:|●[ \t]|⎯)/;
+var CONSOLE_START = /^(?:stdout|stderr) \||^[ \t]*console\.(?:log|info|warn|error|debug)$/;
+var PASS_LINES = [
+  /^[ \t]*PASS[ \t]+\S+\.[cm]?[jt]sx?(?:[ \t]+\(\d{1,6}(?:\.\d{1,3})?[ \t]?m?s\))?[ \t]*$/,
+  /^[ \t]*[✓√✔][ \t]\S.{0,400}?[ \t]{1,4}\(\d{1,7} tests?\)(?:[ \t]\d{1,9}(?:\.\d{1,3})?[ \t]?m?s)?[ \t]*$/,
+  /^[ \t]*[✓√✔][ \t]\S.{0,400}?[ \t](?:\d{1,9}(?:\.\d{1,3})?[ \t]?m?s|\(\d{1,9}(?:\.\d{1,3})?[ \t]?m?s\))[ \t]*$/
+];
+var PASS_ANNOTATION = /\|[ \t]*\d{1,7}[ \t]+(?:failed|skipped|todo|pending)|\b\d{1,7}[ \t]+(?:failed|skipped|todo|pending)\b|\((?:retry|repeat)[ \t]+x\d{1,7}\)|\bflak(?:y|iness)\b|\bretr(?:y|ied|ies)\b|\bMB heap used\b/i;
+function testPassLines(lines) {
   const result = /* @__PURE__ */ new Set();
   let failureSection = false;
-  for (const [index, line] of linesOf(input2.text).entries()) {
-    if (/^\s*(?:FAIL\b|FAILED\b|[×✕]\s|AssertionError\b|Error:|●\s)/.test(line)) failureSection = true;
-    if (!failureSection && (/^\s*PASS\s+\S+\.[cm]?[jt]sx?(?:\s|$)/.test(line) || /^\s*[✓√✔]\s+.+(?:\(\d+ tests?[^)]*\)|\d+(?:\.\d+)?\s?m?s)\s*$/.test(line))) result.add(index);
+  let consoleBlock = false;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (consoleBlock) {
+      if (line.trim() === "") consoleBlock = false;
+      continue;
+    }
+    if (FAILURE_START.test(line)) failureSection = true;
+    if (CONSOLE_START.test(line)) {
+      consoleBlock = true;
+      continue;
+    }
+    if (!failureSection && line.length <= PASS_LINE_CHARS && PASS_LINES.some((pattern) => pattern.test(line)) && !PASS_ANNOTATION.test(line)) result.add(index);
   }
   return result;
 }
-function reduceHumanTests(parsed, input2) {
-  if (parsed.structured !== void 0) return compactJson(parsed.text);
-  const passes = testPassLines(input2);
-  if (passes.size < 2) return compactBlankLines(parsed);
-  return [`${passes.size} successful test/suite lines grouped.`, ...parsed.lines.filter((line, index) => !passes.has(index) && line.trim())].join("\n");
+var structuredTests = (value) => isRecord(value) && Array.isArray(value.testResults) && typeof value.numTotalTests === "number";
+function testPlan(candidate) {
+  if (candidate.json !== void 0) return { structured: candidate.json };
+  const passes = testPassLines(candidate.model.lines);
+  return passes.size < 2 ? {} : { removable: passes, additions: [`${passes.size} successful test/suite lines grouped.`] };
 }
-var humanTestEvidence = (input2) => {
-  if (looksJson(input2.text)) return [];
-  const passes = testPassLines(input2);
-  return unchangedEvidence(linesOf(input2.text).filter((_line, index) => !passes.has(index)));
-};
-function structuredTests(text) {
-  const value = jsonParse(text);
-  return isRecord(value) && Array.isArray(value.testResults) && typeof value.numTotalTests === "number";
-}
-var vitest = parser("vitest", (input2) => structuredTests(input2.text) || /(?:\bTest Files\s+\d|\bRUN\s+v\d|\bvitest\b)/i.test(input2.text) && /(?:Tests?\s+\d|[✓×✕])/.test(input2.text), reduceHumanTests, humanTestEvidence);
-var jest = parser("jest", (input2) => structuredTests(input2.text) || /^Test Suites:|^Tests:\s+\d|^\s*(?:PASS|FAIL)\s+\S+\.[cm]?[jt]sx?/m.test(input2.text), reduceHumanTests, humanTestEvidence);
-for (const reducer of [vitest, jest]) reducer.validatePreservation = (parsed, output2) => parsed.structured === void 0 ? validateEvidence(parsed.protectedEvidence, output2) : validateJson(parsed.text, output2);
-var tsc = parser("tsc", (input2) => /(?:\(\d+,\d+\)|:\d+:\d+)\s*:?\s*(?:error|warning) TS\d+:/m.test(input2.text), compactBlankLines);
-var eslint = parser("eslint", (input2) => {
-  const value = jsonParse(input2.text);
-  return Array.isArray(value) && value.length > 0 && value.every((item) => isRecord(item) && typeof item.filePath === "string" && Array.isArray(item.messages)) || /\d+:\d+\s+(?:error|warning)\s+.+/m.test(input2.text);
-}, (parsed) => parsed.structured === void 0 ? compactBlankLines(parsed) : compactJson(parsed.text), (input2) => looksJson(input2.text) ? [] : unchangedEvidence(linesOf(input2.text)));
-eslint.validatePreservation = (parsed, output2) => parsed.structured === void 0 ? validateEvidence(parsed.protectedEvidence, output2) : validateJson(parsed.text, output2);
-var gitStatus = parser("git-status", (input2) => /^(?:On branch |## |# branch\.|[ MADRCU?!]{2} .+|[12u?] .+)$/m.test(input2.text), compactBlankLines);
-var gitDiff = parser("git-diff", (input2) => /^diff --git /m.test(input2.text) && /^(?:@@ |Binary files |GIT binary patch)/m.test(input2.text), (parsed, input2) => {
-  if (!input2.artifactId) return parsed.text;
-  const body = parsed.lines.filter((line) => !/^index [0-9a-f]+\.\.[0-9a-f]+(?: \d+)?$/.test(line)).join("\n");
-  return `Diff evidence; NOT AN APPLYABLE PATCH. Full patch: artifact ${input2.artifactId}.
-${body}`;
-}, (input2) => unchangedEvidence(linesOf(input2.text).filter((line) => !/^index [0-9a-f]+\.\.[0-9a-f]+(?: \d+)?$/.test(line))));
-function reduceSearch(parsed) {
-  const groups = /* @__PURE__ */ new Map();
-  for (const line of parsed.lines.filter((item) => item.length)) {
-    const match = /^(.*?):(\d+)(?::(\d+))?:(.*)$/.exec(line);
-    if (!match) return parsed.text;
-    const path = match[1];
-    const evidence = `${match[2]}${match[3] ? ":" + match[3] : ""}:${match[4]}`;
-    const entries = groups.get(path) ?? [];
-    entries.push(evidence);
-    groups.set(path, entries);
-  }
-  return [...groups].map(([path, matches]) => `${path}
-${matches.map((match) => `  ${match}`).join("\n")}`).join("\n");
-}
-var search = parser("search", (input2) => linesOf(input2.text).filter((line) => line.length > 0).length > 0 && linesOf(input2.text).filter((line) => line.length > 0).every((line) => /^(.*?):(\d+)(?::(\d+))?:(.*)$/.test(line)), reduceSearch, () => []);
-search.validatePreservation = (parsed, output2) => {
-  if (output2 === parsed.text) return { valid: true, missing: [] };
-  const actual = /* @__PURE__ */ new Map();
-  let path = "";
-  for (const line of output2.split("\n")) {
-    if (!line.startsWith("  ")) {
-      path = line;
-      actual.set(path, []);
-    } else actual.get(path)?.push(line.slice(2));
-  }
-  const missing = [];
-  for (const line of parsed.lines.filter((line2) => line2.length)) {
-    const match = /^(.*?):(\d+)(?::(\d+))?:(.*)$/.exec(line);
-    const key = `${match[2]}${match[3] ? ":" + match[3] : ""}:${match[4]}`;
-    const list = actual.get(match[1]);
-    const index = list?.indexOf(key) ?? -1;
-    if (index < 0) missing.push(line);
-    else list.splice(index, 1);
-  }
-  return { valid: missing.length === 0, missing };
-};
-function validateJson(original, output2) {
-  const value = jsonParse(output2);
-  const valid = value !== void 0 && compactJson(original) === compactJson(output2);
-  return { valid, missing: valid ? [] : ["JSON value changed or became invalid"] };
-}
-var json2 = parser("json", (input2) => looksJson(input2.text), (parsed) => compactJson(parsed.text), () => []);
-json2.validatePreservation = (parsed, output2) => validateJson(parsed.text, output2);
-var logs = parser("logs", (input2) => {
-  const lines = linesOf(input2.text);
-  return lines.some((line, index) => line.length > 0 && index > 0 && line === lines[index - 1]);
-}, (parsed) => {
-  const output2 = [];
-  for (let index = 0; index < parsed.lines.length; index += 1) {
-    const line = parsed.lines[index];
-    let count = 1;
-    while (parsed.lines[index + count] === line) count += 1;
-    output2.push(line);
-    if (count > 1) output2.push(`[exact repeated line: ${count} occurrences; order unchanged]`);
-    index += count - 1;
-  }
-  return output2.join("\n");
+var VITEST_SIGNATURE = /^[ \t]*(?:Test Files[ \t]{1,20}\d|RUN[ \t]{1,20}v\d)/;
+var VITEST_NAME = /\bvitest\b/i;
+var TEST_RESULT_SIGNATURE = /^[ \t]*Tests?[ \t]{1,20}\d|[✓×✕]/;
+var JEST_SIGNATURE = /^(?:Test Suites:|Tests:[ \t]{1,20}\d)|^[ \t]*(?:PASS|FAIL)[ \t]{1,20}\S+\.[cm]?[jt]sx?(?:[ \t]|$)/;
+var vitest = makeReducer("vitest", {
+  json: true,
+  detect: (candidate) => candidate.json !== void 0 ? structuredTests(candidate.json) : (some(candidate.sample, VITEST_SIGNATURE) || some(candidate.sample, VITEST_NAME)) && some(candidate.sample, TEST_RESULT_SIGNATURE),
+  plan: testPlan
 });
-logs.validatePreservation = (parsed, output2) => {
-  if (output2 === parsed.text) return { valid: true, missing: [] };
-  const restored = [];
-  for (const line of output2.split("\n")) {
-    const match = /^\[exact repeated line: (\d+) occurrences; order unchanged\]$/.exec(line);
-    if (match && restored.length) {
-      const count = Number(match[1]);
-      if (count > parsed.lines.length || count < 2) return { valid: false, missing: ["Invalid repetition count"] };
-      const prior = restored.at(-1);
-      for (let index = 1; index < count; index += 1) restored.push(prior);
-    } else restored.push(line);
+var jest = makeReducer("jest", {
+  json: true,
+  detect: (candidate) => candidate.json !== void 0 ? structuredTests(candidate.json) : some(candidate.sample, JEST_SIGNATURE),
+  plan: testPlan
+});
+var TSC_DIAGNOSTIC = /^(?:\S.{0,1000}?(?:\(\d{1,7},\d{1,7}\): |:\d{1,7}:\d{1,7} - ))?(?:error|warning|message) TS\d{1,6}: /;
+var TSC_OTHER = /^(?:[ \t]|\d{1,7} |~|Found \d{1,7} errors?\b|Errors {2}Files$|\[?\d{1,2}:\d{2}:\d{2}(?: [AP]M)?\]? )/;
+var tsc = makeReducer("tsc", {
+  detect: (candidate) => some(candidate.sample, TSC_DIAGNOSTIC),
+  plan(candidate) {
+    let diagnostics = 0;
+    for (const line of candidate.model.lines) {
+      if (line === "" || TSC_OTHER.test(line) || WRAPPER_LINE.test(line)) continue;
+      if (!TSC_DIAGNOSTIC.test(line)) return null;
+      diagnostics += 1;
+    }
+    return diagnostics ? { removable: removableWhere(candidate.model.lines, (line) => line === "") } : null;
   }
-  const valid = restored.join("\n") === parsed.lines.join("\n");
-  return { valid, missing: valid ? [] : ["Log content, ordering or repetition count changed"] };
-};
-var reducers = [vitest, jest, tsc, eslint, gitDiff, gitStatus, search, json2, logs];
+});
+var ESLINT_MESSAGE = /^[ \t]{1,8}\d{1,7}:\d{1,7}[ \t]+(?:error|warning)[ \t]/;
+var ESLINT_FILE = /^(?:[A-Za-z]:[\\/]|[\\/]|\.{1,2}[\\/])?[^\s:*?"<>|][^\t:*?"<>|]*\.[A-Za-z0-9]{1,10}$/;
+var ESLINT_SUMMARY = /^(?:[✖✗×] \d{1,7} problems? \(\d{1,7} errors?, \d{1,7} warnings?\)|[ \t]+\d{1,7} errors? and \d{1,7} warnings? potentially fixable with the `--fix` option\.)$/;
+var eslintJson = (value) => Array.isArray(value) && value.length > 0 && value.every((item) => isRecord(item) && typeof item.filePath === "string" && Array.isArray(item.messages));
+var eslint = makeReducer("eslint", {
+  json: true,
+  detect: (candidate) => candidate.json !== void 0 ? eslintJson(candidate.json) : some(candidate.sample, ESLINT_MESSAGE),
+  plan(candidate) {
+    if (candidate.json !== void 0) return { structured: candidate.json };
+    let messages = 0;
+    for (const line of candidate.model.lines) {
+      if (line === "" || ESLINT_SUMMARY.test(line) || ESLINT_FILE.test(line) || WRAPPER_LINE.test(line)) continue;
+      if (!ESLINT_MESSAGE.test(line)) return null;
+      messages += 1;
+    }
+    return messages ? { removable: removableWhere(candidate.model.lines, (line) => line === "") } : null;
+  }
+});
+var json2 = makeReducer("json", { json: true, detect: (candidate) => candidate.json !== void 0, plan: (candidate) => ({ structured: candidate.json }) });
+var STATUS_HEAD = /^(?:On branch \S.*|HEAD detached (?:at|from) \S+|Not currently on any branch\.|(?:interactive )?rebase in progress; onto \S+)$/s;
+var STATUS_STATE = /^(?:On branch \S.*|HEAD detached (?:at|from) \S+|Not currently on any branch\.|Your branch (?:is up to date with|is ahead of|is behind|and|is based on) '.+|and have \d{1,9} and \d{1,9} different commits each, respectively\.|No commits yet|Initial commit|You have unmerged paths\.|All conflicts fixed but you are still merging\.|You are currently \S.*|You are in (?:a sparse checkout|the middle of an am session).*|(?:interactive )?rebase in progress; onto \S+|No commands remaining\.|(?:Cherry-pick|Revert) currently in progress\.|The current patch is empty\.|nothing to commit.*|nothing added to commit but untracked files present.*|no changes added to commit.*|Untracked files not listed.*|It took \d{1,9}(?:\.\d{1,9})? seconds to \S.*|may speed it up, but you have to be careful not to forget to add|new files yourself \(see 'git help status'\)\.|You can use '--no-ahead-behind' to avoid this\.)$/s;
+var STATUS_SECTION = /^(?:Changes to be committed|Changes not staged for commit|Unmerged paths|Untracked files|Ignored files|Submodule changes to be committed|Submodules changed but not updated):$/;
+var STATUS_HINT = /^ {2}\(.+\)$/s;
+var STATUS_ENTRY = /^(?:\t| {8})(?:(?:new file|modified|deleted|renamed|copied|typechange|unmerged|unknown|both deleted|added by us|deleted by them|added by them|deleted by us|both added|both modified):[ \t]+)?\S.*$/s;
+var STATUS_TODO_HEADER = /^(?:Last commands? done \(\d{1,9} commands? done\)|Next commands? to do \(\d{1,9} remaining commands?\)):$/;
+var STATUS_TODO_LINE = /^ {3}\S.*$/s;
+var PORCELAIN_V1 = /^(?:[MTADRCU][ MTADRCU]| [MTADRCU]|\?\?|!!) \S.*$/s;
+var PORCELAIN_V1_BRANCH = /^## \S.*$/s;
+var PORCELAIN_V2_ENTRY = [
+  /^1 [.MTADRCU]{2} (?:N\.\.\.|S[C.][M.][U.]) [0-7]{6} [0-7]{6} [0-7]{6} [0-9a-f]{4,64} [0-9a-f]{4,64} \S.*$/s,
+  /^2 [.MTADRCU]{2} (?:N\.\.\.|S[C.][M.][U.]) [0-7]{6} [0-7]{6} [0-7]{6} [0-9a-f]{4,64} [0-9a-f]{4,64} [RC]\d{1,3} \S.*$/s,
+  /^u [.MTADRCU]{2} (?:N\.\.\.|S[C.][M.][U.]) [0-7]{6} [0-7]{6} [0-7]{6} [0-7]{6} [0-9a-f]{4,64} [0-9a-f]{4,64} [0-9a-f]{4,64} \S.*$/s,
+  /^# (?:branch\.(?:oid|head|upstream|ab)|stash) \S.*$/s
+];
+var PORCELAIN_V2_OTHER = /^[?!] \S.*$/s;
+var firstNonEmpty = (lines) => lines.find((line) => line !== "");
+function porcelainV1(lines) {
+  let entries = 0;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (PORCELAIN_V1.test(line)) entries += 1;
+    else if (index !== 0 || !PORCELAIN_V1_BRANCH.test(line)) return false;
+  }
+  return entries > 0;
+}
+function porcelainV2(lines) {
+  let anchored = false;
+  for (const line of lines) {
+    if (PORCELAIN_V2_ENTRY.some((pattern) => pattern.test(line))) anchored = true;
+    else if (!PORCELAIN_V2_OTHER.test(line)) return false;
+  }
+  return anchored;
+}
+function longStatusRemovable(lines) {
+  const removable = /* @__PURE__ */ new Set();
+  let headSeen = false;
+  let section = false;
+  let todo = false;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (line === "") {
+      removable.add(index);
+      continue;
+    }
+    if (!headSeen) {
+      if (!STATUS_HEAD.test(line)) return null;
+      headSeen = true;
+      continue;
+    }
+    if (STATUS_HINT.test(line)) {
+      removable.add(index);
+      continue;
+    }
+    if (section && STATUS_ENTRY.test(line)) continue;
+    if (todo && STATUS_TODO_LINE.test(line)) continue;
+    if (STATUS_SECTION.test(line)) {
+      section = true;
+      todo = false;
+      continue;
+    }
+    if (STATUS_TODO_HEADER.test(line)) {
+      todo = true;
+      section = false;
+      continue;
+    }
+    if (!STATUS_STATE.test(line)) return null;
+    section = false;
+    todo = false;
+  }
+  return headSeen ? removable : null;
+}
+var gitStatus = makeReducer("git-status", {
+  detect(candidate) {
+    const sample = candidate.sample.filter((line) => line !== "");
+    const head = firstNonEmpty(candidate.model.lines);
+    return head !== void 0 && (STATUS_HEAD.test(head) || porcelainV1(sample) || porcelainV2(sample));
+  },
+  plan(candidate) {
+    const { lines } = candidate.model;
+    if (porcelainV1(lines) || porcelainV2(lines)) return {};
+    const removable = longStatusRemovable(lines);
+    return removable ? { removable } : null;
+  }
+});
+var LOG_MARKER = /^\[exact repeated line: (\d{1,9}) occurrences; order unchanged\]$/;
+var logMarker = (count) => `[exact repeated line: ${count} occurrences; order unchanged]`;
+var TIMESTAMP_START = /^(?:[\w.-]{1,64}[ \t]*\|[ \t]*)?\[?(?:\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|\d{1,2}:\d{2}(?::\d{2})?(?:[.,]\d{1,9})?\]?[ \t])/;
+function logRuns(lines, eolBytes) {
+  const runs = [];
+  for (let index = 0; index < lines.length; ) {
+    const line = lines[index];
+    let count = 1;
+    while (index + count < lines.length && lines[index + count] === line) count += 1;
+    if (count > 1 && (count - 1) * (size(line) + eolBytes) > size(logMarker(count)) + eolBytes) runs.push({ start: index, count });
+    index += count;
+  }
+  return runs;
+}
+var logs = makeReducer("logs", {
+  detect(candidate) {
+    const { lines } = candidate.model;
+    for (let index = 1; index < lines.length; index += 1) if (lines[index] !== "" && lines[index] === lines[index - 1]) return true;
+    const sample = candidate.sample.filter((line) => line.trim() !== "");
+    return sample.length >= 2 && sample.filter((line) => TIMESTAMP_START.test(line)).length * 2 >= sample.length;
+  },
+  plan(candidate) {
+    const { lines, eol } = candidate.model;
+    if (lines.some((line) => line.startsWith("[exact repeated line: ") && LOG_MARKER.test(line))) return {};
+    return { data: logRuns(lines, eol.length) };
+  },
+  reduce(parsed, plan) {
+    const runs = plan.data ?? [];
+    if (!runs.length) return parsed.text;
+    const output2 = [];
+    let cursor = 0;
+    for (const run of runs) {
+      for (; cursor < run.start; cursor += 1) output2.push(parsed.lines[cursor]);
+      output2.push(parsed.lines[run.start], logMarker(run.count));
+      cursor = run.start + run.count;
+    }
+    for (; cursor < parsed.lines.length; cursor += 1) output2.push(parsed.lines[cursor]);
+    return render(output2, parsed);
+  },
+  validate(parsed, output2) {
+    if (output2 === parsed.text) return { valid: true, missing: [] };
+    const lines = splitOutput(output2, parsed.eol ?? "\n", parsed.trailingNewline ?? false);
+    const invalid = { valid: false, missing: ["Log content, ordering or repetition count changed"] };
+    if (!lines) return invalid;
+    const restored = [];
+    for (const line of lines) {
+      const match = line.startsWith("[exact repeated line: ") ? LOG_MARKER.exec(line) : null;
+      if (match && restored.length) {
+        const count = Number(match[1]);
+        if (count < 2 || restored.length + count - 1 > parsed.lines.length) return { valid: false, missing: ["Invalid repetition count"] };
+        const prior = restored[restored.length - 1];
+        for (let index = 1; index < count; index += 1) restored.push(prior);
+      } else restored.push(line);
+    }
+    return restored.length === parsed.lines.length && restored.every((line, index) => line === parsed.lines[index]) ? { valid: true, missing: [] } : invalid;
+  }
+});
+var SEARCH_LINE = /^((?:[A-Za-z]:[\\/])?[^\s|:<>"*?]{1,4096}):([1-9]\d{0,8}:.*)$/s;
+var plausiblePath = (path) => /[A-Za-z_]/.test(path) && !/^\d{4}-\d{2}-\d{2}/.test(path) && !/T\d{2}$/.test(path);
+function searchLine(line) {
+  const match = SEARCH_LINE.exec(line);
+  return match && plausiblePath(match[1]) ? { path: match[1], rest: match[2] } : null;
+}
+var search = makeReducer("search", {
+  detect: (candidate) => candidate.sample.every((line) => searchLine(line) !== null),
+  plan(candidate) {
+    const entries = [];
+    for (const line of candidate.model.lines) {
+      const entry = searchLine(line);
+      if (!entry) return null;
+      entries.push(entry);
+    }
+    return { data: entries };
+  },
+  reduce(parsed, plan) {
+    const entries = plan.data ?? [];
+    const output2 = [];
+    let grouped = false;
+    for (let index = 0; index < entries.length; ) {
+      const { path } = entries[index];
+      let count = 1;
+      while (index + count < entries.length && entries[index + count].path === path) count += 1;
+      if (count > 1 && (count - 1) * size(path) > count + (parsed.eol ?? "\n").length) {
+        output2.push(path);
+        for (let offset = 0; offset < count; offset += 1) output2.push(`  ${entries[index + offset].rest}`);
+        grouped = true;
+      } else for (let offset = 0; offset < count; offset += 1) output2.push(parsed.lines[index + offset]);
+      index += count;
+    }
+    return grouped ? render(output2, parsed) : parsed.text;
+  },
+  validate(parsed, output2) {
+    if (output2 === parsed.text) return { valid: true, missing: [] };
+    const lines = splitOutput(output2, parsed.eol ?? "\n", parsed.trailingNewline ?? false);
+    if (!lines) return { valid: false, missing: ["Line terminator or trailing newline changed"] };
+    const restored = [];
+    let header = null;
+    for (let index = 0; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (line.startsWith("  ")) {
+        if (header === null) return { valid: false, missing: ["Match line without a path header"] };
+        restored.push(`${header}:${line.slice(2)}`);
+      } else if (lines[index + 1]?.startsWith("  ")) header = line;
+      else {
+        header = null;
+        restored.push(line);
+      }
+    }
+    const missing = [];
+    const length = Math.max(restored.length, parsed.lines.length);
+    for (let index = 0; index < length && missing.length < REPORT_LIMIT; index += 1) if (restored[index] !== parsed.lines[index]) missing.push(parsed.lines[index] ?? "[unexpected extra line]");
+    return { valid: missing.length === 0, missing };
+  }
+});
+var reducers = [gitDiff, vitest, jest, tsc, eslint, json2, gitStatus, logs, search];
 function reduceOutput(input2) {
   const originalSize = size(input2.text);
   let output2 = input2.text;
@@ -20848,32 +21148,43 @@ function reduceOutput(input2) {
   let preservation = { valid: true, missing: [] };
   let reason = "unknown_format";
   let candidateSize = originalSize;
-  if (input2.alreadyReduced || input2.text.startsWith(MARKER)) reason = "already_reduced";
-  else if (input2.consumer === "machine") reason = "machine_consumer_requires_original";
-  else {
-    for (const reducer of reducers) {
-      if (!reducer.supports(input2)) continue;
-      const parsed = reducer.parse(input2);
-      if (!parsed) continue;
-      chosen = reducer;
-      const candidate = reducer.reduce(parsed, input2);
-      preservation = reducer.validatePreservation(parsed, candidate);
-      candidateSize = size(candidate);
-      if (!preservation.valid) reason = "preservation_failed";
-      else if (candidateSize >= originalSize) reason = "no_gain";
-      else if ((input2.mode ?? "observe") === "observe") reason = "observe_only";
-      else {
-        output2 = candidate;
-        reason = "reduced";
+  try {
+    if (input2.alreadyReduced || carriesReductionMarker(input2.text)) reason = "already_reduced";
+    else if (input2.consumer === "machine") reason = "machine_consumer_requires_original";
+    else {
+      for (const reducer of reducers) {
+        if (!reducer.supports(input2)) continue;
+        const parsed = reducer.parse(input2);
+        if (!parsed) continue;
+        chosen = reducer;
+        if (reducer.requiresArtifact && !input2.artifactId) {
+          reason = "artifact_required";
+          break;
+        }
+        const candidate = reducer.reduce(parsed, input2);
+        preservation = reducer.validatePreservation(parsed, candidate);
+        candidateSize = size(candidate);
+        if (!preservation.valid) reason = "preservation_failed";
+        else if (candidateSize >= originalSize || normalizationOnly(input2.text, candidate)) {
+          reason = "no_gain";
+          candidateSize = originalSize;
+        } else if ((input2.mode ?? "observe") === "observe") reason = "observe_only";
+        else {
+          output2 = candidate;
+          reason = "reduced";
+        }
+        break;
       }
-      break;
     }
+  } finally {
+    cachedProbe = void 0;
   }
   const reducedSize = size(output2);
   const diagnostics = [];
   if (input2.truncated) diagnostics.push({ severity: "warning", message: "Source output is truncated; this is incomplete evidence." });
   if (!preservation.valid) diagnostics.push({ severity: "warning", message: "Preservation validation rejected the candidate; original output retained." });
   if (reason === "observe_only") diagnostics.push({ severity: "info", message: `Candidate reduction: ${originalSize - candidateSize} bytes; observe mode leaves content unchanged.` });
+  if (reason === "artifact_required") diagnostics.push({ severity: "info", message: "This reducer needs an archived original (artifactId); output retained." });
   return {
     schemaVersion: 1,
     status: input2.exitCode === null ? "unknown" : input2.exitCode === 0 ? "success" : "failure",
@@ -20936,7 +21247,7 @@ var utf8 = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 var LEGACY_BUSY = `An earlier CodeBudget version holds ${LEGACY_LOCK}; retry after it finishes, or remove that file if no adapter command is running.`;
 
 // packages/adapters/src/claude-hook.ts
-var MARKER2 = "[CodeBudget evidence:";
+var MARKER = EVIDENCE_MARKER;
 function object2(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
@@ -21007,7 +21318,7 @@ async function processClaudeHook(rawEvent, options) {
   const shape = unsupportedShape(native);
   if (shape) return noop(shape);
   if (native.interrupted || native.isImage === true) return noop("Interrupted or image output is not optimized");
-  if (native.stdout.includes(MARKER2) || native.stderr.includes(MARKER2)) return noop("Output already carries CodeBudget reduction metadata");
+  if (native.stdout.includes(MARKER) || native.stderr.includes(MARKER)) return noop("Output already carries CodeBudget reduction metadata");
   let stdout;
   let stderr;
   let structured;
@@ -21056,7 +21367,7 @@ async function processClaudeHook(rawEvent, options) {
   };
   const candidate = reduceOutput({ text: stdout, exitCode, mode: options.mode === "observe" ? "balanced" : options.mode, consumer: "agent", artifactId: PLACEHOLDER_ARTIFACT, truncated: native.truncated === true });
   const withReference = (text, artifactId2) => ({ ...masked, stdout: `${text}
-${MARKER2} ${artifactId2}; retrieve with read_evidence; reducer ${candidate.reducerId}@${candidate.reducerVersion}]` });
+${MARKER} ${artifactId2}; retrieve with read_evidence; reducer ${candidate.reducerId}@${candidate.reducerVersion}]` });
   const candidateBytes = candidate.applied && candidate.preservation.valid ? byteSize(withReference(candidate.output, PLACEHOLDER_ARTIFACT)) : originalBytes;
   if (options.mode === "observe") {
     const candidateReducedBytes = Math.min(originalBytes, candidateBytes);
@@ -21116,8 +21427,8 @@ async function readStdin(maxBytes = 2 * 1024 * 1024) {
 // apps/cli/src/hook.ts
 function detectVersion2(client, env = process.env) {
   if (!["claude", "codex", "cursor", "antigravity"].includes(client)) return null;
-  const probe = spawnSync(client, ["--version"], { encoding: "utf8", shell: false, windowsHide: true, timeout: 2500, maxBuffer: 8192, env });
-  return probe.status === 0 ? probe.stdout.match(/\b\d+\.\d+\.\d+\b/)?.[0] ?? null : null;
+  const probe2 = spawnSync(client, ["--version"], { encoding: "utf8", shell: false, windowsHide: true, timeout: 2500, maxBuffer: 8192, env });
+  return probe2.status === 0 ? probe2.stdout.match(/\b\d+\.\d+\.\d+\b/)?.[0] ?? null : null;
 }
 var LIFECYCLE_EVENTS = /* @__PURE__ */ new Set(["SessionStart", "PreCompact", "PostCompact", "SessionEnd"]);
 function handledEvent(raw) {

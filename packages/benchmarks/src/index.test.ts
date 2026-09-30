@@ -1,17 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { aggregateTaskResults, capturedReplayCases, createTaskBenchmarkPlan, evaluateTaskCandidate, getTaskContext, pilotTasks, replayBenchmark, replayCases, runTaskBenchmark, type TaskRunResult } from './index.js';
+import { aggregateTaskResults, capturedReplayCases, createTaskBenchmarkPlan, evaluateTaskCandidate, getTaskContext, hashWorkspaceFiles, pilotTasks, replayBenchmark, replayCases, resolveTypeScript, runTaskBenchmark, type TaskRunResult } from './index.js';
 import { referenceSolutions } from './solutions.fixture.js';
 
 describe('free replay and task harness', () => {
   it('replays every reducer family with preserved evidence and explicit measurement limits', () => {
     const report = replayBenchmark();
     expect(report.rows).toHaveLength(10);
+    expect(report.hinted.rows).toHaveLength(10);
     expect(report.preservationPassed).toBe(true);
     expect(report.originalBytes).toBeGreaterThan(report.reducedBytes);
     expect(report.taskSavingsConclusion).toBe('not_measured');
     expect(report.rows.every(row => row.reducedEnvelopeBytes >= row.reducedBytes)).toBe(true);
+  });
+
+  it('reports automatic detection as the primary figure and labeled format hints separately', () => {
+    const mislabeled = { id: 'vitest-labeled-eslint', format: 'eslint' as const, text: replayCases[0]!.text, exitCode: 1, expectedEvidence: ['rejects reuse'] };
+    const report = replayBenchmark([mislabeled]);
+    expect(report.detection).toBe('automatic');
+    expect(report.rows[0]).toMatchObject({ labeledFormat: 'eslint', reducerId: 'vitest', detectedAsLabeled: false, applied: true });
+    expect(report.hinted.rows[0]).toMatchObject({ reducerId: 'identity', reason: 'unknown_format', applied: false });
+    expect(report.corpora[0]!.notDetectedAsLabeled).toEqual(['vitest-labeled-eslint']);
+    expect(report.reducedBytes).toBeLessThan(report.hinted.reducedBytes);
+    const synthetic = replayBenchmark();
+    expect(synthetic.rows.find(row => row.id === 'json-response')).toMatchObject({ reducerId: 'json', applied: true });
+    // The synthetic Git status text is space-indented; Git itself indents entries with a tab, so it is not recognized.
+    expect(synthetic.corpora[0]!.notDetectedAsLabeled).toEqual(['git-status-human']);
   });
 
   it('exposes actual captures with provenance and never blends their percentage with synthetic fixtures', () => {
@@ -24,9 +40,18 @@ describe('free replay and task harness', () => {
     const combined = replayBenchmark([...replayCases, ...capturedReplayCases]);
     expect(combined.rows).toHaveLength(19);
     expect(combined.corpora.map(item => item.corpus)).toEqual(['synthetic', 'captured']);
+    expect(combined.hinted.corpora.map(item => item.corpus)).toEqual(['synthetic', 'captured']);
     expect(combined.byteReductionFraction).toBeNull();
+    expect(combined.hinted.byteReductionFraction).toBeNull();
     expect(combined.corpora.every(item => item.byteReductionFraction !== null)).toBe(true);
     expect(combined.limitations[0]).toContain('no blended');
+  });
+
+  it('counts only content reduction, never line-ending normalization, in captured replays', () => {
+    const report = replayBenchmark(capturedReplayCases);
+    const tsc = report.rows.find(row => row.id === 'tsc-actual')!;
+    expect(tsc).toMatchObject({ reducerId: 'tsc', reason: 'no_gain', originalBytes: 176, reducedBytes: 176, applied: false });
+    for (const row of report.rows) if (!row.applied) expect(row.reducedBytes).toBe(row.originalBytes);
   });
 
   it('creates a reproducible randomized three-condition plan for 30 distinct tasks', () => {
@@ -100,9 +125,31 @@ describe('free replay and task harness', () => {
     expect(new Set(seen).size).toBe(3);
     expect(report.status).toBe('completed');
     expect(report.results.every(result => result.success)).toBe(true);
+    expect(report.results.every(result => result.initialFilesHash === report.plan.tasks[0]!.initialFilesHash)).toBe(true);
     expect(report.aggregate.realModelRuns).toBe(0);
     expect(report.aggregate.localContractRuns).toBe(3);
   }, 45_000);
+
+  it('hashes initial workspace files as written on disk and detects any divergence', async () => {
+    const task = getTaskContext('log-01');
+    const planned = createTaskBenchmarkPlan({ repeats: 1, taskIds: ['log-01'] }).tasks[0]!.initialFilesHash;
+    const directory = await mkdtemp(path.join(tmpdir(), 'codebudget-hash-test-'));
+    try {
+      for (const [name, content] of Object.entries(task.files)) await writeFile(path.join(directory, name), content);
+      expect(await hashWorkspaceFiles(directory)).toBe(planned);
+      await writeFile(path.join(directory, 'evidence.log'), task.files['evidence.log']!.replace('\n', '\r\n'));
+      expect(await hashWorkspaceFiles(directory)).not.toBe(planned);
+      await writeFile(path.join(directory, 'evidence.log'), task.files['evidence.log']!);
+      await writeFile(path.join(directory, 'notes.txt'), '');
+      expect(await hashWorkspaceFiles(directory)).not.toBe(planned);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+
+  it('explains a missing TypeScript installation instead of failing with a module error', () => {
+    const missing = Object.assign(() => { throw Object.assign(new Error("Cannot find module 'typescript'"), { code: 'MODULE_NOT_FOUND' }); }, { resolve: () => { throw new Error('unreachable'); } }) as unknown as NodeJS.Require;
+    expect(() => resolveTypeScript(missing)).toThrow('Task evaluation requires the "typescript" package');
+    expect(resolveTypeScript().compiler).toMatch(/typescript[\\/]bin[\\/]tsc$/);
+  });
 
   it('rejects plans exceeding the explicit run budget', async () => {
     await expect(runTaskBenchmark({ explicitOptIn: true, runKind: 'local-contract', maxRuns: 1, maxSpend: 0, currency: 'USD', timeoutMs: 10, model: 'fixture', modelVersion: '1', client: 'fixture', clientVersion: '1', settings: {}, permissions: 'none', cacheState: 'unknown', runner: async () => { throw new Error('Must not run'); } })).rejects.toThrow('budget allows');
@@ -126,5 +173,47 @@ describe('free replay and task harness', () => {
   it.each(['bug-01', 'type-01', 'reg-01', 'ref-01', 'log-01'])('controlled wrong candidate fails %s evaluator', async id => {
     const result = await evaluateTaskCandidate(id, getTaskContext(id).files);
     expect(result.success).toBe(false);
+  }, 30_000);
+
+  it.each([
+    ['exits with status 0 while it is imported', '(globalThis as any).process.exit(0);\n'],
+    ['forces status 0 from an exit handler', '(globalThis as any).process.on("exit",()=>{(globalThis as any).process.exitCode=0;});\n'],
+  ])('does not accept a wrong candidate that %s', async (_case, prefix) => {
+    const result = await evaluateTaskCandidate('bug-01', { 'solution.ts': prefix + getTaskContext('bug-01').files['solution.ts']! });
+    expect(result).toMatchObject({ success: false, typecheckPassed: true, evaluatorPassed: false });
+    expect(result.error).toContain('before completing all assertions');
+  }, 30_000);
+
+  it.each([
+    ['ref-01', 'the required calls appear only in a comment', 'export function normalizeName(v:string):string{return v.trim().toLowerCase();}\n// solve uses normalizeName(first) and normalizeName(second)\nexport function solve(first:string,second:string):string{return first.trim().toLowerCase()+":"+second.trim().toLowerCase();}'],
+    ['ref-04', 'the helper use appears only in a comment', 'export function isValid(v:string):boolean{return v.trim().length>0;}\n// values.filter(isValid)\nexport function solve(values:string[]):string[]{return values.filter(v=>v.trim().length>0);}'],
+    ['ref-06', 'the join appears only in a string', 'export function solve(parts:string[]):string{const note=".join(";let r="";for(const p of parts)if(p)r+=(r?"/":"")+p;return note?r:r;}'],
+    ['ref-03', 'recursion uses a renamed parameter', 'export function solve(n:number):number{return n<=1?1:n*solve(n-1);}'],
+    ['ref-03', 'recursion moves into a helper', 'function factorial(n:number):number{return n<=1?1:n*factorial(n-1);}\nexport function solve(value:number):number{return factorial(value);}'],
+    ['ref-03', 'a named function expression recurses', 'export const solve=function step(n:number):number{return n<=1?1:n*step(n-1);};'],
+  ])('%s refactor constraint fails when %s', async (id, _case, source) => {
+    const result = await evaluateTaskCandidate(id, { 'solution.ts': source });
+    expect(result).toMatchObject({ success: false, typecheckPassed: true, evaluatorPassed: false });
+    expect(result.error).toContain('Task-specific refactor constraint failed');
+  }, 30_000);
+
+  it.each([
+    ['ref-05', '// JSON.parse(JSON.stringify(user)) was the old approach\ntype User={name:string;nickname?:string|undefined;profile:{active:boolean}};\nexport function solve(user:User):User{const note="not JSON.stringify";return note?{...user,profile:{...user.profile}}:user;}'],
+    ['ref-03', '// previously: return value * solve(value - 1)\nexport function solve(value:number):number{let r=1;for(let i=2;i<=value;i++)r*=i;return r;}'],
+    ['ref-01', 'export function normalizeName(v:string):string{return v.trim().toLowerCase();}\nexport function solve(a:string,b:string):string{return normalizeName(a)+":"+normalizeName(b);}'],
+  ])('%s constraint judges code, not comments, strings or parameter names', async (id, source) => {
+    expect(await evaluateTaskCandidate(id, { 'solution.ts': source })).toMatchObject({ success: true, error: null });
+  }, 30_000);
+
+  it.each([
+    ['reg-01', 'checks only the upper bound', 'export function regression(c:(v:number,min:number,max:number)=>number):boolean{return c(11,0,10)===10;}'],
+    ['reg-02', 'never checks a zero discount', 'export function regression(c:(p:number,d:number)=>number):boolean{return c(100,25)===75;}'],
+    ['reg-03', 'never checks an ordinary non-leap year', 'export function regression(c:(y:number)=>boolean):boolean{return !c(1900)&&c(2000)&&c(2024);}'],
+    ['reg-04', 'checks the mean only on a single value', 'export function regression(c:(v:number[])=>number|null):boolean{return c([])===null&&c([4])===4;}'],
+    ['reg-05', 'checks only already-sorted input', 'export function regression(c:(v:number[])=>number[]):boolean{const v=[1,2,10];const r=c(v);return JSON.stringify(r)==="[1,2,10]"&&r!==v;}'],
+    ['reg-06', 'never checks case differences', 'export function regression(c:(a:string,b:string)=>boolean):boolean{return c(" a ","a")&&!c("a","b");}'],
+  ])('%s rejects a regression test that %s', async (id, _case, source) => {
+    const result = await evaluateTaskCandidate(id, { 'solution.ts': source });
+    expect(result).toMatchObject({ success: false, typecheckPassed: true, evaluatorPassed: false });
   }, 30_000);
 });

@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "generator": "packages/benchmarks/scripts/capture-test-runner-fixtures.ts",
+  "capturedAt": "2026-09-30T19:40:42.607Z",
+  "platform": "linux",
+  "node": "v22.22.2",
+  "cwd": "<fixture>",
+  "redaction": "CodeBudget core redact; temporary/repository absolute paths normalized. No other rewriting.",
+  "stdoutStderrSeparate": true,
+  "captures": [
+    {
+      "id": "vitest-5-blank-line-diff",
+      "format": "vitest",
+      "filename": "vitest-5-blank-line-diff.stdout.txt",
+      "stderrFilename": "vitest-5-blank-line-diff.stderr.txt",
+      "toolVersion": "5.0.2",
+      "executable": "node",
+      "args": [
+        "<repository>/node_modules/.pnpm/vitest@5.0.2_@types+node@22.19.15_vite@8.3.1_@types+node@22.19.15_esbuild@0.28.2_tsx@4.23.15_/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "<fixture>/vitest.config.mjs",
+        "--root",
+        "<fixture>",
+        "--no-color"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "description": "Default reporter: five passing files, one file with a skipped test, and a failed multi-line string comparison whose blank lines are part of both values.",
+      "inputs": [
+        {
+          "path": "a-success-0.test.ts",
+          "sha256": "458ef9fbda6800d844078b7245f1cd9cc0623f7c6d6875a2a20cb7e32b5a094b",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-1.test.ts",
+          "sha256": "aa9e2e3f989d3b9cc545a5ef6466c64bda20782ee32821e729bcec8b3c058c5e",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-2.test.ts",
+          "sha256": "c930cc91480620dd415822f95ff5db47b6a4ecaa7d2963a37c452a6dbd8f2bcc",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-3.test.ts",
+          "sha256": "40d75d677aacce95ac00b1aa5f2d3c8ceaa95ee78ebaf6a8cfaeac07075bb2e7",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-4.test.ts",
+          "sha256": "2f7cc82b8db04ee5710b4dcbc43dfa23c952ae9f8b64ea0fcaa71484328a5a48",
+          "bytes": 91
+        },
+        {
+          "path": "b-skipped.test.ts",
+          "sha256": "1395e8e3ac723e8c736eb8aa9f3e7b9257fcf3269a4aa7831a0f176cf84f0ba8",
+          "bytes": 107
+        },
+        {
+          "path": "z-render.test.ts",
+          "sha256": "350e297228935eb85d4f0626c3c29237a3e2d908c060e806fcb658d041bc380c",
+          "bytes": 397
+        },
+        {
+          "path": "vitest.config.mjs",
+          "sha256": "6fe3763f6131eed606e2cdd9d2b15a704e469fbcca029822580e03a7e3228a22",
+          "bytes": 255
+        }
+      ],
+      "stdoutBytes": 519,
+      "stderrBytes": 519
+    },
+    {
+      "id": "vitest-5-verbose-blank-line-diff",
+      "format": "vitest",
+      "filename": "vitest-5-verbose-blank-line-diff.stdout.txt",
+      "stderrFilename": "vitest-5-verbose-blank-line-diff.stderr.txt",
+      "toolVersion": "5.0.2",
+      "executable": "node",
+      "args": [
+        "<repository>/node_modules/.pnpm/vitest@5.0.2_@types+node@22.19.15_vite@8.3.1_@types+node@22.19.15_esbuild@0.28.2_tsx@4.23.15_/node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        "<fixture>/vitest.config.mjs",
+        "--root",
+        "<fixture>",
+        "--reporter",
+        "verbose",
+        "--no-color"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "description": "Verbose reporter over the same files: one line per passing test before the failure, a skipped test and the blank-line string comparison.",
+      "inputs": [
+        {
+          "path": "a-success-0.test.ts",
+          "sha256": "458ef9fbda6800d844078b7245f1cd9cc0623f7c6d6875a2a20cb7e32b5a094b",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-1.test.ts",
+          "sha256": "aa9e2e3f989d3b9cc545a5ef6466c64bda20782ee32821e729bcec8b3c058c5e",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-2.test.ts",
+          "sha256": "c930cc91480620dd415822f95ff5db47b6a4ecaa7d2963a37c452a6dbd8f2bcc",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-3.test.ts",
+          "sha256": "40d75d677aacce95ac00b1aa5f2d3c8ceaa95ee78ebaf6a8cfaeac07075bb2e7",
+          "bytes": 91
+        },
+        {
+          "path": "a-success-4.test.ts",
+          "sha256": "2f7cc82b8db04ee5710b4dcbc43dfa23c952ae9f8b64ea0fcaa71484328a5a48",
+          "bytes": 91
+        },
+        {
+          "path": "b-skipped.test.ts",
+          "sha256": "1395e8e3ac723e8c736eb8aa9f3e7b9257fcf3269a4aa7831a0f176cf84f0ba8",
+          "bytes": 107
+        },
+        {
+          "path": "z-render.test.ts",
+          "sha256": "350e297228935eb85d4f0626c3c29237a3e2d908c060e806fcb658d041bc380c",
+          "bytes": 397
+        },
+        {
+          "path": "vitest.config.mjs",
+          "sha256": "6fe3763f6131eed606e2cdd9d2b15a704e469fbcca029822580e03a7e3228a22",
+          "bytes": 255
+        }
+      ],
+      "stdoutBytes": 935,
+      "stderrBytes": 519
+    },
+    {
+      "id": "jest-30-blank-line-diff",
+      "format": "jest",
+      "filename": "jest-30-blank-line-diff.stdout.txt",
+      "stderrFilename": "jest-30-blank-line-diff.stderr.txt",
+      "toolVersion": "30.5.2",
+      "executable": "node",
+      "args": [
+        "<repository>/node_modules/.pnpm/jest@30.5.2_@types+node@22.19.15/node_modules/jest/bin/jest.js",
+        "--config",
+        "<fixture>/jest.config.cjs",
+        "--runInBand",
+        "--no-cache",
+        "--ci"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "description": "Four passing suites (listed only in the totals by this run) and a failed multi-line string comparison whose blank lines are part of both values.",
+      "inputs": [
+        {
+          "path": "jest.config.cjs",
+          "sha256": "ee485d4a41d5a786cd188c1db7d85a3c13160fac839fb4198df189e7532e4a84",
+          "bytes": 149
+        },
+        {
+          "path": "name-sequencer.cjs",
+          "sha256": "53d680fb39185b9b7c5c377a32293a9e09189b39f2b2de30cc2f8cb67bc32f55",
+          "bytes": 122
+        },
+        {
+          "path": "jest-a-success-0.test.cjs",
+          "sha256": "aae68f25d398180b052479ae47c87aa57eb525f28c2794ffb5306136809076eb",
+          "bytes": 61
+        },
+        {
+          "path": "jest-a-success-1.test.cjs",
+          "sha256": "b41cfc89bc458401fa2da05cae479db4895eb8f65aba1b11d1d9ffa7ab31a84f",
+          "bytes": 61
+        },
+        {
+          "path": "jest-a-success-2.test.cjs",
+          "sha256": "25f0a50d276efddb6741bdf100cae1e746ae77fed27f5cfd94465e429957ceac",
+          "bytes": 61
+        },
+        {
+          "path": "jest-a-success-3.test.cjs",
+          "sha256": "5919da3e0f966d2ad382af8782bfae6eba5d3a64b0d2cd5b9e7f68b00fb0ddfe",
+          "bytes": 61
+        },
+        {
+          "path": "jest-z-render.test.cjs",
+          "sha256": "a30c8106664f1be9afe86899b61d90d3f3c9d76c7d07af1a683cc369a40d03bf",
+          "bytes": 352
+        }
+      ],
+      "stdoutBytes": 0,
+      "stderrBytes": 1100
+    }
+  ],
+  "license": "CodeBudget Free Use License 1.0 (new first-party material; see LICENSING.md)",
+  "note": "Actual local runs of installed test runners on original, deliberately failing fixture tests. Coverage fixtures, not representative production traffic, model runs or provider usage."
+}

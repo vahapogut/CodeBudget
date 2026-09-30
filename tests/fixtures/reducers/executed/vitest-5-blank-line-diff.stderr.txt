@@ -1,0 +1,23 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  z-render.test.ts > renders the invoice with paragraph breaks
+AssertionError: expected 'Invoice 2026-0042\n\nLine item: consu…' to be 'Invoice 2026-0042\n\nLine item: consu…' // Object.is equality
+
+- Expected
++ Received
+
+  Invoice 2026-0042
+
+  Line item: consulting, 12 hours
+
+-
+  Line item: travel at cost
+
+  Total due in thirty days
+
+ ❯ z-render.test.ts:3:185
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

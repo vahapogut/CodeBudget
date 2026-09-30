@@ -1,0 +1,15 @@
+--- src/retry.orig.ts	2026-09-30 01:50:18.742432628 +0000
++++ src/retry.ts	2026-09-30 01:49:51.105791731 +0000
+@@ -4,10 +4,10 @@
+   while (attempts < times) {
+     attempts += 1;
+ 
+-    if (attempts > 2) {
++    if (attempts > 4) {
+       break;
+     }
+   }
+ 
+-  return attempts;
++  return attempts * 1;
+ }

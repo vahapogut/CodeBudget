@@ -1,0 +1,6 @@
+## feature/auth...origin/feature/auth [ahead 2]
+A  src/session.ts
+R  src/old-name.ts -> src/new-name.ts
+ M src/auth.ts
+ D src/legacy.ts
+?? tests/auth.test.ts
