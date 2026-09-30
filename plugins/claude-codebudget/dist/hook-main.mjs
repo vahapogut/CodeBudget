@@ -1,845 +1,9 @@
 import { createRequire as __cbCreateRequire } from "node:module"; const require = __cbCreateRequire(import.meta.url);
-var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __commonJS = (cb, mod) => function __require() {
-  try {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  } catch (e) {
-    throw mod = 0, e;
-  }
-};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-
-// node_modules/.pnpm/ignore@7.0.10/node_modules/ignore/index.js
-var require_ignore = __commonJS({
-  "node_modules/.pnpm/ignore@7.0.10/node_modules/ignore/index.js"(exports, module) {
-    "use strict";
-    function makeArray(subject) {
-      return Array.isArray(subject) ? subject : [subject];
-    }
-    var UNDEFINED = void 0;
-    var EMPTY = "";
-    var SPACE = " ";
-    var ESCAPE = "\\";
-    var REGEX_LITERAL_SPECIAL = /[.*+?()[\]{}^$|\\/]/;
-    var REGEX_TEST_BLANK_LINE = /^\uFEFF? *$/;
-    var REGEX_INVALID_TRAILING_BACKSLASH = /(?:[^\\]|^)\\$/;
-    var REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION = /^\\!/;
-    var REGEX_REPLACE_LEADING_EXCAPED_HASH = /^\\#/;
-    var REGEX_SPLITALL_CRLF = /\r?\n/g;
-    var DOUBLE_SLASH = "//";
-    var SLASH_CODE = 47;
-    var DOT_CODE = 46;
-    var SLASH = "/";
-    var TMP_KEY_IGNORE = "node-ignore";
-    if (typeof Symbol !== "undefined") {
-      TMP_KEY_IGNORE = /* @__PURE__ */ Symbol.for("node-ignore");
-    }
-    var KEY_IGNORE = TMP_KEY_IGNORE;
-    var define = (object3, key, value) => {
-      Object.defineProperty(object3, key, { value });
-      return value;
-    };
-    var RETURN_FALSE = () => false;
-    var cleanRangeBackSlash = (slashes) => {
-      const { length } = slashes;
-      return slashes.slice(0, length - length % 2);
-    };
-    var POSIX_CLASSES = {
-      alnum: "0-9A-Za-z",
-      alpha: "A-Za-z",
-      blank: " \\t",
-      cntrl: "\\x00-\\x1f\\x7f",
-      digit: "0-9",
-      graph: "!-.0-~",
-      lower: "a-z",
-      print: " -.0-~",
-      punct: "!-.:-@\\[-`{-~",
-      // git's `sane-ctype.h` classifies \v and \f as control, not space,
-      //   unlike C's `isspace`
-      space: " \\t\\n\\r",
-      upper: "A-Z",
-      xdigit: "0-9A-Fa-f"
-    };
-    var CLASS_MEMBERS_TO_ESCAPE = "\\]^-[";
-    var escapeMember = (char) => CLASS_MEMBERS_TO_ESCAPE.indexOf(char) < 0 ? char : ESCAPE + char;
-    var NON_SLASH = "(?!\\/)";
-    var classSource = (negated, body) => {
-      if (negated) {
-        return `[^\\/${body}]`;
-      }
-      const source = `[${body}]`;
-      return new RegExp(source).test("/") ? NON_SLASH + source : source;
-    };
-    var scanBracket = (pattern, start) => {
-      const { length } = pattern;
-      let index = start + 1;
-      let negated = EMPTY;
-      const lead = pattern[index];
-      if (lead === "!" || lead === "^") {
-        negated = "^";
-        index++;
-      }
-      let body = EMPTY;
-      let prev = EMPTY;
-      for (; ; ) {
-        const char = pattern[index];
-        if (char === UNDEFINED) {
-          return null;
-        }
-        if (char === ESCAPE) {
-          const escaped = pattern[index + 1];
-          if (escaped === UNDEFINED) {
-            return null;
-          }
-          body += escapeMember(escaped);
-          prev = escaped;
-          index++;
-        } else if (char === "-" && prev && index + 1 < length && pattern[index + 1] !== "]") {
-          index++;
-          let to = pattern[index];
-          if (to === ESCAPE) {
-            to = pattern[index += 1];
-          }
-          if (prev <= to) {
-            body += `-${escapeMember(to)}`;
-          }
-          prev = EMPTY;
-        } else if (char === "[" && pattern[index + 1] === ":") {
-          const nameStart = index + 2;
-          let end = nameStart;
-          while (end < length && pattern[end] !== "]") {
-            end++;
-          }
-          if (end === length) {
-            return null;
-          }
-          if (end > nameStart && pattern[end - 1] === ":") {
-            const expanded = POSIX_CLASSES[pattern.slice(nameStart, end - 1)];
-            if (expanded === UNDEFINED) {
-              return null;
-            }
-            body += expanded;
-            prev = EMPTY;
-            index = end;
-          } else {
-            body += escapeMember("[");
-            prev = "[";
-            index = nameStart - 2;
-          }
-        } else {
-          body += escapeMember(char);
-          prev = char;
-        }
-        index++;
-        if (pattern[index] === "]") {
-          return {
-            end: index,
-            source: classSource(negated, body)
-          };
-        }
-      }
-    };
-    var NEVER_MATCH = "[]";
-    var PLACEHOLDER = "\0";
-    var REGEX_RESTORE_PLACEHOLDER = new RegExp(
-      `${PLACEHOLDER}(\\d+)${PLACEHOLDER}`,
-      "g"
-    );
-    var TRAILING_WILDCARD = "\uE000";
-    var extractBrackets = (pattern) => {
-      const sources = [];
-      const hold = (source) => `${PLACEHOLDER}${sources.push(source) - 1}${PLACEHOLDER}`;
-      const { length } = pattern;
-      let out = EMPTY;
-      let index = 0;
-      while (index < length) {
-        const char = pattern[index];
-        if (char === ESCAPE) {
-          const escaped = pattern[index + 1];
-          if (escaped === "*" || escaped === "[" || escaped === SPACE || escaped === ESCAPE) {
-            out += pattern.slice(index, index + 2);
-          } else {
-            out += hold(
-              REGEX_LITERAL_SPECIAL.test(escaped) ? ESCAPE + escaped : escaped
-            );
-          }
-          index += 2;
-        } else if (char === PLACEHOLDER) {
-          out += hold(`[${PLACEHOLDER}]`);
-          index++;
-        } else if (char === "[") {
-          const scanned = scanBracket(pattern, index);
-          if (scanned === null) {
-            out += hold(NEVER_MATCH);
-            index = length;
-          } else {
-            out += hold(scanned.source);
-            index = scanned.end + 1;
-          }
-        } else {
-          out += char;
-          index++;
-        }
-      }
-      return {
-        source: out,
-        sources
-      };
-    };
-    var DIRECT = null;
-    var REGEX_INNER_SLASH = /\/(?!$)/;
-    var REPLACERS = [
-      [
-        // Remove BOM
-        // TODO:
-        // Other similar zero-width characters?
-        /^\uFEFF/,
-        () => EMPTY,
-        "\uFEFF"
-      ],
-      [
-        // A trailing line terminator, left on when a whole file's contents are
-        //   added as one pattern rather than split into lines. git never sees one
-        //   -- it reads a `.gitignore` line by line -- so it is not part of the
-        //   pattern and is dropped here, apart from the trailing-space trimming,
-        //   which follows git in touching spaces and nothing else.
-        /[\r\n]+$/,
-        () => EMPTY
-      ],
-      // > Trailing spaces are ignored unless they are quoted with backslash ("\")
-      [
-        // Only spaces, never tabs or other whitespace: git trims a trailing run
-        //   of `' '` and nothing else (dir.c, `trim_trailing_spaces`, a single
-        //   `case ' '`), so a pattern ending in a tab keeps it as a literal.
-        // (a\ ) -> (a )
-        // (a  ) -> (a)
-        // (a ) -> (a)
-        // (a \ ) -> (a  )
-        /((?:\\\\)*?)(\\? +)$/,
-        (_, m1, m2) => m1 + (m2.indexOf("\\") === 0 ? SPACE : EMPTY)
-      ],
-      // Replace (\ ) with ' '
-      // Only a space: an escaped tab or other whitespace is already a literal by
-      //   the time it reaches here, and a bare tab must be left as one, not turned
-      //   into a space.
-      // (\ ) -> ' '
-      // (\\ ) -> '\\ '
-      // (\\\ ) -> '\\ '
-      [
-        /(\\+?) /g,
-        (_, m1) => {
-          const { length } = m1;
-          return m1.slice(0, length - length % 2) + SPACE;
-        }
-      ],
-      // Escape metacharacters
-      // which is written down by users but means special for regular expressions.
-      // > There are 12 characters with special meanings:
-      // > - the backslash \,
-      // > - the caret ^,
-      // > - the dollar sign $,
-      // > - the period or dot .,
-      // > - the vertical bar or pipe symbol |,
-      // > - the question mark ?,
-      // > - the asterisk or star *,
-      // > - the plus sign +,
-      // > - the opening parenthesis (,
-      // > - the closing parenthesis ),
-      // > - and the opening square bracket [,
-      // > - the opening curly brace {,
-      // > These special characters are often called "metacharacters".
-      [
-        /[\\$.|*+(){^]/g,
-        (match) => `\\${match}`
-      ],
-      [
-        // > a question mark (?) matches a single character
-        /(?!\\)\?/g,
-        () => "[^/]",
-        "?"
-      ],
-      // leading slash
-      [
-        // > A leading slash matches the beginning of the pathname.
-        // > For example, "/*.c" matches "cat-file.c" but not "mozilla-sha1/sha1.c".
-        // A leading slash matches the beginning of the pathname
-        /^\//,
-        () => "^",
-        SLASH
-      ],
-      // replace special metacharacter slash after the leading slash
-      [
-        /\//g,
-        () => "\\/",
-        SLASH
-      ],
-      [
-        // > A leading "**" followed by a slash means match in all directories.
-        // > For example, "**/foo" matches file or directory "foo" anywhere,
-        // > the same as pattern "foo".
-        // > "**/foo/bar" matches file or directory "bar" anywhere that is directly
-        // >   under directory "foo".
-        // Notice that the '*'s have been replaced as '\\*'
-        /^\^*(?:\\\*\\\*\\\/)+/,
-        // '**/foo' <-> 'foo'
-        () => "^(?:.*\\/)?",
-        "*"
-      ],
-      // starting
-      [
-        // there will be no leading '/'
-        //   (which has been replaced by section "leading slash")
-        // If starts with '**', adding a '^' to the regular expression also works
-        DIRECT,
-        (source, pattern) => {
-          if (!source || source[0] === "^") {
-            return source;
-          }
-          const anchor2 = !REGEX_INNER_SLASH.test(pattern) ? "(?:^|\\/)" : "^";
-          return anchor2 + source;
-        }
-      ],
-      // two globstars
-      [
-        // Use lookahead assertions so that we could match more than one `'/**'`
-        /\\\/\\\*\\\*(?=\\\/|$)/g,
-        // Zero, one or several directories
-        // should not use '*', or it will be replaced by the next replacer
-        // Check if it is not the last `'/**'`
-        (_, index, str) => index + 6 < str.length ? str.slice(index + 6) === "\\/" ? "(?:\\/[^\\/]+)+" : "(?:\\/[^\\/]+)*" : "\\/.+",
-        "*"
-      ],
-      // normal intermediate wildcards
-      [
-        // Never replace escaped '*'
-        // ignore rule '\*' will match the path '*'
-        // 'abc.*/' -> go
-        // 'abc.*'  -> skip this rule,
-        //    coz trailing single wildcard will be handed by [trailing wildcard]
-        /(^|[^\\]+)(\\\*)+(?=.+)/g,
-        // '*.js' matches '.js'
-        // '*.js' doesn't match 'abc'
-        (_, p1, p2) => {
-          const unescaped = p2.replace(/\\\*/g, "[^\\/]*");
-          return p1 + unescaped;
-        },
-        "*"
-      ],
-      // trailing wildcard, held apart from a literal star
-      [
-        // The step above leaves a trailing `*` alone, so a single `\*` is all that
-        //   can be left at the end here. Whether it is a wildcard or a literal
-        //   turns on the backslashes the user put in front of it: the escaper has
-        //   since doubled every one, so what stands here is those `2N` doubled
-        //   backslashes and then the star's own escape. An even number of the
-        //   original `N` leaves the star unescaped -- a wildcard -- and an odd
-        //   number escapes it -- a literal. This runs while the two are still
-        //   distinct, before the unescape steps below collapse the literal onto
-        //   the very `\*` a wildcard leaves behind.
-        /(^|[^\\])((?:\\\\)*)\\\*$/,
-        (match, p1, p2) => (
-          // `p2` holds the doubled user backslashes; half of them is `N`.
-          p2.length / 2 % 2 === 0 ? p1 + p2 + TRAILING_WILDCARD : match
-        ),
-        "*"
-      ],
-      [
-        // unescape, revert step 3 except for back slash
-        // For example, if a user escape a '\\*',
-        // after step 3, the result will be '\\\\\\*'
-        /\\\\\\(?=[$.|*+(){^])/g,
-        () => ESCAPE,
-        ESCAPE + ESCAPE
-      ],
-      [
-        // '\\\\' -> '\\'
-        /\\\\/g,
-        () => ESCAPE,
-        ESCAPE + ESCAPE
-      ],
-      [
-        // Every real bracket expression -- POSIX classes included -- has already
-        //   been held aside by `extractBrackets`, so the only `[` left in the
-        //   pattern is an escaped, literal one.
-        // `\` is escaped by step 3
-        /\\\[([^\]/]*?)(\\*)($|\])/g,
-        // '\\[bar]' -> '\\\\[bar\\]'
-        (match, range, endEscape, close) => `\\[${range}${cleanRangeBackSlash(endEscape)}${close}`,
-        "["
-      ],
-      // ending
-      [
-        // 'js' will not match 'js.'
-        // 'ab' will not match 'abc'
-        DIRECT,
-        // WTF!
-        // https://git-scm.com/docs/gitignore
-        // changes in [2.22.1](https://git-scm.com/docs/gitignore/2.22.1)
-        // which re-fixes #24, #38
-        // > If there is a separator at the end of the pattern then the pattern
-        // > will only match directories, otherwise the pattern can match both
-        // > files and directories.
-        // 'js*' will not match 'a.js'
-        // 'js/' will not match 'a.js'
-        // 'js' will match 'a.js' and 'a.js/'
-        (source) => {
-          const last = source[source.length - 1];
-          if (!last || last === TRAILING_WILDCARD) {
-            return source;
-          }
-          return last === SLASH ? `${source}$` : `${source}(?=$|\\/$)`;
-        }
-      ]
-    ];
-    var REGEX_REPLACE_TRAILING_WILDCARD = /(^|\\\/)?\uE000$/;
-    var MODE_IGNORE = "regex";
-    var MODE_CHECK_IGNORE = "checkRegex";
-    var UNDERSCORE = "_";
-    var TRAILING_WILD_CARD_REPLACERS = {
-      [MODE_IGNORE](_, p1) {
-        const prefix = p1 ? `${p1}[^/]+` : "[^/]*";
-        return `${prefix}(?=$|\\/$)`;
-      },
-      [MODE_CHECK_IGNORE](_, p1) {
-        const prefix = p1 ? `${p1}[^/]*` : "[^/]*";
-        return `${prefix}(?=$|\\/$)`;
-      }
-    };
-    var WILDCARD = "[^\\/]*";
-    var separatorAfter = (run, at) => {
-      let separator = EMPTY;
-      for (let index = at + 1; index < run.length && !run[index].wildcard; index++) {
-        separator += run[index].single;
-      }
-      return separator;
-    };
-    var pinWildcards = (source) => {
-      if (source.indexOf(WILDCARD) < 0) {
-        return source;
-      }
-      const tokens = [];
-      const { length } = source;
-      let index = 0;
-      while (index < length) {
-        const char = source[index];
-        if (source.startsWith(WILDCARD, index)) {
-          tokens.push({ wildcard: true });
-          index += WILDCARD.length;
-        } else if (char === "[") {
-          let end = index + 1;
-          if (source[end] === "^") {
-            end++;
-          }
-          if (source[end] === "]") {
-            end++;
-          }
-          while (end < length && source[end] !== "]") {
-            end += source[end] === ESCAPE ? 2 : 1;
-          }
-          end++;
-          tokens.push({ single: source.slice(index, end) });
-          index = end;
-        } else if (char === ESCAPE) {
-          tokens.push({ single: source.slice(index, index + 2) });
-          index += 2;
-        } else if (char === "(") {
-          let depth = 0;
-          let end = index;
-          do {
-            if (source[end] === ESCAPE) {
-              end++;
-            } else if (source[end] === "(") {
-              depth++;
-            } else if (source[end] === ")") {
-              depth--;
-            }
-            end++;
-          } while (end < length && depth > 0);
-          if ("*+?".indexOf(source[end]) >= 0) {
-            end++;
-          }
-          tokens.push({ boundary: source.slice(index, end) });
-          index = end;
-        } else if (char === "^" || char === "$") {
-          tokens.push({ boundary: char });
-          index++;
-        } else {
-          tokens.push({ single: char });
-          index++;
-        }
-      }
-      let out = EMPTY;
-      let run = [];
-      const flush = () => {
-        let lastWildcard;
-        run.forEach((token, at) => {
-          if (token.wildcard) {
-            lastWildcard = at;
-          }
-        });
-        run.forEach((token, at) => {
-          if (!token.wildcard) {
-            out += token.single;
-            return;
-          }
-          out += at === lastWildcard ? WILDCARD : `(?:(?!${separatorAfter(run, at)})[^\\/])*`;
-        });
-        run = [];
-      };
-      tokens.forEach((token) => {
-        if (token.boundary === void 0) {
-          run.push(token);
-          return;
-        }
-        flush();
-        out += token.boundary;
-      });
-      flush();
-      return out;
-    };
-    var makeRegexPrefix = (pattern) => {
-      const { source, sources } = extractBrackets(pattern);
-      const replaced = REPLACERS.reduce(
-        // A pass whose matcher finds nothing hands back the very string it was
-        //   given, so asking first costs a search and saves a rewrite. Ten of the
-        //   fifteen passes never fire for a typical .gitignore line, and between
-        //   them they were 45% of this chain.
-        (prev, [matcher, replacer, required2]) => {
-          if (matcher === DIRECT) {
-            return replacer(prev, pattern);
-          }
-          if (required2 !== UNDEFINED && prev.indexOf(required2) < 0) {
-            return prev;
-          }
-          return matcher.test(prev) ? prev.replace(matcher, replacer.bind(pattern)) : prev;
-        },
-        source
-      );
-      return sources.length ? replaced.replace(
-        REGEX_RESTORE_PLACEHOLDER,
-        (match, index) => sources[index]
-      ) : replaced;
-    };
-    var matchesBasename = (body) => {
-      const index = body.indexOf(SLASH);
-      return index < 0 || index === body.length - 1;
-    };
-    var basenameOf = (path) => {
-      const end = path.length - 1;
-      const index = path.lastIndexOf(
-        SLASH,
-        path[end] === SLASH ? end - 1 : end
-      );
-      return index < 0 ? path : path.slice(index + 1);
-    };
-    var parentOf = (path) => {
-      if (path.charCodeAt(0) === SLASH_CODE || path.indexOf(DOUBLE_SLASH) >= 0) {
-        const slices = path.split(SLASH).filter(Boolean);
-        slices.pop();
-        return slices.length ? slices.join(SLASH) + SLASH : EMPTY;
-      }
-      const end = path.length - 1;
-      const cut = path.lastIndexOf(
-        SLASH,
-        path.charCodeAt(end) === SLASH_CODE ? end - 1 : end
-      );
-      return cut < 0 ? EMPTY : path.slice(0, cut + 1);
-    };
-    var isString = (subject) => typeof subject === "string";
-    var checkPattern = (pattern) => pattern && isString(pattern) && !REGEX_TEST_BLANK_LINE.test(pattern) && !REGEX_INVALID_TRAILING_BACKSLASH.test(pattern) && pattern.indexOf("#") !== 0;
-    var splitPattern = (pattern) => pattern.split(REGEX_SPLITALL_CRLF).filter(Boolean);
-    var IgnoreRule = class {
-      constructor(pattern, mark, body, ignoreCase, negative, prefix) {
-        this.pattern = pattern;
-        this.mark = mark;
-        this.negative = negative;
-        define(this, "body", body);
-        define(this, "ignoreCase", ignoreCase);
-        define(this, "regexPrefix", prefix);
-      }
-      // Worked out on first use and kept behind an own property, the way `regex`
-      //   caches itself in `_regex`. Deciding it in the constructor instead would
-      //   add a fourth `defineProperty` to every rule ever built, which cost 4% of
-      //   every compile -- including the compiles of rules that are never matched
-      //   against anything.
-      get _basenameOnly() {
-        return define(this, "_basenameOnly", matchesBasename(this.body));
-      }
-      get regex() {
-        const key = UNDERSCORE + MODE_IGNORE;
-        if (this[key]) {
-          return this[key];
-        }
-        return this._make(MODE_IGNORE, key);
-      }
-      get checkRegex() {
-        const key = UNDERSCORE + MODE_CHECK_IGNORE;
-        if (this[key]) {
-          return this[key];
-        }
-        return this._make(MODE_CHECK_IGNORE, key);
-      }
-      _make(mode, key) {
-        const str = pinWildcards(this.regexPrefix.replace(
-          REGEX_REPLACE_TRAILING_WILDCARD,
-          // It does not need to bind pattern
-          TRAILING_WILD_CARD_REPLACERS[mode]
-        ));
-        const regex = this.ignoreCase ? new RegExp(str, "i") : new RegExp(str);
-        return define(this, key, regex);
-      }
-    };
-    var createRule = ({
-      pattern,
-      mark
-    }, ignoreCase) => {
-      let negative = false;
-      let body = pattern;
-      if (body.indexOf("!") === 0) {
-        negative = true;
-        body = body.substr(1);
-      }
-      body = body.replace(REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION, "!").replace(REGEX_REPLACE_LEADING_EXCAPED_HASH, "#");
-      const regexPrefix = makeRegexPrefix(body);
-      return new IgnoreRule(
-        pattern,
-        mark,
-        body,
-        ignoreCase,
-        negative,
-        regexPrefix
-      );
-    };
-    var RuleManager = class {
-      constructor(ignoreCase) {
-        this._ignoreCase = ignoreCase;
-        this._rules = [];
-        this._basenameCount = 0;
-      }
-      _add(pattern) {
-        if (pattern && pattern[KEY_IGNORE]) {
-          this._rules = this._rules.concat(pattern._rules._rules);
-          this._basenameCount += pattern._rules._basenameCount;
-          this._added = true;
-          return;
-        }
-        if (isString(pattern)) {
-          pattern = {
-            pattern
-          };
-        }
-        if (checkPattern(pattern.pattern)) {
-          const rule = createRule(pattern, this._ignoreCase);
-          this._added = true;
-          this._rules.push(rule);
-          if (matchesBasename(rule.body)) {
-            this._basenameCount++;
-          }
-        }
-      }
-      // @param {Array<string> | string | Ignore} pattern
-      add(pattern) {
-        this._added = false;
-        makeArray(
-          isString(pattern) ? splitPattern(pattern) : pattern
-        ).forEach(this._add, this);
-        return this._added;
-      }
-      // Test one single path without recursively checking parent directories
-      //
-      // - checkUnignored `boolean` whether should check if the path is unignored,
-      //   setting `checkUnignored` to `false` could reduce additional
-      //   path matching.
-      // - check `string` either `MODE_IGNORE` or `MODE_CHECK_IGNORE`
-      // @returns {TestResult} true if a file is ignored
-      test(path, checkUnignored, mode) {
-        let ignored = false;
-        let unignored = false;
-        let matchedRule;
-        const rules = this._rules;
-        const { length } = rules;
-        const shortcut = this._basenameCount * 2 >= length;
-        const basename = shortcut ? basenameOf(path) : path;
-        for (let index = 0; index < length; index++) {
-          const rule = rules[index];
-          const { negative } = rule;
-          const skip = unignored === negative && ignored !== unignored || negative && !ignored && !unignored && !checkUnignored;
-          if (!skip && rule[mode].test(
-            shortcut && rule._basenameOnly ? basename : path
-          )) {
-            ignored = !negative;
-            unignored = negative;
-            matchedRule = negative ? UNDEFINED : rule;
-          }
-        }
-        const ret = {
-          ignored,
-          unignored
-        };
-        if (matchedRule) {
-          ret.rule = matchedRule;
-        }
-        return ret;
-      }
-    };
-    var throwError = (message, Ctor) => {
-      throw new Ctor(message);
-    };
-    var checkPath = (path, originalPath, doThrow) => {
-      if (!isString(path)) {
-        return doThrow(
-          `path must be a string, but got \`${originalPath}\``,
-          TypeError
-        );
-      }
-      if (!path) {
-        return doThrow(`path must not be empty`, TypeError);
-      }
-      if (checkPath.isNotRelative(path)) {
-        const r = "`path.relative()`d";
-        return doThrow(
-          `path should be a ${r} string, but got "${originalPath}"`,
-          RangeError
-        );
-      }
-      return true;
-    };
-    var isNotRelative = (path) => {
-      const first = path.charCodeAt(0);
-      if (first === SLASH_CODE) {
-        return true;
-      }
-      if (first !== DOT_CODE) {
-        return false;
-      }
-      if (path.length === 1) {
-        return true;
-      }
-      const second = path.charCodeAt(1);
-      if (second === SLASH_CODE) {
-        return true;
-      }
-      if (second !== DOT_CODE) {
-        return false;
-      }
-      return path.length === 2 || path.charCodeAt(2) === SLASH_CODE;
-    };
-    checkPath.isNotRelative = isNotRelative;
-    checkPath.convert = (p) => p;
-    var Ignore = class {
-      constructor({
-        ignorecase = true,
-        ignoreCase = ignorecase,
-        allowRelativePaths = false
-      } = {}) {
-        define(this, KEY_IGNORE, true);
-        this._rules = new RuleManager(ignoreCase);
-        this._strictPathCheck = !allowRelativePaths;
-        this._initCache();
-      }
-      _initCache() {
-        this._ignoreCache = /* @__PURE__ */ Object.create(null);
-        this._testCache = /* @__PURE__ */ Object.create(null);
-      }
-      add(pattern) {
-        if (this._rules.add(pattern)) {
-          this._initCache();
-        }
-        return this;
-      }
-      // legacy
-      addPattern(pattern) {
-        return this.add(pattern);
-      }
-      // @returns {TestResult}
-      _test(originalPath, cache, checkUnignored) {
-        const path = originalPath && checkPath.convert(originalPath);
-        checkPath(
-          path,
-          originalPath,
-          this._strictPathCheck ? throwError : RETURN_FALSE
-        );
-        return this._t(path, cache, checkUnignored);
-      }
-      checkIgnore(path) {
-        if (path.charCodeAt(path.length - 1) !== SLASH_CODE) {
-          return this.test(path);
-        }
-        const parentPath = parentOf(path);
-        if (parentPath) {
-          const parent = this._t(parentPath, this._testCache, true);
-          if (parent.ignored) {
-            return parent;
-          }
-        }
-        return this._rules.test(path, false, MODE_CHECK_IGNORE);
-      }
-      _t(path, cache, checkUnignored) {
-        if (path in cache) {
-          return cache[path];
-        }
-        const parentPath = parentOf(path);
-        const parent = parentPath ? this._t(parentPath, cache, checkUnignored) : UNDEFINED;
-        return cache[path] = parent && parent.ignored ? parent : this._rules.test(path, checkUnignored, MODE_IGNORE);
-      }
-      ignores(path) {
-        return this._test(path, this._ignoreCache, false).ignored;
-      }
-      createFilter() {
-        return (path) => !this.ignores(path);
-      }
-      filter(paths) {
-        return makeArray(paths).filter(this.createFilter());
-      }
-      // @returns {TestResult}
-      test(path) {
-        return this._test(path, this._testCache, true);
-      }
-    };
-    var factory = (options) => new Ignore(options);
-    var isPathValid = (path) => checkPath(path && checkPath.convert(path), path, RETURN_FALSE);
-    var setupWindows = () => {
-      const makePosix = (str) => /^\\\\\?\\/.test(str) || /["<>|\u0000-\u001F]+/u.test(str) ? str : str.replace(/\\/g, "/");
-      checkPath.convert = makePosix;
-      const REGEX_TEST_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i;
-      checkPath.isNotRelative = (path) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path) || isNotRelative(path);
-    };
-    if (
-      // Detect `process` so that it can run in browsers.
-      typeof process !== "undefined" && process.platform === "win32"
-    ) {
-      setupWindows();
-    }
-    module.exports = factory;
-    factory.default = factory;
-    module.exports.isPathValid = isPathValid;
-    define(module.exports, /* @__PURE__ */ Symbol.for("setupWindows"), setupWindows);
-  }
-});
 
 // apps/cli/src/hook.ts
 import { existsSync as existsSync5, readFileSync as readFileSync2 } from "node:fs";
@@ -20728,6 +19892,8 @@ import { chmodSync, realpathSync as realpathSync3, existsSync as existsSync3, ls
 import { join as join3 } from "node:path";
 
 // packages/core/src/usage.ts
+var LEGACY_CODEX_SCOPE = "codex-exec-turn";
+var METRIC_SCOPE = "claude-otel-token-metric";
 var textValue = (value) => typeof value === "string" && value.length > 0 ? redact(value.slice(0, 300)) : null;
 function nanoseconds(value) {
   if (value === void 0 || value === null) return null;
@@ -20736,6 +19902,50 @@ function nanoseconds(value) {
 }
 var TOKEN_DIMENSIONS = ["input", "cachedInput", "cacheWrite", "output", "reasoning", "total"];
 var usableCount = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+var reportedSource = (event) => event.source === "client_reported" || event.source === "provider_reported";
+var measured = (event) => reportedSource(event) && event.scope !== METRIC_SCOPE && event.scope !== LEGACY_CODEX_SCOPE;
+var seriesOf = (event) => typeof event.series === "string" && event.series.length > 0 ? event.series : null;
+var RUNNING_FIELDS = ["input", "cachedInput", "output", "reasoning", "total"];
+function ordered(samples) {
+  const sorted = [...samples].sort((a, b) => (a.total ?? 0) - (b.total ?? 0));
+  return sorted.every((sample, index) => index === 0 || RUNNING_FIELDS.every((field) => {
+    const before = sorted[index - 1][field];
+    const after = sample[field];
+    return before === null || after === null || before <= after;
+  }));
+}
+var OBSERVED_USAGE_TOTAL_SCOPE = "Imported reported deltas plus the largest running total of each cumulative series; no invisible IDE calls counted";
+function observedUsageTotal(events) {
+  const seen = /* @__PURE__ */ new Map();
+  const samples = /* @__PURE__ */ new Map();
+  let total = 0;
+  let qualifying = 0;
+  for (const event of events) {
+    if (!measured(event) || event.counter !== "delta" && event.counter !== "cumulative") continue;
+    const series = seriesOf(event);
+    if (event.counter === "cumulative" && series === null) continue;
+    if (!usableCount(event.total)) return null;
+    const key = `${event.repositoryId}\0${event.correlationId}`;
+    if (seen.has(key)) {
+      if (seen.get(key) !== event.total) return null;
+      continue;
+    }
+    seen.set(key, event.total);
+    qualifying++;
+    if (event.counter === "delta") total += event.total;
+    else {
+      const id = JSON.stringify([event.repositoryId, event.source, event.scope, series]);
+      const group = samples.get(id);
+      if (group) group.push(event);
+      else samples.set(id, [event]);
+    }
+  }
+  for (const group of samples.values()) {
+    if (!ordered(group)) return null;
+    total += group.reduce((maximum, event) => Math.max(maximum, event.total), 0);
+  }
+  return qualifying && Number.isSafeInteger(total) ? total : null;
+}
 function boundedLimit(value, fallback, maximum) {
   if (value === void 0) return fallback;
   if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw new Error(`Usage coverage limit must be an integer between 1 and ${maximum}`);
@@ -20753,7 +19963,7 @@ function summarizeUsageCoverage(events, options = {}) {
     const previous = unique.get(key);
     if (previous) {
       const fields = [...TOKEN_DIMENSIONS, "source", "scope", "counter", "sessionId", "taskId"];
-      if (fields.some((field) => previous[field] !== event[field])) conflicts.add(key);
+      if (fields.some((field) => previous[field] !== event[field]) || seriesOf(previous) !== seriesOf(event)) conflicts.add(key);
       else duplicateRecords++;
     } else unique.set(key, event);
   }
@@ -20761,9 +19971,10 @@ function summarizeUsageCoverage(events, options = {}) {
   const accepted = [...unique].filter(([key]) => !conflicts.has(key)).map(([, event]) => event);
   const missing = { input: 0, cachedInput: 0, cacheWrite: 0, output: 0, reasoning: 0, total: 0, model: 0, localSession: 0, localTask: 0, clientTimestamp: 0, agentType: 0, agentIdentity: 0 };
   const attributionRecords = { main: 0, subagent: 0, auxiliary: 0, unknown: 0 };
-  const counters = { reportedDeltaRecords: 0, metricDeltaRecords: 0, cumulativeRecords: 0, locallyEstimatedRecords: 0, unknownSourceRecords: 0 };
+  const counters = { reportedDeltaRecords: 0, metricDeltaRecords: 0, cumulativeRecords: 0, unattributableCumulativeRecords: 0, legacyRunningTotalRecords: 0, locallyEstimatedRecords: 0, unknownSourceRecords: 0 };
   const groups = /* @__PURE__ */ new Map();
   const series = /* @__PURE__ */ new Map();
+  const runningSamples = /* @__PURE__ */ new Map();
   let omittedGroupRecords = 0;
   let omittedMetricRecords = 0;
   let legacyMetricRecords = 0;
@@ -20781,20 +19992,38 @@ function summarizeUsageCoverage(events, options = {}) {
     missing.agentIdentity++;
     const category = imported.attribution?.category;
     attributionRecords[category && ["main", "subagent", "auxiliary"].includes(category) ? category : "unknown"]++;
-    const isMetric = event.scope === "claude-otel-token-metric";
+    const isMetric = event.scope === METRIC_SCOPE;
+    const isLegacyRunningTotal = event.scope === LEGACY_CODEX_SCOPE;
     const source = ["client_reported", "provider_reported", "locally_estimated"].includes(event.source) ? event.source : "unknown";
-    const eligible = event.counter === "delta" && (source === "client_reported" || source === "provider_reported") && !isMetric;
+    const eligible = event.counter === "delta" && measured(event);
+    const running = event.counter === "cumulative" && measured(event);
+    const seriesId = seriesOf(event);
     if (source === "unknown") counters.unknownSourceRecords++;
     else if (source === "locally_estimated") counters.locallyEstimatedRecords++;
-    else if (event.counter === "cumulative") counters.cumulativeRecords++;
-    else if (isMetric) counters.metricDeltaRecords++;
+    else if (isLegacyRunningTotal) counters.legacyRunningTotalRecords++;
+    else if (event.counter === "cumulative") {
+      counters.cumulativeRecords++;
+      if (running && seriesId === null) counters.unattributableCumulativeRecords++;
+    } else if (isMetric) counters.metricDeltaRecords++;
     else counters.reportedDeltaRecords++;
     const scope = textValue(event.scope) ?? "unknown";
     const key = JSON.stringify([source, scope]);
     let group = groups.get(key);
     if (!group && groups.size < maxGroups) {
-      group = { source, scope, records: 0, deltaRecords: 0, cumulativeRecords: 0, eligibleDeltaRecords: 0, missingTotalRecords: 0, totalOverflow: false, recordedDeltaTokens: null };
+      group = {
+        source,
+        scope,
+        records: 0,
+        deltaRecords: 0,
+        cumulativeRecords: 0,
+        eligibleDeltaRecords: 0,
+        missingTotalRecords: 0,
+        totalOverflow: false,
+        recordedDeltaTokens: null,
+        runningTotals: { seriesCount: 0, attributedRecords: 0, unattributableRecords: 0, missingTotalRecords: 0, totalOverflow: false, restartedSeries: 0, recordedTokens: null }
+      };
       groups.set(key, group);
+      runningSamples.set(group, /* @__PURE__ */ new Map());
     }
     if (!group) omittedGroupRecords++;
     else {
@@ -20809,6 +20038,15 @@ function summarizeUsageCoverage(events, options = {}) {
           if (Number.isSafeInteger(sum)) group.recordedDeltaTokens = sum;
           else group.totalOverflow = true;
         }
+      }
+      if (running && seriesId === null) group.runningTotals.unattributableRecords++;
+      else if (running) {
+        const bySeries = runningSamples.get(group);
+        const samples = bySeries.get(seriesId);
+        group.runningTotals.attributedRecords++;
+        if (!usableCount(event.total)) group.runningTotals.missingTotalRecords++;
+        if (samples) samples.push(event);
+        else bySeries.set(seriesId, [event]);
       }
     }
     if (isMetric) {
@@ -20832,7 +20070,16 @@ function summarizeUsageCoverage(events, options = {}) {
       else item.points.push(metric);
     }
   }
-  for (const group of groups.values()) if (group.missingTotalRecords || group.totalOverflow || events.length > maxEvents || conflicts.size) group.recordedDeltaTokens = null;
+  for (const group of groups.values()) {
+    if (group.missingTotalRecords || group.totalOverflow || events.length > maxEvents || conflicts.size) group.recordedDeltaTokens = null;
+    const totals = group.runningTotals;
+    const bySeries = [...runningSamples.get(group).values()];
+    totals.seriesCount = bySeries.length;
+    totals.restartedSeries = bySeries.filter((samples) => !ordered(samples)).length;
+    const sum = bySeries.reduce((value, samples) => value + samples.reduce((maximum, sample) => usableCount(sample.total) ? Math.max(maximum, sample.total) : maximum, 0), 0);
+    totals.totalOverflow = !Number.isSafeInteger(sum);
+    totals.recordedTokens = !bySeries.length || totals.missingTotalRecords || totals.restartedSeries || totals.totalOverflow || events.length > maxEvents || conflicts.size ? null : sum;
+  }
   for (const { summary, points } of series.values()) {
     points.sort((a, b) => BigInt(a.timeUnixNano) < BigInt(b.timeUnixNano) ? -1 : BigInt(a.timeUnixNano) > BigInt(b.timeUnixNano) ? 1 : 0);
     summary.samples = points.length;
@@ -20874,7 +20121,8 @@ function summarizeUsageCoverage(events, options = {}) {
     limitations: [
       "Input files cannot establish how many events were never exported; coverage ratio remains unknown.",
       "Cumulative snapshots and metric dimensions are not added to request deltas. Resets or decreases are observations, not inferred usage.",
-      "Per-group recorded deltas describe those records only; groups are not summed and may overlap.",
+      "Running totals (Codex thread usage) count the largest observation per series, never a sum of samples. A visible counter restart makes the total unknown; a restart hidden between captures makes the largest observation an understatement. Records without a series are unattributable and excluded; legacy Codex records that stored running totals as deltas are excluded until re-imported.",
+      "Per-group recorded deltas and running totals describe those records only; groups are not summed and may overlap.",
       "A reported subagent category or agent type is not a unique agent identity. Legacy ambiguous agent fields stay unattributed."
     ]
   };
@@ -20958,7 +20206,7 @@ var Store = class {
     this.db = new DatabaseSync(dbFile, { timeout: 5e3 });
     try {
       chmodSync(dbFile, 384);
-      this.db.exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;");
+      this.db.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;");
       this.migrate();
       this.pageSize = Number(this.db.prepare("PRAGMA page_size").get()?.page_size ?? 4096);
       this.db.exec(`PRAGMA max_page_count=${Math.floor(config2.diskBudgetBytes * 0.75 / this.pageSize)}; PRAGMA journal_size_limit=1048576; PRAGMA wal_autocheckpoint=128;`);
@@ -21320,12 +20568,6 @@ var Store = class {
     const totals = this.db.prepare(`SELECT COUNT(*) AS n, COALESCE(SUM(json_extract(json,'$.originalSize')),0) AS original, COALESCE(SUM(json_extract(json,'$.reducedSize')),0) AS reduced FROM runs WHERE repo=?${sessionId ? " AND session=?" : ""}`).get(...[this.repositoryId, ...sessionId ? [sessionId] : []]);
     const local = { originalBytes: Number(totals?.original ?? 0), reducedBytes: Number(totals?.reduced ?? 0) };
     const usage = this.usage().filter((e) => !sessionId || e.sessionId === sessionId);
-    const deltas = usage.filter((e) => e.counter === "delta" && (e.source === "client_reported" || e.source === "provider_reported") && e.scope !== "claude-otel-token-metric");
-    const observedTotal = deltas.reduce((sum, event) => {
-      if (sum === null || event.total === null || !Number.isSafeInteger(event.total) || event.total < 0) return null;
-      const next = sum + event.total;
-      return Number.isSafeInteger(next) ? next : null;
-    }, deltas.length ? 0 : null);
     const scopedEvents = (kind) => this.events(kind, { sessionId, limit: eventLimit });
     return {
       schemaVersion: 1,
@@ -21337,7 +20579,8 @@ var Store = class {
       runOffset: options.runOffset ?? 0,
       runs,
       localOutput: { ...local, savedBytes: local.originalBytes - local.reducedBytes, scope: "CodeBudget observed calls only, after redaction", unit: "utf8_bytes" },
-      observedUsage: { events: usage, total: observedTotal, scope: "Imported delta events; no invisible IDE calls counted", cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
+      // The total and coverage use every record in scope; only the listed events are bounded like the other lists.
+      observedUsage: { events: eventLimit < 0 ? usage : usage.slice(Math.max(0, usage.length - eventLimit)), eventCount: usage.length, total: observedUsageTotal(usage), scope: OBSERVED_USAGE_TOTAL_SCOPE, cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
       retrievals: scopedEvents("retrieval"),
       hookMetrics: scopedEvents("hook"),
       pluginOverhead: scopedEvents("plugin-overhead"),
@@ -21674,7 +20917,23 @@ function isSupportedClaudeVersion(version2) {
 var HAS_WELLFORMED = !!"".isWellFormed;
 
 // packages/adapters/src/install.ts
-var import_ignore = __toESM(require_ignore(), 1);
+var CONFIG_PATHS = { claude: ".mcp.json", codex: ".codex/config.toml", cursor: ".cursor/mcp.json", antigravity: ".agents/mcp_config.json" };
+var CLIENTS = Object.keys(CONFIG_PATHS);
+var STATE2 = ".codebudget/adapters";
+var BACKUPS = `${STATE2}/backups`;
+var JOURNAL = `${STATE2}/transaction.json`;
+var LOCK = `${STATE2}/transaction.lock`;
+var LEGACY_LOCK = ".codebudget-adapter.lock";
+var KEEP_BACKUPS = 5;
+var STALE_LOCK_MS = 10 * 6e4;
+var MAX_FILE_BYTES = 4 * 1024 * 1024;
+var BACKUP_NOTE = `Previous file versions are backed up to ${BACKUPS} (private, ignored by Git, newest ${KEEP_BACKUPS} per file).`;
+var INVALID_JOURNAL = `Adapter transaction journal ${JOURNAL} is invalid; it is preserved for manual recovery.`;
+var ancestors = (rel) => rel.split("/").slice(0, -1).map((_, index, parts) => parts.slice(0, index + 1).join("/"));
+var MANAGED = new Set(CLIENTS.flatMap((client) => [CONFIG_PATHS[client], `${STATE2}/${client}.json`]));
+var CREATABLE = new Set(CLIENTS.flatMap((client) => ancestors(CONFIG_PATHS[client])));
+var utf8 = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+var LEGACY_BUSY = `An earlier CodeBudget version holds ${LEGACY_LOCK}; retry after it finishes, or remove that file if no adapter command is running.`;
 
 // packages/adapters/src/claude-hook.ts
 var MARKER2 = "[CodeBudget evidence:";

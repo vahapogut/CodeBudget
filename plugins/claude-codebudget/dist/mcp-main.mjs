@@ -36690,6 +36690,8 @@ import { chmodSync, realpathSync as realpathSync3, existsSync as existsSync3, ls
 import { join as join3 } from "node:path";
 
 // packages/core/src/usage.ts
+var LEGACY_CODEX_SCOPE = "codex-exec-turn";
+var METRIC_SCOPE = "claude-otel-token-metric";
 var textValue = (value) => typeof value === "string" && value.length > 0 ? redact(value.slice(0, 300)) : null;
 function nanoseconds(value) {
   if (value === void 0 || value === null) return null;
@@ -36698,6 +36700,50 @@ function nanoseconds(value) {
 }
 var TOKEN_DIMENSIONS = ["input", "cachedInput", "cacheWrite", "output", "reasoning", "total"];
 var usableCount = (value) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+var reportedSource = (event) => event.source === "client_reported" || event.source === "provider_reported";
+var measured = (event) => reportedSource(event) && event.scope !== METRIC_SCOPE && event.scope !== LEGACY_CODEX_SCOPE;
+var seriesOf = (event) => typeof event.series === "string" && event.series.length > 0 ? event.series : null;
+var RUNNING_FIELDS = ["input", "cachedInput", "output", "reasoning", "total"];
+function ordered(samples) {
+  const sorted = [...samples].sort((a, b) => (a.total ?? 0) - (b.total ?? 0));
+  return sorted.every((sample, index) => index === 0 || RUNNING_FIELDS.every((field) => {
+    const before = sorted[index - 1][field];
+    const after = sample[field];
+    return before === null || after === null || before <= after;
+  }));
+}
+var OBSERVED_USAGE_TOTAL_SCOPE = "Imported reported deltas plus the largest running total of each cumulative series; no invisible IDE calls counted";
+function observedUsageTotal(events) {
+  const seen = /* @__PURE__ */ new Map();
+  const samples = /* @__PURE__ */ new Map();
+  let total = 0;
+  let qualifying = 0;
+  for (const event of events) {
+    if (!measured(event) || event.counter !== "delta" && event.counter !== "cumulative") continue;
+    const series = seriesOf(event);
+    if (event.counter === "cumulative" && series === null) continue;
+    if (!usableCount(event.total)) return null;
+    const key = `${event.repositoryId}\0${event.correlationId}`;
+    if (seen.has(key)) {
+      if (seen.get(key) !== event.total) return null;
+      continue;
+    }
+    seen.set(key, event.total);
+    qualifying++;
+    if (event.counter === "delta") total += event.total;
+    else {
+      const id = JSON.stringify([event.repositoryId, event.source, event.scope, series]);
+      const group = samples.get(id);
+      if (group) group.push(event);
+      else samples.set(id, [event]);
+    }
+  }
+  for (const group of samples.values()) {
+    if (!ordered(group)) return null;
+    total += group.reduce((maximum, event) => Math.max(maximum, event.total), 0);
+  }
+  return qualifying && Number.isSafeInteger(total) ? total : null;
+}
 function boundedLimit(value, fallback, maximum) {
   if (value === void 0) return fallback;
   if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw new Error(`Usage coverage limit must be an integer between 1 and ${maximum}`);
@@ -36715,7 +36761,7 @@ function summarizeUsageCoverage(events, options = {}) {
     const previous = unique.get(key);
     if (previous) {
       const fields = [...TOKEN_DIMENSIONS, "source", "scope", "counter", "sessionId", "taskId"];
-      if (fields.some((field) => previous[field] !== event[field])) conflicts.add(key);
+      if (fields.some((field) => previous[field] !== event[field]) || seriesOf(previous) !== seriesOf(event)) conflicts.add(key);
       else duplicateRecords++;
     } else unique.set(key, event);
   }
@@ -36723,9 +36769,10 @@ function summarizeUsageCoverage(events, options = {}) {
   const accepted = [...unique].filter(([key]) => !conflicts.has(key)).map(([, event]) => event);
   const missing = { input: 0, cachedInput: 0, cacheWrite: 0, output: 0, reasoning: 0, total: 0, model: 0, localSession: 0, localTask: 0, clientTimestamp: 0, agentType: 0, agentIdentity: 0 };
   const attributionRecords = { main: 0, subagent: 0, auxiliary: 0, unknown: 0 };
-  const counters = { reportedDeltaRecords: 0, metricDeltaRecords: 0, cumulativeRecords: 0, locallyEstimatedRecords: 0, unknownSourceRecords: 0 };
+  const counters = { reportedDeltaRecords: 0, metricDeltaRecords: 0, cumulativeRecords: 0, unattributableCumulativeRecords: 0, legacyRunningTotalRecords: 0, locallyEstimatedRecords: 0, unknownSourceRecords: 0 };
   const groups = /* @__PURE__ */ new Map();
   const series = /* @__PURE__ */ new Map();
+  const runningSamples = /* @__PURE__ */ new Map();
   let omittedGroupRecords = 0;
   let omittedMetricRecords = 0;
   let legacyMetricRecords = 0;
@@ -36743,20 +36790,38 @@ function summarizeUsageCoverage(events, options = {}) {
     missing.agentIdentity++;
     const category = imported.attribution?.category;
     attributionRecords[category && ["main", "subagent", "auxiliary"].includes(category) ? category : "unknown"]++;
-    const isMetric = event.scope === "claude-otel-token-metric";
+    const isMetric = event.scope === METRIC_SCOPE;
+    const isLegacyRunningTotal = event.scope === LEGACY_CODEX_SCOPE;
     const source = ["client_reported", "provider_reported", "locally_estimated"].includes(event.source) ? event.source : "unknown";
-    const eligible = event.counter === "delta" && (source === "client_reported" || source === "provider_reported") && !isMetric;
+    const eligible = event.counter === "delta" && measured(event);
+    const running = event.counter === "cumulative" && measured(event);
+    const seriesId = seriesOf(event);
     if (source === "unknown") counters.unknownSourceRecords++;
     else if (source === "locally_estimated") counters.locallyEstimatedRecords++;
-    else if (event.counter === "cumulative") counters.cumulativeRecords++;
-    else if (isMetric) counters.metricDeltaRecords++;
+    else if (isLegacyRunningTotal) counters.legacyRunningTotalRecords++;
+    else if (event.counter === "cumulative") {
+      counters.cumulativeRecords++;
+      if (running && seriesId === null) counters.unattributableCumulativeRecords++;
+    } else if (isMetric) counters.metricDeltaRecords++;
     else counters.reportedDeltaRecords++;
     const scope = textValue(event.scope) ?? "unknown";
     const key = JSON.stringify([source, scope]);
     let group = groups.get(key);
     if (!group && groups.size < maxGroups) {
-      group = { source, scope, records: 0, deltaRecords: 0, cumulativeRecords: 0, eligibleDeltaRecords: 0, missingTotalRecords: 0, totalOverflow: false, recordedDeltaTokens: null };
+      group = {
+        source,
+        scope,
+        records: 0,
+        deltaRecords: 0,
+        cumulativeRecords: 0,
+        eligibleDeltaRecords: 0,
+        missingTotalRecords: 0,
+        totalOverflow: false,
+        recordedDeltaTokens: null,
+        runningTotals: { seriesCount: 0, attributedRecords: 0, unattributableRecords: 0, missingTotalRecords: 0, totalOverflow: false, restartedSeries: 0, recordedTokens: null }
+      };
       groups.set(key, group);
+      runningSamples.set(group, /* @__PURE__ */ new Map());
     }
     if (!group) omittedGroupRecords++;
     else {
@@ -36771,6 +36836,15 @@ function summarizeUsageCoverage(events, options = {}) {
           if (Number.isSafeInteger(sum)) group.recordedDeltaTokens = sum;
           else group.totalOverflow = true;
         }
+      }
+      if (running && seriesId === null) group.runningTotals.unattributableRecords++;
+      else if (running) {
+        const bySeries = runningSamples.get(group);
+        const samples = bySeries.get(seriesId);
+        group.runningTotals.attributedRecords++;
+        if (!usableCount(event.total)) group.runningTotals.missingTotalRecords++;
+        if (samples) samples.push(event);
+        else bySeries.set(seriesId, [event]);
       }
     }
     if (isMetric) {
@@ -36794,7 +36868,16 @@ function summarizeUsageCoverage(events, options = {}) {
       else item.points.push(metric);
     }
   }
-  for (const group of groups.values()) if (group.missingTotalRecords || group.totalOverflow || events.length > maxEvents || conflicts.size) group.recordedDeltaTokens = null;
+  for (const group of groups.values()) {
+    if (group.missingTotalRecords || group.totalOverflow || events.length > maxEvents || conflicts.size) group.recordedDeltaTokens = null;
+    const totals = group.runningTotals;
+    const bySeries = [...runningSamples.get(group).values()];
+    totals.seriesCount = bySeries.length;
+    totals.restartedSeries = bySeries.filter((samples) => !ordered(samples)).length;
+    const sum = bySeries.reduce((value, samples) => value + samples.reduce((maximum, sample) => usableCount(sample.total) ? Math.max(maximum, sample.total) : maximum, 0), 0);
+    totals.totalOverflow = !Number.isSafeInteger(sum);
+    totals.recordedTokens = !bySeries.length || totals.missingTotalRecords || totals.restartedSeries || totals.totalOverflow || events.length > maxEvents || conflicts.size ? null : sum;
+  }
   for (const { summary, points } of series.values()) {
     points.sort((a, b) => BigInt(a.timeUnixNano) < BigInt(b.timeUnixNano) ? -1 : BigInt(a.timeUnixNano) > BigInt(b.timeUnixNano) ? 1 : 0);
     summary.samples = points.length;
@@ -36836,7 +36919,8 @@ function summarizeUsageCoverage(events, options = {}) {
     limitations: [
       "Input files cannot establish how many events were never exported; coverage ratio remains unknown.",
       "Cumulative snapshots and metric dimensions are not added to request deltas. Resets or decreases are observations, not inferred usage.",
-      "Per-group recorded deltas describe those records only; groups are not summed and may overlap.",
+      "Running totals (Codex thread usage) count the largest observation per series, never a sum of samples. A visible counter restart makes the total unknown; a restart hidden between captures makes the largest observation an understatement. Records without a series are unattributable and excluded; legacy Codex records that stored running totals as deltas are excluded until re-imported.",
+      "Per-group recorded deltas and running totals describe those records only; groups are not summed and may overlap.",
       "A reported subagent category or agent type is not a unique agent identity. Legacy ambiguous agent fields stay unattributed."
     ]
   };
@@ -36920,7 +37004,7 @@ var Store = class {
     this.db = new DatabaseSync(dbFile, { timeout: 5e3 });
     try {
       chmodSync(dbFile, 384);
-      this.db.exec("PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;");
+      this.db.exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000; PRAGMA secure_delete=ON;");
       this.migrate();
       this.pageSize = Number(this.db.prepare("PRAGMA page_size").get()?.page_size ?? 4096);
       this.db.exec(`PRAGMA max_page_count=${Math.floor(config2.diskBudgetBytes * 0.75 / this.pageSize)}; PRAGMA journal_size_limit=1048576; PRAGMA wal_autocheckpoint=128;`);
@@ -37282,12 +37366,6 @@ var Store = class {
     const totals = this.db.prepare(`SELECT COUNT(*) AS n, COALESCE(SUM(json_extract(json,'$.originalSize')),0) AS original, COALESCE(SUM(json_extract(json,'$.reducedSize')),0) AS reduced FROM runs WHERE repo=?${sessionId ? " AND session=?" : ""}`).get(...[this.repositoryId, ...sessionId ? [sessionId] : []]);
     const local = { originalBytes: Number(totals?.original ?? 0), reducedBytes: Number(totals?.reduced ?? 0) };
     const usage = this.usage().filter((e) => !sessionId || e.sessionId === sessionId);
-    const deltas = usage.filter((e) => e.counter === "delta" && (e.source === "client_reported" || e.source === "provider_reported") && e.scope !== "claude-otel-token-metric");
-    const observedTotal = deltas.reduce((sum, event) => {
-      if (sum === null || event.total === null || !Number.isSafeInteger(event.total) || event.total < 0) return null;
-      const next = sum + event.total;
-      return Number.isSafeInteger(next) ? next : null;
-    }, deltas.length ? 0 : null);
     const scopedEvents = (kind) => this.events(kind, { sessionId, limit: eventLimit });
     return {
       schemaVersion: 1,
@@ -37299,7 +37377,8 @@ var Store = class {
       runOffset: options.runOffset ?? 0,
       runs,
       localOutput: { ...local, savedBytes: local.originalBytes - local.reducedBytes, scope: "CodeBudget observed calls only, after redaction", unit: "utf8_bytes" },
-      observedUsage: { events: usage, total: observedTotal, scope: "Imported delta events; no invisible IDE calls counted", cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
+      // The total and coverage use every record in scope; only the listed events are bounded like the other lists.
+      observedUsage: { events: eventLimit < 0 ? usage : usage.slice(Math.max(0, usage.length - eventLimit)), eventCount: usage.length, total: observedUsageTotal(usage), scope: OBSERVED_USAGE_TOTAL_SCOPE, cost: null, subscriptionQuota: null, coverage: summarizeUsageCoverage(usage) },
       retrievals: scopedEvents("retrieval"),
       hookMetrics: scopedEvents("hook"),
       pluginOverhead: scopedEvents("plugin-overhead"),
