@@ -67,7 +67,7 @@ All notable changes to CodeBudget are recorded here. Versions follow the package
 - The release package lists TypeScript as an optional peer dependency.
 - `pnpm smoke:package` records failures honestly, reports unavailable Claude checks with a reason and writes its result to `dist/` unless `--record` is given.
 - CI fails when a build changes committed files, uploads the smoke result and adds Dependabot updates for npm and GitHub Actions.
-- `pnpm test` runs the functional suite first (two workers on Windows) and then the `performance.test.ts` files one at a time, so growth measurements neither starve nor are disturbed by parallel tests.
+- `pnpm test` runs the functional suite first (two workers on Windows) and then the `performance.test.ts` files one at a time, so growth measurements neither starve nor are disturbed by parallel tests. The index maintenance measurement subtracts the per-call file walk, which is linear in repository size by design, before comparing the cost of the same changes.
 - The agent-instruction exclusion now matches case-insensitively and also covers `CLAUDE.local.md`, `GEMINI.md`, `.cursorrules`, `.windsurfrules`, `copilot-instructions.md` and the local `.claude/` directory, both in Git and in release archives. Client examples use neutral `project-instruction.md` names.
 
 ## 0.1.0-beta.2

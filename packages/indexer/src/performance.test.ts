@@ -58,10 +58,16 @@ describe('index maintenance cost', () => {
         expect((await subject.index()).indexed).toBe(200);
       });
     };
+    // Every call stats each file and snapshots the whole state: linear in repository size by design, and the larger
+    // share on slow file systems such as Windows runners. Measured with nothing changed, it is subtracted below.
+    const walkFor = ({ subject }: { subject: RepositoryIndexer }): Promise<number> => fastest(3, async () => { expect((await subject.index()).indexed).toBe(0); });
+    const smallWalk = await walkFor(repositories[0]!);
     const small = await timeFor(repositories[0]!);
+    const largeWalk = await walkFor(repositories[1]!);
     const large = await timeFor(repositories[1]!);
-    // Rowid FTS deletes and stat-based skipping: 8x the files, same 200 changes. Per-change scans would be ~8x.
-    expect(large / small).toBeLessThan(4);
+    // Rowid FTS deletes and stat-based skipping: 8x the files, same 200 changes. Per-change scans would be ~8x;
+    // the 100 ms allowance absorbs noise left over from subtracting two separately measured walks.
+    expect(large - largeWalk).toBeLessThan(4 * (small - smallWalk) + 100);
     expect(large).toBeLessThan(20_000);
   }, 180_000);
 
