@@ -13,7 +13,7 @@ Environment: Linux container, Node v22.22.2, pnpm 10.33.2, Claude Code 2.1.285 o
 | `pnpm install --frozen-lockfile` | Passed. |
 | `pnpm lint` | Exit 0. |
 | `pnpm typecheck` | Exit 0. |
-| `pnpm test` | 28 Vitest files, 521 tests passed. |
+| `pnpm test` | 28 Vitest files, 521 tests passed: 26 functional files (493 tests) in parallel, then the 2 `performance.test.ts` files (28 tests) one at a time. |
 | `pnpm build` | Passed; a rebuild leaves the committed plugin bundles unchanged. |
 | `pnpm test:e2e` | 2 Chromium tests passed, using a temporary Playwright configuration that points at the container's preinstalled Chromium because Playwright's own browser build is not installed here. CI runs the repository configuration. |
 | `pnpm smoke:package --record` | 26 installed-package checks passed with Claude Code 2.1.285; [package-smoke-result.json](package-smoke-result.json). |
@@ -26,7 +26,17 @@ Replay figures now use automatic format detection, as the runner and the hook do
 
 The Codex usage correction was checked against pinned 0.139.0 source: the exec JSON processor fills `turn.completed.usage` from the thread's running total (`usage_from_last_total`), `TokenUsageInfo.append_last_usage` accumulates it, and resume/fork reconstruction seeds it from the last rollout `TokenCount` event. Claude Code's MCP documentation states that spawned servers receive `CLAUDE_PROJECT_DIR`; whether Codex, Cursor and Antigravity start servers inside the project was not verified.
 
-Remote CI on `proje-kontrolu-eksiklikler`: [run 36772598643](https://github.com/vahapogut/CodeBudget/actions/runs/36772598643) passed all seven jobs on commit 3e7346c, which carries every change except the indexer rewrite: `pnpm verify`, the clean-tree check after the build and `pnpm smoke:package` on Linux, macOS and Windows with Node 22 and 24, plus the `plugin-contract` job against the newest published client. Earlier on this work a Windows run failed because a test emitted 3,000 lines from a zero-delay interval, which runs at the OS timer resolution there, and every evidence batch paid a full sync; both causes were fixed before the passing runs. Beta.2 commits b4f7833 ([run 36623125432](https://github.com/vahapogut/CodeBudget/actions/runs/36623125432)) and 8a9c7df ([run 36656398283](https://github.com/vahapogut/CodeBudget/actions/runs/36656398283)) also passed CI.
+Remote CI on `proje-kontrolu-eksiklikler` (each run: `pnpm verify`, the clean-tree check after the build and `pnpm smoke:package` on Linux, macOS and Windows with Node 22 and 24, plus the `plugin-contract` job against the newest published client):
+
+| Run | Commit | Result |
+| --- | --- | --- |
+| [36772598643](https://github.com/vahapogut/CodeBudget/actions/runs/36772598643) | 3e7346c, every change except the indexer rewrite | All seven jobs passed. |
+| [36773067626](https://github.com/vahapogut/CodeBudget/actions/runs/36773067626) | b9f8768, indexer rewrite | Both Windows jobs failed: two tests derived the index database name from the unmodified root while Windows names it from the lower-cased root, and two file-heavy tests exceeded the 15 s default. |
+| [36774062777](https://github.com/vahapogut/CodeBudget/actions/runs/36774062777) | a19f4be, portable test names and time limits | Windows passed; macOS with Node 24 measured a 10.35x growth ratio for linear search reduction (the small run fell near the 10 ms floor while garbage collection lengthened the large run). |
+| [36775099943](https://github.com/vahapogut/CodeBudget/actions/runs/36775099943) | ceb5150, fastest of five runs and a 25 ms floor | macOS passed; Windows with Node 24 was starved: one storage regression test took 102 s in the parallel suite and unrelated process-spawning tests timed out. |
+| [36776235535](https://github.com/vahapogut/CodeBudget/actions/runs/36776235535) | 5722501, performance suites run separately and sequentially | All seven jobs passed. |
+
+A Windows run earlier in this work also failed because a test emitted 3,000 lines from a zero-delay interval, which runs at the OS timer resolution there, and every evidence batch paid a full sync; both causes were fixed before the runs above. Beta.2 commits b4f7833 ([run 36623125432](https://github.com/vahapogut/CodeBudget/actions/runs/36623125432)) and 8a9c7df ([run 36656398283](https://github.com/vahapogut/CodeBudget/actions/runs/36656398283)) also passed CI.
 
 
 ## Local instruction file exclusion

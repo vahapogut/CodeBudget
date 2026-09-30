@@ -20,7 +20,7 @@ Review follow-up, 2026-09-30 (0.1.0-beta.3, Linux container, Node v22.22.2, pnpm
 
 - `pnpm install --frozen-lockfile`: passed.
 - `pnpm lint` and `pnpm typecheck`: exit 0.
-- `pnpm test`: **28 Vitest files, 521 tests passed**.
+- `pnpm test`: **28 Vitest files, 521 tests passed** (functional suite in parallel, then the performance suites one at a time).
 - `pnpm build`: passed; the committed plugin bundles match a fresh build.
 - `pnpm test:e2e`: **2 Chromium tests passed**. This container lacks Playwright's own browser build, so the run used a temporary configuration pointing at the preinstalled Chromium; CI runs the repository configuration unmodified.
 - `pnpm smoke:package`: **26 installed-package checks passed** with Claude Code 2.1.285 (recorded in [package smoke](package-smoke-result.json)) and again with 2.1.286; nothing reported unavailable.
@@ -29,7 +29,7 @@ Review follow-up, 2026-09-30 (0.1.0-beta.3, Linux container, Node v22.22.2, pnpm
 - `git diff --check`: clean.
 - Replay with automatic detection: synthetic 22,881 → 3,696 content bytes (83.8469%), captured 6,819 → 5,809 (14.8116%); all 19 preservation checks passed; envelopes 8,819 and 10,420 bytes. The captured corpus still does not meet the 50% hypothesis.
 
-No model call, account link, global IDE change, npm publication or deployment took place. Cross-platform results for this checkpoint are recorded in [verification](VERIFICATION.md) once the remote CI run completes.
+Remote CI [run 36776235535](https://github.com/vahapogut/CodeBudget/actions/runs/36776235535) passed all seven jobs (Linux, macOS and Windows on Node 22 and 24, plus the newest-client plugin contract); the failed intermediate runs and their fixes are listed in [verification](VERIFICATION.md). No model call, account link, global IDE change, npm publication or deployment took place.
 
 
 Repository hygiene follow-up, 2026-09-30: local agent instruction files are excluded from Git and release archives. Both existing local copies were preserved with unchanged SHA-256 hashes. `git ls-files` returns no tracked AGENTS.md; case-insensitive ignore checks passed, including nested paths under the bundled plugin. `pnpm verify` passed (244 tests, 2 Chromium tests, lint/types/build); `pnpm smoke:package` passed all 25 checks, including archive exclusion. This changes the current tree and future packaging; previous Git commits remain intact.
