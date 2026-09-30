@@ -40,7 +40,7 @@ The first test run exposed null-prototype TOML equality differences; structural 
 
 ## Unverified behavior
 
-Real Claude model-visible output substitution, actual Claude/Cursor/Antigravity MCP connections, current Cursor/Antigravity local versions, and measured provider/quota savings remain unverified. The later isolated Codex0.139.0 handshake and six-job installed-package matrix passed; their exact scope is recorded in VERIFICATION.md. The implementation keeps these distinct from contract-tested code paths. Output replacement accepts 2.1.216 and later 2.x releases because unknown response shapes still fall back to the original result; a new major version requires fixtures and separate client verification. The CI `claude-contract` job validates the installed plugin against the newest published client on every push.
+Real Claude model-visible output substitution, actual Claude/Cursor/Antigravity MCP connections, current Cursor/Antigravity local versions, and measured provider/quota savings remain unverified. The later isolated Codex0.139.0 handshake and six-job installed-package matrix passed; their exact scope is recorded in VERIFICATION.md. The implementation keeps these distinct from contract-tested code paths. Output replacement accepts 2.1.216 and later 2.x releases because unknown response shapes still fall back to the original result; a new major version requires fixtures and separate client verification. The CI `plugin-contract` job validates the installed plugin against the newest published client on every push.
 
 ## Usage and lifecycle roadmap follow-up
 

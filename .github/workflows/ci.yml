@@ -36,9 +36,9 @@ jobs:
             playwright-report/
             test-results/
             dist/*.tgz
-  # Exercises the native plugin against the newest Claude Code release: manifest validation and
+  # Exercises the native plugin against the newest published client release: manifest validation and
   # local hook-protocol fixtures only. No model request, login or API key is involved.
-  claude-contract:
+  plugin-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,5 +58,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: evidence-claude-latest
+          name: evidence-plugin-latest
           path: dist/package-smoke-result.json
