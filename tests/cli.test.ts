@@ -104,3 +104,22 @@ it('MCP server exits instead of hanging after an oversized request line', async 
   if (code === 'timeout') child.kill();
   expect(code).toBe(1);
 }, 20000);
+it('CLI validates parsers, forwards piped stdin and prints complete run records on request', () => {
+  const root = setup(); expect(run(root, ['init']).status).toBe(0);
+  const unknown = run(root, ['run', '--parser', 'pytest', '--', process.execPath, '-e', '0']);
+  expect(unknown.status).toBe(1); expect(unknown.stderr).toContain('Unknown parser pytest');
+  const echo = ['-e', 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log("got:"+s.trim()))'];
+  const piped = run(root, ['run', '--json', '--', process.execPath, ...echo], 'hello pipeline');
+  expect(piped.status).toBe(0); const result = JSON.parse(piped.stdout) as { id: string; output: string };
+  expect(result.output).toContain('got:hello pipeline');
+  expect(run(root, ['run', '--no-stdin', '--', process.execPath, ...echo], 'ignored').stdout).toContain('got:');
+  expect(run(root, ['run', '--no-stdin', '--', process.execPath, ...echo], 'ignored').stdout).not.toContain('ignored');
+  expect((JSON.parse(run(root, ['report', '--run', result.id]).stdout) as { output: string }).output).toContain('got:hello pipeline');
+}, 60000);
+it('CLI reports readable configuration errors and actionable doctor warnings', () => {
+  const root = setup(); expect(run(root, ['init']).status).toBe(0);
+  const invalid = run(root, ['config', 'mode', 'turbo']);
+  expect(invalid.status).toBe(1); expect(invalid.stderr).toContain('mode must be observe, balanced or experimental'); expect(invalid.stderr).not.toContain('"code"');
+  const doctor = JSON.parse(run(root, ['doctor']).stdout) as { warnings: string[] };
+  expect(doctor.warnings.join(' ')).toContain('Mode is observe');
+}, 60000);

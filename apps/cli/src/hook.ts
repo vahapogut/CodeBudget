@@ -12,16 +12,7 @@ export function detectVersion(client: string, env: NodeJS.ProcessEnv = process.e
   return probe.status === 0 ? probe.stdout.match(/\b\d+\.\d+\.\d+\b/)?.[0] ?? null : null;
 }
 
-export async function readStdin(maxBytes = 2 * 1024 * 1024): Promise<string> {
-  const chunks: Buffer[] = []; let size = 0;
-  for await (const value of process.stdin) {
-    const chunk = Buffer.isBuffer(value) ? value : Buffer.from(value);
-    size += chunk.length;
-    if (size > maxBytes) throw new Error('Input exceeds limit');
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks).toString('utf8');
-}
+export { readStdin } from './io.js';
 
 const LIFECYCLE_EVENTS = new Set(['SessionStart', 'PreCompact', 'PostCompact', 'SessionEnd']);
 /** Parse first, so unhandled events never open the store or probe the client binary. */

@@ -1,6 +1,6 @@
 {
   "name": "codebudget",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "Local evidence-preserving output reduction and task-focused source retrieval. Beta; native Bash replacement is contract-tested on Claude Code 2.1.216.",
   "author": { "name": "vahapogut" },
   "homepage": "https://github.com/vahapogut/CodeBudget",

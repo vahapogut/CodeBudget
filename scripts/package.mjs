@@ -22,7 +22,8 @@ export async function packRelease() {
       author: 'vahapogut', repository: manifest.repository, engines: manifest.engines, bin: manifest.bin,
       exports: { './core': './dist/core.mjs', './benchmarks': './dist/benchmarks.mjs' },
       files: ['dist', 'plugins', 'docs', 'examples', '*.md', 'LICENSE', 'LEGACY_LICENSE', 'NOTICE'],
-      dependencies: { typescript: manifest.devDependencies.typescript },
+      // Only the optional task evaluators compile TypeScript; the CLI, MCP server and plugin never need it.
+      peerDependencies: { typescript: manifest.devDependencies.typescript }, peerDependenciesMeta: { typescript: { optional: true } },
     }, null, 2) + '\n');
     await mkdir(path.join(root, 'dist'), { recursive: true });
     const pnpm = process.env.npm_execpath;

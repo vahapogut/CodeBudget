@@ -14,7 +14,13 @@ const project = await mkdtemp(path.join(tmpdir(), 'codebudget-installed-'));
 const pnpm = process.env.npm_execpath;
 let dashboard;
 const record = { schemaVersion: 1, archive: path.basename(archive), platform: process.platform, runtime: process.version, results: [], modelCalls: 0, globalChanges: false };
-const check = (name, fn) => { const value = fn(); record.results.push({ name, passed: true }); return value; };
+// A failing check is recorded before it stops the run, so the result file never looks like a clean pass.
+const check = (name, fn) => {
+  try { const value = fn(); record.results.push({ name, passed: true }); return value; }
+  catch (error) { record.results.push({ name, passed: false, error: String(error instanceof Error ? error.message : error).slice(0, 500) }); throw error; }
+};
+// Evidence under docs/ changes only on an explicit `pnpm smoke:package --record`.
+const resultFile = process.argv.includes('--record') ? 'docs/package-smoke-result.json' : 'dist/package-smoke-result.json';
 try {
   await writeFile(path.join(project, 'package.json'), '{"name":"clean-codebudget-smoke","private":true,"type":"module"}');
   const install = spawnSync(process.execPath, [pnpm, 'add', archive, '--ignore-scripts'], { cwd: project, encoding: 'utf8', shell: false, windowsHide: true, timeout: 120000 });
@@ -125,10 +131,16 @@ try {
   const licenseFiles = [...distributionLicenseFiles, ...licenseInventory.entries.flatMap(entry => entry.notices)];
   const licenseContents = await Promise.all(licenseFiles.map(file => readFile(path.join(plugin, file), 'utf8')));
   check('installed standalone plugin license inventory and texts', () => { assert.ok(licenseInventory.entries.length > 0); assert.ok(licenseContents.every(text => text.length > 0)); });
+  // The installed product decides support itself, exactly as the plugin will at runtime.
+  const claude = JSON.parse(run(['adapters', 'inspect'])).find(item => item.client === 'claude');
+  const version = claude?.clientVersion ?? null;
+  const isSupportedClaudeVersion = () => claude?.capabilities.toolOutputReplacement.support === 'supported';
+  record.claudeVersion = version;
   const validated = spawnSync('claude', ['plugin', 'validate', '--strict', plugin], { encoding: 'utf8', shell: false, windowsHide: true, timeout: 20000 });
-  record.results.push({ name: 'installed native Claude manifest validation', passed: validated.status === 0, unavailable: Boolean(validated.error) });
-  if (!validated.error) assert.equal(validated.status, 0, validated.stderr + validated.stdout);
-  if (!validated.error) {
+  if (validated.error || !version) record.results.push({ name: 'installed native Claude manifest validation', passed: false, unavailable: true, reason: 'Claude Code CLI not installed' });
+  else check('installed native Claude manifest validation', () => assert.equal(validated.status, 0, validated.stderr + validated.stdout));
+  if (version && !isSupportedClaudeVersion(version)) record.results.push({ name: 'installed native Claude hook checks', passed: false, unavailable: true, reason: `Claude Code ${version} is outside the supported hook contract range` });
+  if (!validated.error && version && isSupportedClaudeVersion(version)) {
     run(['config', 'mode', 'balanced']);
     const nested = path.join(project, 'nested'); await mkdir(nested);
     const lifecycle = spawnSync(process.execPath, [path.join(plugin, 'dist/hook.mjs')], { cwd: nested, input: JSON.stringify({ hook_event_name: 'SessionStart', session_id: 'local-protocol-test', cwd: nested }), encoding: 'utf8', shell: false, windowsHide: true, timeout: 20000 });
@@ -167,9 +179,14 @@ try {
     } finally { await pluginClient.close(); }
   }
   console.log(JSON.stringify(record, null, 2));
+} catch (error) {
+  process.exitCode = 1;
+  if (!record.results.some(item => item.passed === false && !item.unavailable)) record.results.push({ name: 'unexpected smoke failure', passed: false, error: String(error instanceof Error ? error.message : error).slice(0, 500) });
+  process.stderr.write(`${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
 } finally {
   if (dashboard && dashboard.exitCode === null) { dashboard.kill(); await new Promise(resolve => dashboard.once('close', resolve)); }
-  await writeFile('docs/package-smoke-result.json', JSON.stringify(record, null, 2) + '\n');
+  record.passed = record.results.every(item => item.passed || item.unavailable);
+  await writeFile(resultFile, JSON.stringify(record, null, 2) + '\n');
   if (path.dirname(path.resolve(project)) === path.resolve(tmpdir()) && path.basename(project).startsWith('codebudget-installed-')) await rm(project, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
   else process.stderr.write('Refused unsafe package smoke cleanup path\n');
 }

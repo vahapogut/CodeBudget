@@ -24,13 +24,39 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install chromium --with-deps
       - run: pnpm verify
+      # The committed standalone plugin bundle must be exactly what the source builds.
+      - run: git diff --exit-code
       - run: pnpm smoke:package
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: evidence-${{ matrix.os }}-node${{ matrix.node }}
           path: |
-            docs/package-smoke-result.json
+            dist/package-smoke-result.json
             playwright-report/
             test-results/
             dist/*.tgz
+  # Exercises the native plugin against the newest Claude Code release: manifest validation and
+  # local hook-protocol fixtures only. No model request, login or API key is involved.
+  claude-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npm install --global @anthropic-ai/claude-code@latest
+      - run: claude --version
+      - run: pnpm build
+      - run: pnpm smoke:package
+      - run: node -e "const r = require('./dist/package-smoke-result.json'); if (!r.passed || r.results.some(item => item.unavailable)) { console.error(JSON.stringify(r.results.filter(item => !item.passed), null, 2)); process.exit(1); }"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-claude-latest
+          path: dist/package-smoke-result.json

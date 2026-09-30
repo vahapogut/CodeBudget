@@ -1,6 +1,6 @@
 {
   "name": "codebudget",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "description": "Local-first evidence and context budgets for coding agents",
   "type": "module",
   "private": true,
