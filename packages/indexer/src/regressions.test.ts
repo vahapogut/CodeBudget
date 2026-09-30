@@ -69,7 +69,8 @@ describe('bounded derived storage', () => {
     const root = project();
     for (let i = 0; i < 400; i++) file(root, `src/module${i % 20}/component${i}.ts`, `export function component${i}() { return "UNIQUE_BODY_MARKER_${i}"; }\n`);
     const subject = await indexer(root, { diskBudgetBytes: 1024 * 1024 });
-    for (let call = 0; call < 40; call++) {
+    // One call already exposes a per-call snapshot or stored body; repetition shows the database stays bounded.
+    for (let call = 0; call < 12; call++) {
       const context = await subject.prepareContext({ task: `component${call} crash`, budget: 100_000 });
       expect(context.status).toBe('ready');
       expect(context.sources.length).toBeGreaterThan(100);

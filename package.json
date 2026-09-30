@@ -27,7 +27,7 @@
   ],
   "scripts": {
     "dev": "tsx apps/cli/src/index.ts",
-    "test": "vitest run",
+    "test": "vitest run && vitest run --config vitest.performance.config.ts",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint apps packages scripts tests --no-error-on-unmatched-pattern",

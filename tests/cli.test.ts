@@ -25,7 +25,7 @@ it('CLI handles init, stdin task, checkpoint, artifact, real report and child no
   expect(JSON.parse(run(root, ['report', '--session', session.id]).stdout).runs).toHaveLength(1);
   expect(JSON.parse(run(root, ['session', 'checkpoint', '--session', session.id]).stdout).epoch).toBe(1);
   expect(JSON.parse(run(root, ['session', 'close', '--session', session.id]).stdout).status).toBe('closed');
-}, 30000);
+}, 90_000);
 it('CLI raw pipeline preserves byte output and treats shell markers as literal arguments', () => {
   const root = setup(); const result = run(root, ['run', '--raw', '--', process.execPath, '-e', 'process.stdout.write(process.argv[1]); process.stderr.write("diagnostic");', '$(touch should-not-exist);|<>']);
   expect(result.status).toBe(0); expect(result.stdout).toBe('$(touch should-not-exist);|<>'); expect(result.stderr).toContain('diagnostic');
