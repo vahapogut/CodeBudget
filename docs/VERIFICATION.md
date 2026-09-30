@@ -1,6 +1,33 @@
 # Verification record
 
-Date: 2026-09-30. Current product: 0.1.0-beta.2. Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+Date: 2026-09-30. Current product: 0.1.0-beta.3 (unreleased). Only executed checks are reported as passed. The real Claude model-visible acceptance gate remains open.
+
+## Review follow-up: 0.1.0-beta.3
+
+A full review found defects in storage bounds, the command runner, redaction, the native hook's version gate, MCP and dashboard limits, reducers and their validator, the indexer, adapter installs and Codex usage imports. The fixes and their user-visible effects are listed in the [changelog](../CHANGELOG.md); each area gained regression tests that fail on the previous code where the defect was observable.
+
+Environment: Linux container, Node v22.22.2, pnpm 10.33.2, Claude Code 2.1.285 on `PATH`, Claude Code 2.1.286 installed from the npm registry into a temporary directory. No login, API key or model request was used.
+
+| Executed command | Actual result |
+|---|---|
+| `pnpm install --frozen-lockfile` | Passed. |
+| `pnpm lint` | Exit 0. |
+| `pnpm typecheck` | Exit 0. |
+| `pnpm test` | 28 Vitest files, 521 tests passed. |
+| `pnpm build` | Passed; a rebuild leaves the committed plugin bundles unchanged. |
+| `pnpm test:e2e` | 2 Chromium tests passed, using a temporary Playwright configuration that points at the container's preinstalled Chromium because Playwright's own browser build is not installed here. CI runs the repository configuration. |
+| `pnpm smoke:package --record` | 26 installed-package checks passed with Claude Code 2.1.285; [package-smoke-result.json](package-smoke-result.json). |
+| `pnpm smoke:package` with 2.1.286 first on `PATH` | 26 checks passed; none unavailable. |
+| `claude plugin validate --strict ./plugins/claude-codebudget` | Passed with 2.1.285 and 2.1.286. |
+| `pnpm audit --json` | Zero known advisories, 624 dependencies; identical to [dependency-audit.json](dependency-audit.json). |
+| `git diff --check` | Clean. |
+
+Replay figures now use automatic format detection, as the runner and the hook do; hinted figures are identical for this corpus and are reported separately in [replay-final.json](replay-final.json). Synthetic: 22,881 → 3,696 content bytes (83.8469%), envelopes 8,819 bytes. Captured: 6,819 → 5,809 (14.8116%), envelopes 10,420 bytes. All 19 preservation checks passed. Five captures that previously "gained" only through blank-line, CRLF or final-newline removal now report no gain.
+
+The Codex usage correction was checked against pinned 0.139.0 source: the exec JSON processor fills `turn.completed.usage` from the thread's running total (`usage_from_last_total`), `TokenUsageInfo.append_last_usage` accumulates it, and resume/fork reconstruction seeds it from the last rollout `TokenCount` event. Claude Code's MCP documentation states that spawned servers receive `CLAUDE_PROJECT_DIR`; whether Codex, Cursor and Antigravity start servers inside the project was not verified.
+
+Remote CI on `proje-kontrolu-eksiklikler`: [run 36772598643](https://github.com/vahapogut/CodeBudget/actions/runs/36772598643) passed all seven jobs on commit 3e7346c, which carries every change except the indexer rewrite: `pnpm verify`, the clean-tree check after the build and `pnpm smoke:package` on Linux, macOS and Windows with Node 22 and 24, plus the `plugin-contract` job against the newest published client. Earlier on this work a Windows run failed because a test emitted 3,000 lines from a zero-delay interval, which runs at the OS timer resolution there, and every evidence batch paid a full sync; both causes were fixed before the passing runs. Beta.2 commits b4f7833 ([run 36623125432](https://github.com/vahapogut/CodeBudget/actions/runs/36623125432)) and 8a9c7df ([run 36656398283](https://github.com/vahapogut/CodeBudget/actions/runs/36656398283)) also passed CI.
+
 
 ## Local instruction file exclusion
 
@@ -115,12 +142,12 @@ Bytes are local measurements; replay tokens are local estimates; context may use
 
 | Client | Observed version | Executed checks | Not executed |
 |---|---|---|---|
-| Claude Code | 2.1.216 | 44 adapter/hook tests, strict manifest, installed standalone hook/MCP/archive smoke | Real model-facing replacement/consumption acceptance |
+| Claude Code | 2.1.216, 2.1.285, 2.1.286 | 109 adapter, hook and installer tests, strict manifest, installed standalone hook/MCP/archive smoke with 2.1.285 and 2.1.286 | Real model-facing replacement/consumption acceptance |
 | Codex CLI | 0.139.0 | Actual app-server MCP handshake/discovery, config contracts and usage importer tests | Tool use through a model session, real usage capture and quality |
 | Cursor | Unknown | Project-config contracts | Version/client launch/live MCP |
 | Antigravity | Unknown | Project-config contracts | Version/client launch/live MCP |
 
-Unknown native hook versions decline semantic replacement. MCP does not intercept all built-in client tools. See [ADAPTERS.md](ADAPTERS.md) and [official-source research](RESEARCH_ADAPTERS.md).
+Output replacement accepts 2.1.216 and later 2.x releases; other versions and unrecognized response shapes decline semantic replacement and record the reason. MCP does not intercept all built-in client tools. See [ADAPTERS.md](ADAPTERS.md) and [official-source research](RESEARCH_ADAPTERS.md).
 
 ## Remaining limits
 

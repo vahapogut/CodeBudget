@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "archive": "codebudget-0.1.0-beta.2.tgz",
-  "platform": "win32",
-  "runtime": "v22.16.0",
+  "archive": "codebudget-0.1.0-beta.3.tgz",
+  "platform": "linux",
+  "runtime": "v22.22.2",
   "results": [
     {
       "name": "clean tarball install without native build scripts",
@@ -61,6 +61,10 @@
       "passed": true
     },
     {
+      "name": "installed dashboard link is single-use",
+      "passed": true
+    },
+    {
       "name": "installed dashboard static assets",
       "passed": true
     },
@@ -82,8 +86,7 @@
     },
     {
       "name": "installed native Claude manifest validation",
-      "passed": true,
-      "unavailable": false
+      "passed": true
     },
     {
       "name": "installed plugin overhead measured without injected context",
@@ -107,5 +110,7 @@
     }
   ],
   "modelCalls": 0,
-  "globalChanges": false
+  "globalChanges": false,
+  "claudeVersion": "2.1.285",
+  "passed": true
 }
